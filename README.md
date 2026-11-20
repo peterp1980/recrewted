@@ -10,20 +10,44 @@ Neubau der Recruiting-Plattform recrewted.de – vorqualifizierte Kandidaten zum
 | `docs/lastenheft-mvp.md` | Verbindlicher Umfang des MVP mit Akzeptanzkriterien |
 | `docs/tracking.md` | Tracking- und Attributionskonzept (Kurzfassung) |
 | `docs/preise.md` | Preismodelle, die das System abbilden muss |
-| `supabase/migrations/0001_init.sql` | Startschema mit Row Level Security (lokal getestet) |
+| `docs/projektplan.md` | Reihenfolge, Aufwand, benötigte Zugänge |
+| `supabase/migrations/0001_init.sql` | Startschema mit Row Level Security |
+| `supabase/tests/` | Tests der Zugriffsregeln je Rolle (gegen echtes Postgres) |
+| `src/` | Next.js-App (App Router, TypeScript, Tailwind) |
 
-## Start in Claude Code
+## Entwicklung
 
-1. Neues privates GitHub-Repository `recrewted` anlegen und diesen Ordner hineinpushen:
-   ```bash
-   git init -b main && git add -A && git commit -m "Start"
-   git remote add origin git@github.com:<org>/recrewted.git
-   git push -u origin main
-   ```
-2. Ordner in Claude Code öffnen (`claude` im Terminal im Projektordner).
-3. Ersten Prompt verwenden:
+Voraussetzungen: Node 22, ein lokales Postgres 16 (oder Docker) für die Datenbanktests.
 
-> Lies CLAUDE.md und docs/lastenheft-mvp.md. Schlag mir zuerst einen Projektplan für das MVP vor: Ordnerstruktur, Stack-Bestätigung, Reihenfolge der Features mit grober Aufwandsschätzung in Tagen und welche Zugänge du von mir brauchst. Danach richte das Projekt ein: Next.js mit TypeScript, Supabase-Anbindung, die Migration 0001_init.sql, Tests für die Zugriffsregeln und ein erstes Deployment auf Vercel in fra1. Frag nach, bevor du kostenpflichtige Ressourcen anlegst.
+```bash
+npm ci
+```
+
+```bash
+cp .env.example .env.local
+```
+
+```bash
+npm run dev
+```
+
+Prüfungen (laufen auch in GitHub Actions bei jedem Push):
+
+```bash
+npm run lint && npm run typecheck && npm test && npm run test:db && npm run build
+```
+
+`npm run test:db` legt eine frische Datenbank an, spielt einen Supabase-Ersatz (`supabase/tests/supabase-stub.sql`) und alle Migrationen ein und prüft die Rechte von Admin, Recruiter, Kunde und anonymen Besuchern. Verbindung über `TEST_DATABASE_URL`. Postgres per Docker:
+
+```bash
+docker run -d --name recrewted-pg -e POSTGRES_HOST_AUTH_METHOD=trust -p 54329:5432 postgres:16
+```
+
+## Einstellungen in Supabase (beim Anlegen des Projekts)
+
+- Region `eu-central-1` (Frankfurt)
+- Auth → öffentliche Registrierung **aus**; Kunden und Team werden eingeladen. Neue Nutzer bekommen automatisch die Rolle `customer`, Team-Rollen vergibt ein Admin.
+- Migrationen aus `supabase/migrations/` einspielen
 
 ## Zugänge, die gebraucht werden
 

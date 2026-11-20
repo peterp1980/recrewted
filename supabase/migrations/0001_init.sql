@@ -327,17 +327,28 @@ language sql stable security definer set search_path = public as $$
   )
 $$;
 
--- Kunden sehen Bewerbungen erst ab der Shortlist.
+-- Customers see an application once it has been shortlisted, and keep seeing it
+-- afterwards (e.g. after they reject it), so their own feedback stays visible.
 create or replace function public.customer_can_see_application(a uuid) returns boolean
 language sql stable security definer set search_path = public as $$
   select exists (
     select 1 from public.applications ap
     join public.vacancies v on v.id = ap.vacancy_id
     where ap.id = a
-      and ap.status in ('shortlisted', 'interview', 'hired')
+      and ap.shortlisted_at is not null
       and public.is_org_member(v.organization_id)
   )
 $$;
+
+-- RLS helpers are for signed-in users only, not callable by anon via the API.
+revoke execute on function
+  public.app_role(), public.is_staff(), public.is_admin(),
+  public.is_org_member(uuid), public.can_see_vacancy(uuid), public.customer_can_see_application(uuid)
+  from public, anon;
+grant execute on function
+  public.app_role(), public.is_staff(), public.is_admin(),
+  public.is_org_member(uuid), public.can_see_vacancy(uuid), public.customer_can_see_application(uuid)
+  to authenticated, service_role;
 
 create or replace function public.touch_updated_at() returns trigger
 language plpgsql as $$
@@ -349,6 +360,40 @@ $$;
 
 create trigger vacancies_touch before update on public.vacancies
   for each row execute function public.touch_updated_at();
+
+-- Keep milestone timestamps in sync with the status, whoever changes it.
+create or replace function public.applications_status_timestamps() returns trigger
+language plpgsql as $$
+begin
+  if new.status in ('shortlisted', 'interview', 'hired') and new.shortlisted_at is null then
+    new.shortlisted_at = now();
+  end if;
+  if new.status = 'hired' and new.hired_at is null then
+    new.hired_at = now();
+  end if;
+  return new;
+end;
+$$;
+
+create trigger applications_status_timestamps before insert or update of status on public.applications
+  for each row execute function public.applications_status_timestamps();
+
+-- Every new auth user gets a profile with the least-privileged role.
+-- Staff roles are granted by an admin. Public sign-up must be disabled in
+-- Supabase Auth (invite only), see README.
+create or replace function public.handle_new_user() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.profiles (id, role, full_name)
+  values (new.id, 'customer', new.raw_user_meta_data ->> 'full_name')
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+
+create trigger on_auth_user_created after insert on auth.users
+  for each row execute function public.handle_new_user();
 
 -- ---------------------------------------------------------------
 -- Row Level Security
@@ -376,7 +421,9 @@ alter table public.consents enable row level security;
 alter table public.ai_recommendations enable row level security;
 alter table public.audit_log enable row level security;
 
--- Staff (admin, recruiter) darf überall alles, außer im Protokoll.
+-- Staff: admin and recruiter read everything (except the audit log).
+-- Recruiters create and edit recruiting data; deletes are admin-only.
+-- Customers and their users (organizations, customer_members) are managed by admins only.
 do $$
 declare t text;
 begin
@@ -387,9 +434,20 @@ begin
     'customer_feedback', 'application_attribution', 'events', 'consents', 'ai_recommendations'
   ] loop
     execute format(
-      'create policy staff_all on public.%I for all to authenticated using (public.is_staff()) with check (public.is_staff())',
-      t
-    );
+      'create policy staff_read on public.%I for select to authenticated using (public.is_staff())', t);
+    execute format(
+      'create policy admin_delete on public.%I for delete to authenticated using (public.is_admin())', t);
+    if t in ('organizations', 'customer_members') then
+      execute format(
+        'create policy admin_insert on public.%I for insert to authenticated with check (public.is_admin())', t);
+      execute format(
+        'create policy admin_update on public.%I for update to authenticated using (public.is_admin()) with check (public.is_admin())', t);
+    else
+      execute format(
+        'create policy staff_insert on public.%I for insert to authenticated with check (public.is_staff())', t);
+      execute format(
+        'create policy staff_update on public.%I for update to authenticated using (public.is_staff()) with check (public.is_staff())', t);
+    end if;
   end loop;
 end $$;
 
@@ -416,10 +474,25 @@ create policy vacancies_member_create on public.vacancies for insert to authenti
 
 create policy briefings_member_read on public.vacancy_briefings for select to authenticated
   using (public.can_see_vacancy(vacancy_id));
+-- Customers may write the briefing only until the contract is signed;
+-- afterwards changes go through the recruiter (staff policies above).
 create policy briefings_member_write on public.vacancy_briefings for insert to authenticated
-  with check (public.can_see_vacancy(vacancy_id));
+  with check (exists (
+    select 1 from public.vacancies v
+    where v.id = vacancy_id and public.is_org_member(v.organization_id)
+      and v.status in ('draft', 'contract_pending')
+  ));
 create policy briefings_member_update on public.vacancy_briefings for update to authenticated
-  using (public.can_see_vacancy(vacancy_id)) with check (public.can_see_vacancy(vacancy_id));
+  using (exists (
+    select 1 from public.vacancies v
+    where v.id = vacancy_id and public.is_org_member(v.organization_id)
+      and v.status in ('draft', 'contract_pending')
+  ))
+  with check (exists (
+    select 1 from public.vacancies v
+    where v.id = vacancy_id and public.is_org_member(v.organization_id)
+      and v.status in ('draft', 'contract_pending')
+  ));
 
 create policy contracts_member_read on public.contracts for select to authenticated
   using (public.is_org_member(organization_id));
@@ -430,10 +503,9 @@ create policy criteria_member_read on public.scorecard_criteria for select to au
   using (public.can_see_vacancy(vacancy_id));
 create policy ads_member_read on public.job_ads for select to authenticated
   using (public.can_see_vacancy(vacancy_id));
-create policy campaigns_member_read on public.campaigns for select to authenticated
-  using (public.can_see_vacancy(vacancy_id));
-create policy costs_member_read on public.ad_costs for select to authenticated
-  using (exists (select 1 from public.campaigns c where c.id = campaign_id and public.can_see_vacancy(c.vacancy_id)));
+-- No customer access to campaigns (budget) or ad_costs: with fixed-price and
+-- media-markup pricing, raw media spend would reveal the margin. The portal
+-- shows "cost per qualified candidate" computed server-side from the price.
 create policy accounts_member_read on public.ad_accounts for select to authenticated
   using (organization_id is not null and public.is_org_member(organization_id));
 
