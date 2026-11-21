@@ -6,7 +6,11 @@ export type CareerSettings = {
   enabled: boolean;
   brandColor: string | null;
   tone: "sie" | "du";
+  /** Own domain for the career page, e.g. karriere.beispiel.de (0017). */
+  domain: string | null;
 };
+
+import { normalizeDomain } from "./domain";
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
@@ -30,7 +34,7 @@ export const imageUrl = (v: unknown): string | null => {
   return /^(https:\/\/[^\s"'<>]+|\/[^\s"'<>]*)$/.test(s) ? s : null;
 };
 
-export type SettingsInput = { ok: true; value: CareerSettings } | { ok: false; error: "slug" | "color" };
+export type SettingsInput = { ok: true; value: CareerSettings } | { ok: false; error: "slug" | "color" | "domain" };
 
 export function parseSettingsForm(form: FormData): SettingsInput {
   const slug = str(form.get("slug"), 60).toLowerCase();
@@ -39,7 +43,10 @@ export function parseSettingsForm(form: FormData): SettingsInput {
   if (color && !/^#[0-9a-fA-F]{6}$/.test(color)) return { ok: false, error: "color" };
   const enabled = form.get("enabled") === "on";
   if (enabled && !slug) return { ok: false, error: "slug" };
-  return { ok: true, value: { slug: slug || null, enabled, brandColor: color || null, tone: form.get("tone") === "du" ? "du" : "sie" } };
+  const domainRaw = str(form.get("domain"), 260);
+  const domain = domainRaw ? normalizeDomain(domainRaw) : null;
+  if (domainRaw && !domain) return { ok: false, error: "domain" };
+  return { ok: true, value: { slug: slug || null, enabled, brandColor: color || null, tone: form.get("tone") === "du" ? "du" : "sie", domain } };
 }
 
 /** Text colour that stays readable on the brand colour (WCAG relative luminance). */

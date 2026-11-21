@@ -7,6 +7,8 @@ import { embedCode, toSlug } from "@/lib/careers/profile";
 import { createClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/site";
 import { saveCareerSettings } from "../actions";
+import { dnsRecord } from "@/lib/careers/domain";
+import { domainStatus } from "@/lib/careers/vercel";
 
 export const metadata = { title: "Unternehmen – recrewted" };
 
@@ -22,7 +24,7 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
   const supabase = await createClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("id, name, website, slug, career_enabled, brand_color, candidate_tone, career_pages(status, published_at), vacancies(id, title, status)")
+    .select("id, name, website, slug, career_enabled, brand_color, candidate_tone, career_domain, career_pages(status, published_at), vacancies(id, title, status)")
     .eq("id", id)
     .maybeSingle();
   if (!org) notFound();
@@ -94,10 +96,17 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
               <label className="flex items-center gap-2"><input type="radio" name="tone" value="du" defaultChecked={org.candidate_tone === "du"} /> {t.toneDu}</label>
             </div>
           </fieldset>
+          <label className="grid gap-1">
+            <span className="font-medium">{t.domain}</span>
+            <span className="text-sm text-muted">{t.domainHint}</span>
+            <input name="domain" defaultValue={org.career_domain ?? ""} placeholder="karriere.beispiel.de" inputMode="url" autoCapitalize="none" spellCheck={false} className={field} />
+          </label>
           <button type="submit" className="btn-primary self-start">{t.save}</button>
         </fieldset>
         {readOnly && <p className="text-sm text-muted">{t.errors.forbidden}</p>}
       </form>
+
+      {org.career_domain && <DnsBox domain={org.career_domain} />}
 
       <section aria-labelledby="links" className="card flex flex-col gap-4">
         <h2 id="links" className="text-lg font-semibold">{t.links}</h2>
@@ -106,7 +115,7 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
             <p><a href={`/karriere/${org.slug}`} target="_blank" rel="noopener" className="btn-secondary py-2">{t.openPage}</a></p>
             <label className="grid gap-1">
               <span className="font-medium">{t.link}</span>
-              <input readOnly value={`${base}/karriere/${org.slug}`} className={`${field} font-mono text-sm`} />
+              <input readOnly value={org.career_domain ? `https://${org.career_domain}` : `${base}/karriere/${org.slug}`} className={`${field} font-mono text-sm`} />
             </label>
             <label className="grid gap-1">
               <span className="font-medium">{t.embed}</span>
@@ -119,5 +128,37 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
         )}
       </section>
     </main>
+  );
+}
+
+/** What the customer has to set at their DNS provider, and whether it works yet. */
+async function DnsBox({ domain }: { domain: string }) {
+  const t = getMessages().organizations;
+  const rec = dnsRecord(domain);
+  const status = await domainStatus(domain);
+  const tone = status.state === "ok" ? "bg-emerald-50 text-emerald-900" : status.state === "unknown" ? "bg-neutral-100 text-ink/80" : "bg-amber-50 text-amber-900";
+  const rows = [rec, ...status.verification.map((v) => ({ type: v.type, name: v.domain, value: v.value }))];
+  return (
+    <section aria-labelledby="dns-h" className="card flex flex-col gap-4">
+      <h2 id="dns-h" className="text-lg font-semibold">{t.dns}</h2>
+      <p role="status" className={`rounded-lg p-3 text-sm font-medium ${tone}`}>{t.domainState[status.state]}</p>
+      <p className="text-ink/80">{t.dnsLead(domain)}</p>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[480px] text-left text-sm">
+          <thead className="text-muted"><tr><th className="py-2 pr-4 font-medium">{t.dnsType}</th><th className="py-2 pr-4 font-medium">{t.dnsName}</th><th className="py-2 font-medium">{t.dnsValue}</th></tr></thead>
+          <tbody className="font-mono">
+            {rows.map((r, i) => (
+              <tr key={i} className="border-t border-neutral-200">
+                <td className="py-2 pr-4">{r.type}</td>
+                <td className="py-2 pr-4">{r.name}</td>
+                <td className="py-2 break-all">{r.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {status.verification.length > 0 && <p className="text-sm text-muted">{t.dnsVerify}</p>}
+      <p className="text-sm text-muted">{t.dnsNote}</p>
+    </section>
   );
 }

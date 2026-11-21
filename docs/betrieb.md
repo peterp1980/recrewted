@@ -29,6 +29,8 @@ Nur **prod** (Entscheidung 21.11.2026). Supabase `recrewted-dev` (Ref `emiuwcczc
 | `NEXT_PUBLIC_SITE_URL` | kanonische Adresse, z. B. `https://recrewted.de` | ab Domain |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`, `MAIL_REPLY_TO` | Mailversand | sobald Anbieter feststeht |
 | `META_*`, `TIKTOK_*`, `LINKEDIN_*`, `GOOGLE_ADS_*` | Conversions (F12) | sobald Konten angebunden |
+| `VERCEL_API_TOKEN` (geheim), `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID` | eigene Domains der Karriereseiten automatisch im Hosting anlegen und Status anzeigen | optional; ohne sie Domains von Hand in Vercel anlegen |
+| `VERCEL_DOMAIN_BRANCH` | Kunden-Domains an einen Branch binden (z. B. `mvp`), solange Produktion noch nicht auf `main` läuft | übergangsweise |
 
 Geheime Werte als „Sensitive“ anlegen. Rotieren: neuen Wert setzen, neu deployen; bei `DATA_REQUEST_SECRET` werden offene Links ungültig, bei `CRON_SECRET` nichts weiter.
 
@@ -38,3 +40,10 @@ Geheime Werte als „Sensitive“ anlegen. Rotieren: neuen Wert setzen, neu depl
 - Datenschutzerklärung und Impressum durch geprüfte Texte ersetzen (Seiten sind als Entwurf markiert)
 - Löschfristen mit dem DSB festlegen (`public.run_retention`-Parameter)
 - Supabase Auth: Registrierung aus, Site URL, Mail-Vorlagen (`supabase/templates/README.md`)
+
+## Eigene Domains für Karriereseiten
+
+1. Admin → Unternehmen → Einstellungen: Domain eintragen (z. B. `karriere.kunde.de`).
+2. Der Kunde legt beim Domain-Anbieter den angezeigten Eintrag an: Subdomain `CNAME → cname.vercel-dns.com`, Hauptdomain `A → 76.76.21.21`.
+3. Ist `VERCEL_API_TOKEN` gesetzt, wird die Domain beim Speichern im Vercel-Projekt angelegt und der Status angezeigt. Sonst die Domain in Vercel (Projekt → Domains) von Hand hinzufügen.
+4. Unter der Domain zeigt `/` die Karriereseite; Stellen, Bewerbung und Tests laufen unter derselben Domain. Admin, Portal und Login leiten auf recrewted um.

@@ -110,6 +110,8 @@ export type CareerPage = {
   website: string | null;
   brandColor: string | null;
   tone: "sie" | "du";
+  /** Own domain (0017); the page's main address when set. */
+  domain: string | null;
   doc: CareerDocument;
   jobs: PublicJob[];
 };
@@ -131,7 +133,7 @@ export async function jobsOfOrganization(organizationId: string): Promise<Public
 export async function getCareerPage(slug: string): Promise<CareerPage | null> {
   const { data: org } = await createAdminClient()
     .from("organizations")
-    .select("id, name, slug, website, brand_color, candidate_tone, career_pages(published)")
+    .select("id, name, slug, website, brand_color, candidate_tone, career_domain, career_pages(published)")
     .eq("slug", slug)
     .eq("career_enabled", true)
     .maybeSingle();
@@ -144,6 +146,7 @@ export async function getCareerPage(slug: string): Promise<CareerPage | null> {
     website: org.website,
     brandColor: org.brand_color,
     tone: org.candidate_tone === "du" ? "du" : "sie",
+    domain: org.career_domain,
     doc: sanitizeDocument(published),
     jobs: await jobsOfOrganization(org.id),
   };

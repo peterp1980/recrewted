@@ -27,8 +27,10 @@ describe("settings form", () => {
     expect(parseSettingsForm(form({ enabled: "on" }))).toEqual({ ok: false, error: "slug" });
     expect(parseSettingsForm(form({ slug: "projx", brandColor: "teal" }))).toEqual({ ok: false, error: "color" });
     expect(parseSettingsForm(form({ slug: "Projx", enabled: "on", brandColor: "#4dc3cb", tone: "du" }))).toEqual({
-      ok: true, value: { slug: "projx", enabled: true, brandColor: "#4dc3cb", tone: "du" },
+      ok: true, value: { slug: "projx", enabled: true, brandColor: "#4dc3cb", tone: "du", domain: null },
     });
+    expect(parseSettingsForm(form({ slug: "projx", domain: "https://Karriere.Projx.de/" }))).toMatchObject({ ok: true, value: { domain: "karriere.projx.de" } });
+    expect(parseSettingsForm(form({ slug: "projx", domain: "recrewted.de" }))).toEqual({ ok: false, error: "domain" });
   });
 });
 

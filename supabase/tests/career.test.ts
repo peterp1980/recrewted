@@ -99,3 +99,27 @@ describe("career page documents", () => {
       expect(await errorOf(c, () => c.query("update career_pages set draft = '[]' where organization_id = $1", [ORG]))).toMatch(/check constraint/);
     }));
 });
+
+describe("own domains (0017)", () => {
+  it("maps a published page's domain to its short name, for anyone", async () => {
+    await db.query("begin");
+    await db.query("update organizations set slug = 'projx', career_enabled = true, career_domain = 'karriere.projx.de' where id = $1", [ORG]);
+    await db.query("update career_pages set published = draft where organization_id = $1", [ORG]);
+    await db.query("set local role anon");
+    expect((await db.query("select public.career_slug_for_host('Karriere.Projx.de') as s")).rows[0].s).toBe("projx");
+    expect((await db.query("select public.career_slug_for_host('other.de') as s")).rows[0].s).toBeNull();
+    await db.query("rollback");
+  });
+
+  it("hides unpublished pages and rejects our own or invalid domains", async () => {
+    await db.query("begin");
+    await db.query("update organizations set slug = 'projx', career_enabled = false, career_domain = 'karriere.projx.de' where id = $1", [ORG]);
+    expect((await db.query("select public.career_slug_for_host('karriere.projx.de') as s")).rows[0].s).toBeNull();
+    for (const d of ["recrewted.de", "x.recrewted.de", "a.vercel.app", "Karriere.Projx.de", "kein host"]) {
+      await db.query("savepoint s");
+      await expect(db.query("update organizations set career_domain = $2 where id = $1", [ORG, d])).rejects.toThrow(/check constraint/);
+      await db.query("rollback to savepoint s");
+    }
+    await db.query("rollback");
+  });
+});

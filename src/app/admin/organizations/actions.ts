@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireAccess } from "@/lib/auth/session";
 import { parseSettingsForm } from "@/lib/careers/profile";
+import { addDomain, removeDomain } from "@/lib/careers/vercel";
 import { createClient } from "@/lib/supabase/server";
 import { audit } from "@/lib/audit";
 
@@ -19,16 +20,23 @@ export async function saveCareerSettings(form: FormData) {
   const p = parsed.value;
 
   const supabase = await createClient();
+  const { data: before } = await supabase.from("organizations").select("career_domain").eq("id", id).maybeSingle();
   const { data, error } = await supabase
     .from("organizations")
-    .update({ slug: p.slug, career_enabled: p.enabled, brand_color: p.brandColor, candidate_tone: p.tone })
+    .update({ slug: p.slug, career_enabled: p.enabled, brand_color: p.brandColor, candidate_tone: p.tone, career_domain: p.domain })
     .eq("id", id)
     .select("slug")
     .maybeSingle();
-  if (error?.code === "23505") redirect(`${path}?error=slug`);
+  if (error?.code === "23505") redirect(`${path}?error=${error.message.includes("career_domain") ? "domainTaken" : "slug"}`);
   if (error || !data) redirect(`${path}?error=error`);
 
-  await audit(session.userId, "career_settings_saved", "organizations", id, { slug: p.slug, enabled: p.enabled, tone: p.tone });
+  // Register a new domain with the hosting (if the Vercel API is configured); drop the old one.
+  const old = before?.career_domain ?? null;
+  if (old !== p.domain) {
+    if (old) await removeDomain(old);
+    if (p.domain) await addDomain(p.domain);
+  }
+  await audit(session.userId, "career_settings_saved", "organizations", id, { slug: p.slug, enabled: p.enabled, tone: p.tone, domain: p.domain });
   revalidatePath(path);
   if (data.slug) {
     revalidatePath(`/karriere/${data.slug}`);

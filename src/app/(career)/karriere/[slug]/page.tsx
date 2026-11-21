@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t.metaTitle(page.name),
     description: t.metaDescription(page.name, page.jobs.length),
-    alternates: { canonical: `${siteUrl()}/karriere/${page.slug}` },
+    alternates: { canonical: page.domain ? `https://${page.domain}/` : `${siteUrl()}/karriere/${page.slug}` },
     openGraph: img ? { images: [{ url: img }] } : undefined,
   };
 }
