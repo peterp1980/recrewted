@@ -21,10 +21,18 @@ const nextConfig: NextConfig = {
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "X-Frame-Options", value: "DENY" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
+      // Nothing may be framed – except the job widget, which customers embed on their own sites.
+      {
+        source: "/((?!widget/).*)",
+        headers: [
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+        ],
+      },
+      { source: "/widget/:path*", headers: [{ key: "Content-Security-Policy", value: "frame-ancestors *" }] },
     ];
   },
 };

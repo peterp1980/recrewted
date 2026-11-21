@@ -3,6 +3,7 @@ import { fromStored } from "@/lib/briefing/schema";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { distanceKm, type PublicJob } from "./format";
 import { matchesText, type JobFilters } from "./filters";
+import { benefitsFromStored, type Benefit } from "@/lib/careers/profile";
 
 // The job board is public, but vacancies are not: this module reads active
 // vacancies with the service role and returns only public fields. Pricing,
@@ -101,4 +102,60 @@ export async function searchJobs(f: JobFilters): Promise<SearchResult> {
   }
   const start = (f.page - 1) * PAGE_SIZE;
   return { jobs: list.slice(start, start + PAGE_SIZE), total: list.length, origin: origin?.label ?? null, radiusApplied: Boolean(origin) };
+}
+
+export type CareerPage = {
+  name: string;
+  slug: string;
+  website: string | null;
+  headline: string | null;
+  intro: string | null;
+  benefits: Benefit[];
+  office: string | null;
+  contact: string | null;
+  brandColor: string | null;
+  jobs: PublicJob[];
+};
+
+/**
+ * Public career page of one customer: profile plus its active, non-confidential
+ * vacancies. Confidential searches never appear here, they would name the employer.
+ */
+export async function getCareerPage(slug: string): Promise<CareerPage | null> {
+  const admin = createAdminClient();
+  const { data: org } = await admin
+    .from("organizations")
+    .select("id, name, slug, website, career_enabled, career_headline, career_intro, career_benefits, career_office, career_contact, brand_color")
+    .eq("slug", slug)
+    .eq("career_enabled", true)
+    .maybeSingle();
+  if (!org || !org.slug) return null;
+  const { data, error } = await admin
+    .from("vacancies")
+    .select(COLUMNS)
+    .eq("organization_id", org.id)
+    .eq("status", "active")
+    .eq("employer_visible", true)
+    .not("salary_min", "is", null)
+    .not("salary_max", "is", null)
+    .order("published_at", { ascending: false });
+  if (error) throw new Error(`career page query failed: ${error.message}`);
+  return {
+    name: org.name,
+    slug: org.slug,
+    website: org.website,
+    headline: org.career_headline,
+    intro: org.career_intro,
+    benefits: benefitsFromStored(org.career_benefits),
+    office: org.career_office,
+    contact: org.career_contact,
+    brandColor: org.brand_color,
+    jobs: ((data ?? []) as unknown as Row[]).map(toPublic),
+  };
+}
+
+/** Slugs of published career pages, for the sitemap. */
+export async function careerSlugs(): Promise<string[]> {
+  const { data } = await createAdminClient().from("organizations").select("slug").eq("career_enabled", true).not("slug", "is", null);
+  return (data ?? []).flatMap((o) => (o.slug ? [o.slug] : []));
 }

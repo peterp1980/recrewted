@@ -6,6 +6,7 @@ import { idFromSlug, jobPath } from "@/lib/jobs/format";
 import { getPublicJob } from "@/lib/jobs/public";
 import { questionsForVacancy } from "@/lib/screening/load";
 import { ApplyForm } from "./ApplyForm";
+import { entryParam } from "@/lib/careers/profile";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -21,7 +22,9 @@ export default async function ApplyPage({ params, searchParams }: Props) {
   if (!job) notFound();
   const questions = await questionsForVacancy(id);
   const t = getMessages().apply;
-  const utm = Object.fromEntries(UTM.flatMap((k) => (typeof sp[k] === "string" ? [[k, (sp[k] as string).slice(0, 100)]] : [])));
+  const utm: Record<string, string> = Object.fromEntries(UTM.flatMap((k) => (typeof sp[k] === "string" ? [[k, (sp[k] as string).slice(0, 100)]] : [])));
+  const entry = entryParam(sp.quelle);
+  if (entry) utm.quelle = entry;
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-8">

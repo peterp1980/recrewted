@@ -146,9 +146,9 @@ export type Database = {
         Relationships: [{ foreignKeyName: "mail_outbox_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] }]
       }
       organizations: {
-        Row: { created_at: string; id: string; name: string; pipedrive_org_id: number | null; website: string | null }
-        Insert: { created_at?: string; id?: string; name: string; pipedrive_org_id?: number | null; website?: string | null }
-        Update: { created_at?: string; id?: string; name?: string; pipedrive_org_id?: number | null; website?: string | null }
+        Row: { created_at: string; id: string; name: string; pipedrive_org_id: number | null; website: string | null; slug: string | null; career_enabled: boolean; career_headline: string | null; career_intro: string | null; career_benefits: Json; career_office: string | null; career_contact: string | null; brand_color: string | null }
+        Insert: { created_at?: string; id?: string; name: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; career_headline?: string | null; career_intro?: string | null; career_benefits?: Json; career_office?: string | null; career_contact?: string | null; brand_color?: string | null }
+        Update: { created_at?: string; id?: string; name?: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; career_headline?: string | null; career_intro?: string | null; career_benefits?: Json; career_office?: string | null; career_contact?: string | null; brand_color?: string | null }
         Relationships: []
       }
       postal_codes: {

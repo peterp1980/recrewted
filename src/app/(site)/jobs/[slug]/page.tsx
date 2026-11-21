@@ -5,8 +5,9 @@ import { getMessages } from "@/i18n";
 import { descriptionSections, idFromSlug, jobPath, jobPostingJsonLd, jsonLdScript, salaryText } from "@/lib/jobs/format";
 import { getPublicJob } from "@/lib/jobs/public";
 import { siteUrl } from "@/lib/site";
+import { entryParam } from "@/lib/careers/profile";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = { params: Promise<{ slug: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
 const dateFmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "long", timeZone: "Europe/Berlin" });
 
@@ -33,8 +34,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function JobPage({ params }: Props) {
+export default async function JobPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  // Visitors from a customer's career page or widget keep that origin until they apply.
+  const entry = entryParam((await searchParams)?.quelle);
   const job = await load(slug);
   const canonical = jobPath(job);
   if (`/jobs/${slug}` !== canonical) permanentRedirect(canonical);
@@ -63,7 +66,7 @@ export default async function JobPage({ params }: Props) {
           </div>
         ))}
       </dl>
-      <ApplyBox href={`${canonical}/bewerben`} />
+      <ApplyBox href={`${canonical}/bewerben${entry ? `?quelle=${entry}` : ""}`} />
       {job.adText ? (
         <section className="flex flex-col gap-3">
           {job.adText.split(/\n{2,}/).map((p, i) => <p key={i} className="whitespace-pre-line">{p}</p>)}
@@ -74,7 +77,7 @@ export default async function JobPage({ params }: Props) {
           <ul className="ml-5 list-disc">{s.items.map((i) => <li key={i}>{i}</li>)}</ul>
         </section>
       ))}
-      <ApplyBox href={`${canonical}/bewerben`} />
+      <ApplyBox href={`${canonical}/bewerben${entry ? `?quelle=${entry}` : ""}`} />
       <p className="text-sm text-muted">{t.posted} {dateFmt.format(new Date(job.publishedAt))}</p>
     </main>
   );

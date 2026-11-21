@@ -1,5 +1,6 @@
 "use server";
 
+import { ENTRY_PARAM, entryParam } from "@/lib/careers/profile";
 import { randomUUID } from "node:crypto";
 import { after } from "next/server";
 import { cookies } from "next/headers";
@@ -84,6 +85,7 @@ export async function submitApplication(_prev: ApplyState, form: FormData): Prom
   const utm = (k: "utm_source" | "utm_medium" | "utm_campaign" | "utm_content") => values[k] || stored?.[k] || null;
 
   const knockedOut = ev.knockouts.length > 0;
+  const entry = entryParam(values.quelle);
   const mailData = { firstName: value.firstName, jobTitle: job.title, employer: job.employerName };
   const { data, error } = await admin.rpc("submit_application", {
     p: {
@@ -97,7 +99,7 @@ export async function submitApplication(_prev: ApplyState, form: FormData): Prom
       consent_version: CONSENT_VERSION,
       knockout_reasons: ev.knockouts,
       answers: [...ev.answers].map(([question_id, answer]) => ({ question_id, answer })),
-      entry_point: "jobboard",
+      entry_point: entry ? ENTRY_PARAM[entry] : "jobboard",
       utm_source: utm("utm_source"),
       utm_medium: utm("utm_medium"),
       utm_campaign: utm("utm_campaign"),
