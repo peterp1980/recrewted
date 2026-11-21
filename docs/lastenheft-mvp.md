@@ -138,7 +138,7 @@ Status einer Vakanz: `draft → contract_pending → active → paused → fille
 
 **F17 Rollen + Datenmodell** – wie Abschnitt 1–2, RLS-Tests für jede Rolle.
 
-**F18 Betrieb** – Vercel `fra1`, Supabase Frankfurt, tägliche Backups, Fehler-Monitoring, getrennte Umgebungen (dev/staging/prod).
+**F18 Betrieb** – Vercel `fra1`, Supabase Frankfurt, tägliche Backups, Fehler-Monitoring, eine Umgebung (prod); Entwicklung und Tests laufen lokal gegen Postgres (Entscheidung 21.11.2026, Kosten).
 
 **F19 Protokoll** – `audit_log` für Lesezugriffe auf Bewerberdaten und alle Änderungen an Bewerbungen, Bewertungen, Verträgen.
 

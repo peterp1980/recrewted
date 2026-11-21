@@ -43,12 +43,16 @@ npm run lint && npm run typecheck && npm test && npm run test:db && npm run buil
 docker run -d --name recrewted-pg -e POSTGRES_HOST_AUTH_METHOD=trust -p 54329:5432 postgres:16
 ```
 
-## Umgebungen
+## Umgebung
 
-| Umgebung | Supabase | Vercel |
-| --- | --- | --- |
-| dev/staging | `recrewted-dev` (Ref `emiuwcczcuxfqodqseew`, Frankfurt) | Projekt `recrewted`, Region `fra1`, https://recrewted-chi.vercel.app |
-| prod | noch nicht angelegt | noch nicht angelegt |
+Es gibt nur **prod** (Entscheidung 21.11.2026, Kosten):
+
+| | |
+| --- | --- |
+| Supabase | Projekt `recrewted-dev` (Ref `emiuwcczcuxfqodqseew`, Frankfurt) – trotz des Namens die Produktivdatenbank |
+| Vercel | Projekt `recrewted`, Region `fra1`, https://recrewted-chi.vercel.app |
+
+Entwickelt und getestet wird lokal (`npm run test:db` gegen Postgres). Migrationen gehen erst auf Supabase, wenn sie lokal grün sind. Vorschau-Deployments von Branches nutzen dieselbe Datenbank – dort keine Testdaten anlegen.
 
 `SUPABASE_SERVICE_ROLE_KEY` wird erst mit den ersten Server-Schreibzugriffen gebraucht und direkt in Vercel hinterlegt (nie im Repo).
 

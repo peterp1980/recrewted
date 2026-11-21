@@ -17,6 +17,7 @@ Der Bewertungsbogen ist das sichtbare Produkt. Alles, was ihn besser, schneller 
 | Code-Basis | Neubau. Kein Code aus LuxJobs, kein Replit. |
 | Daten | Keine Übernahme aus Sanity oder LuxJobs. |
 | Hosting | Vercel (Funktionen in `fra1`) + Supabase (Region Frankfurt, `eu-central-1`). Alles in der EU. |
+| Umgebungen | Nur **prod** (Kosten). Entwickeln und testen lokal gegen Postgres (`npm run test:db`); Migrationen erst lokal grün, dann auf prod. Keine Testdaten in prod. |
 | Zukauf | Kein Zukauf von Fachfunktionen: Multiposting, CV-Parsing, Kalender, WhatsApp werden selbst gebaut. Infrastruktur (Vercel, Supabase) und PandaDoc sind gesetzt. |
 | Verträge | PandaDoc für Angebot, AGB, AV-Vertrag, Auftragsbestätigung; signiertes PDF in die Kundenakte. |
 | CRM | Neue Pipeline „recrewted“ in Pipedrive; Deal ↔ Vakanz verknüpft. |
