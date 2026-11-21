@@ -201,7 +201,7 @@ describe("admin", () => {
       expect((await c.query("delete from candidates where id = $1", [CAND_SCREENING])).rowCount).toBe(1);
       expect(await errorOf(c, () => c.query("insert into customer_members values ($1, $2)", [ORG_B, U.customerA]))).toBeNull();
       expect((await c.query("update profiles set role = 'recruiter' where id = $1", [U.customerB])).rowCount).toBe(1);
-      expect(await count(c, "select * from audit_log")).toBe(1);
+      expect(await count(c, "select * from audit_log")).toBeGreaterThan(0);
     }));
 });
 

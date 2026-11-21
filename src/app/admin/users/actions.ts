@@ -6,16 +6,11 @@ import { parseInvite, isRole } from "@/lib/admin/invite";
 import { requireAccess } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { Json } from "@/lib/supabase/database.types";
+import { audit } from "@/lib/audit";
 
 const PATH = "/admin/users";
 function back(q: string): never {
   redirect(`${PATH}?${q}`);
-}
-
-async function audit(actor: string, action: string, table: string, recordId: string | null, details: Json) {
-  // audit_log has no insert policy for API roles; it is written with the service role.
-  await createAdminClient().from("audit_log").insert({ actor, action, table_name: table, record_id: recordId, details });
 }
 
 function adminClientOrNull() {
