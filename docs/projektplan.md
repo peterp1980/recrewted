@@ -34,7 +34,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | --- | --- | --- |
 | 0 | Grundgerüst, Migration, RLS-Tests, CI | erledigt |
 | 1 | F18 Fehler-Monitoring, Backups (nur eine Umgebung: prod) | 1 |
-| 2 | F17 Login (Magic Link, nur Einladung), Nutzerverwaltung Admin | 3 |
+| 2 | F17 Login (Magic Link, nur Einladung), Nutzerverwaltung Admin | in Arbeit (Branch `feature/login`) |
 | 3 | F19 Protokoll (Änderungen per Trigger, Lesezugriffe in der App) | 2 |
 | 4 | F13 Briefing → Suchprofil | 3 |
 | 5 | F16 PandaDoc (Vorlagen, Versand, Webhook, PDF in Storage) | 4 |

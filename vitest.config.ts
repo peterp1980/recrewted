@@ -1,9 +1,12 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
+
+const alias = { "@": fileURLToPath(new URL("./src", import.meta.url)) };
 
 export default defineConfig({
   test: {
     projects: [
-      { test: { name: "unit", include: ["src/**/*.test.ts"] } },
+      { resolve: { alias }, test: { name: "unit", include: ["src/**/*.test.ts"] } },
       { test: { name: "db", include: ["supabase/tests/**/*.test.ts"], fileParallelism: false, testTimeout: 20000, hookTimeout: 60000 } },
     ],
   },

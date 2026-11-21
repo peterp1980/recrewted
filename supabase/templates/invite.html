@@ -1,0 +1,7 @@
+<!-- Supabase → Authentication → Emails → "Invite user". Betreff: Ihr Zugang zu recrewted -->
+<p>Guten Tag,</p>
+<p>wir haben für Sie einen Zugang zu recrewted eingerichtet. Mit diesem Link melden Sie sich an – ein Passwort brauchen Sie nicht:</p>
+<p><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=invite">Zugang öffnen</a></p>
+<p>Der Link gilt 24 Stunden. Später melden Sie sich über {{ .SiteURL }}/login an; wir schicken Ihnen dann jedes Mal einen neuen Link.</p>
+<p>Bei Fragen antworten Sie einfach auf diese E-Mail.</p>
+<p>Viele Grüße<br>Ihr recrewted-Team</p>
