@@ -1,3 +1,4 @@
+import { AiRatingPanel, loadOpenRating } from "@/components/AiRatingPanel";
 import { BookingBox } from "@/components/BookingBox";
 import { WhatsAppLog } from "@/components/WhatsAppLog";
 import { CandidateComments } from "@/components/CandidateComments";
@@ -19,14 +20,14 @@ import { CandidateMail } from "@/components/CandidateMail";
 import { AssessmentResults } from "@/components/AssessmentResults";
 import { saveRatings, setApplicationStatus } from "@/app/application-actions";
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ s?: string; m?: string; x?: string; link?: string; ats?: string; cm?: string; bk?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ s?: string; m?: string; x?: string; link?: string; ats?: string; cm?: string; bk?: string; ki?: string }> };
 
 export const metadata = { title: "Bewerbung – recrewted" };
 
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
 
 export default async function ApplicationPage({ params, searchParams }: Props) {
-  const [{ id }, { s, m, x, link, ats, cm, bk }] = await Promise.all([params, searchParams]);
+  const [{ id }, { s, m, x, link, ats, cm, bk, ki }] = await Promise.all([params, searchParams]);
   if (!isUuid(id)) notFound();
   const session = await requireAccess("/admin");
   const msg = getMessages();
@@ -36,7 +37,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
   const supabase = await createClient();
   const { data: app } = await supabase
     .from("applications")
-    .select("id, status, submitted_at, cv_storage_path, knockout_reasons, vacancy_id, candidate_id, candidates(first_name, last_name, email, phone, talent_pool_consent_at), vacancies(title), application_attribution(entry_point, channel, utm_source, utm_medium, utm_campaign)")
+    .select("id, status, submitted_at, cv_storage_path, knockout_reasons, vacancy_id, candidate_id, candidates(first_name, last_name, email, phone, talent_pool_consent_at), vacancies(title, organization_id), application_attribution(entry_point, channel, utm_source, utm_medium, utm_campaign)")
     .eq("id", id)
     .maybeSingle();
   if (!app) notFound();
@@ -67,6 +68,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
     suggestions.set(q.criterion_id, [...(suggestions.get(q.criterion_id) ?? []), { question: q.question, answer: answerText(a.answer), rating }]);
   }
   const missing = (m ?? "").split(",");
+  const openAi = await loadOpenRating(id);
   const att = app.application_attribution;
   const c = app.candidates;
   const rated = scorecard?.criteria.filter((x) => x.rating !== null).length ?? 0;
@@ -130,7 +132,10 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
       <WhatsAppLog candidateId={app.candidate_id} />
       <CandidateComments applicationId={id} staff status={cm} />
 
-      <section aria-labelledby="sc-h" className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-white p-4">
+      {scorecard?.criteria.length && app.vacancies ? (
+        <AiRatingPanel applicationId={id} organizationId={app.vacancies.organization_id} criteria={scorecard.criteria.map((cr) => ({ id: cr.id, name: cr.name }))} status={ki} />
+      ) : null}
+      <section id="bewertung" aria-labelledby="sc-h" className="flex scroll-mt-20 flex-col gap-3 rounded-2xl border border-neutral-200 bg-white p-4">
         <h2 id="sc-h" className="text-xl font-semibold">{st.title}</h2>
         {!scorecard?.criteria.length ? <p className="text-muted">{st.noCriteria}</p> : (
           <>
@@ -138,6 +143,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
             <p className="text-sm text-muted">{st.progress(rated, scorecard.criteria.length)}</p>
             <form action={saveRatings} className="flex flex-col gap-4">
               <input type="hidden" name="applicationId" value={id} />
+              {openAi && <input type="hidden" name="aiRecId" value={openAi.id} />}
               {scorecard.criteria.map((cr) => (
                 <fieldset key={cr.id} className={`grid gap-2 rounded-lg p-3 ${missing.includes(cr.id) ? "bg-red-50" : "bg-white"}`}>
                   <legend className="font-medium">{cr.name} <span className="text-sm font-normal text-neutral-500">({st.weight} {cr.weight})</span></legend>

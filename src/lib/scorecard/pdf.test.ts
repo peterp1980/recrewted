@@ -19,7 +19,7 @@ describe("scorecard PDF", () => {
       score: 4.33,
       criteria: Array.from({ length: 12 }, (_, i) => ({
         id: String(i), name: `Kriterium ${i}`, description: null, weight: 1 + (i % 3),
-        rating: i % 6 === 5 ? null : 1 + (i % 5), reason: "Sehr ausführliche Begründung ".repeat(12), ratedAt: null,
+        rating: i % 6 === 5 ? null : 1 + (i % 5), reason: "Sehr ausführliche Begründung ".repeat(12), ratedAt: null, aiAssisted: false,
       })),
     }, new Date("2026-11-21T10:00:00Z"));
     expect(new TextDecoder().decode(bytes.subarray(0, 5))).toBe("%PDF-");

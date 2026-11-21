@@ -1,5 +1,6 @@
 "use server";
 
+import { decideRecommendation } from "@/lib/ai/run";
 import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -91,7 +92,7 @@ export async function applyCriteriaTemplate(form: FormData) {
 // ---------- Ratings and status (F4/F5) ----------
 
 export async function saveRatings(form: FormData) {
-  await staffOnly();
+  const session = await staffOnly();
   const applicationId = String(form.get("applicationId") ?? "");
   if (!isUuid(applicationId)) redirect("/admin");
   const supabase = await createClient();
@@ -99,13 +100,24 @@ export async function saveRatings(form: FormData) {
   if (!app) redirect("/admin");
   const { data: criteria } = await supabase.from("scorecard_criteria").select("id, name, description, weight").eq("vacancy_id", app.vacancy_id);
   const { ratings, missingReason } = parseRatings(form, (criteria ?? []).map((c) => ({ ...c, weight: Number(c.weight) })));
+  // Was an AI rating suggestion open while the person rated? Then the decision is logged on it (EU AI Act).
+  const recId = String(form.get("aiRecId") ?? "");
+  const { data: aiRec } = isUuid(recId)
+    ? await createAdminClient().from("ai_recommendations").select("id, output, status, application_id").eq("id", recId).eq("application_id", applicationId).eq("status", "suggested").maybeSingle()
+    : { data: null };
 
   if (ratings.length) {
     const { error } = await supabase.from("scorecard_ratings").upsert(
-      ratings.map((r) => ({ application_id: applicationId, criterion_id: r.criterionId, rating: r.rating, reason: r.reason, ai_suggested: false })),
+      // ai_suggested: a person rated with an AI suggestion in view (shown as "KI-gestützt, vom Recruiter geprüft").
+      ratings.map((r) => ({ application_id: applicationId, criterion_id: r.criterionId, rating: r.rating, reason: r.reason, ai_suggested: aiRec !== null })),
       { onConflict: "application_id,criterion_id" },
     );
     if (error) redirect(applicationPage(applicationId, "error"));
+  }
+  if (aiRec && ratings.length) {
+    const suggested = new Map(((aiRec.output as { ratings?: { criterionId: string; rating: number | null }[] })?.ratings ?? []).map((r) => [r.criterionId, r.rating]));
+    const same = ratings.every((r) => suggested.get(r.criterionId) === r.rating);
+    await decideRecommendation(aiRec.id, same ? "accepted" : "modified", { ratings: ratings.map((r) => ({ criterionId: r.criterionId, rating: r.rating })) }, session.userId);
   }
   revalidatePath(`/admin/applications/${applicationId}`);
   redirect(missingReason.length ? `${applicationPage(applicationId, "missing")}&m=${missingReason.join(",")}` : applicationPage(applicationId, "rated"));

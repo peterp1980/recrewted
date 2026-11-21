@@ -21,6 +21,7 @@ export function ScorecardView({ data, pdfHref }: { data: ScorecardData; pdfHref?
               </p>
             </div>
             {c.reason && <p className="mt-1 text-ink/80">{c.reason}</p>}
+            {c.aiAssisted && <p className="mt-1 text-xs text-muted">{t.aiAssisted}</p>}
           </li>
         ))}
       </ul>

@@ -139,6 +139,7 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
           <span>{t.consent}</span>
         </label>
         {err("consent", "e-cn")}
+        <p className="text-sm text-muted">{t.aiNotice}</p>
         <label className="flex items-start gap-3">
           <input type="checkbox" name="talentPoolConsent" defaultChecked={v.talentPoolConsent === "on"} className="mt-1 h-5 w-5 shrink-0" />
           <span className="text-ink/80">{t.talentPool}</span>

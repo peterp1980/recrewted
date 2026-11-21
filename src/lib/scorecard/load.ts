@@ -9,7 +9,7 @@ export type ScorecardData = {
   employer: string | null;
   status: string;
   score: number | null;
-  criteria: (Criterion & { rating: number | null; reason: string | null; ratedAt: string | null })[];
+  criteria: (Criterion & { rating: number | null; reason: string | null; ratedAt: string | null; aiAssisted: boolean })[];
 };
 
 /** Loads a scorecard through the signed-in user's session: RLS decides (staff: all, customers: shortlist only). */
@@ -23,7 +23,7 @@ export async function loadScorecard(applicationId: string): Promise<ScorecardDat
   if (!app) return null;
   const [{ data: criteria }, { data: ratings }] = await Promise.all([
     supabase.from("scorecard_criteria").select("id, name, description, weight").eq("vacancy_id", app.vacancy_id).order("position"),
-    supabase.from("scorecard_ratings").select("criterion_id, rating, reason, rated_at").eq("application_id", applicationId),
+    supabase.from("scorecard_ratings").select("criterion_id, rating, reason, rated_at, ai_suggested").eq("application_id", applicationId),
   ]);
   return {
     applicationId: app.id,
@@ -34,7 +34,7 @@ export async function loadScorecard(applicationId: string): Promise<ScorecardDat
     score: app.score === null ? null : Number(app.score),
     criteria: (criteria ?? []).map((c) => {
       const r = ratings?.find((x) => x.criterion_id === c.id);
-      return { ...c, weight: Number(c.weight), rating: r?.rating ?? null, reason: r?.reason ?? null, ratedAt: r?.rated_at ?? null };
+      return { ...c, weight: Number(c.weight), rating: r?.rating ?? null, reason: r?.reason ?? null, ratedAt: r?.rated_at ?? null, aiAssisted: Boolean(r?.ai_suggested) };
     }),
   };
 }

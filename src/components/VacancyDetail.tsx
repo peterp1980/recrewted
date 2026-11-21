@@ -23,6 +23,7 @@ import { canEdit as roleCanEdit } from "@/lib/team/roles";
 import { myRole } from "@/lib/team/server";
 import { VacancyContacts } from "./VacancyContacts";
 import { InterviewSlots } from "./InterviewSlots";
+import { AiVacancyPanel } from "./AiVacancyPanel";
 
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
 const EDITABLE_FOR_CUSTOMER = ["draft", "contract_pending"];
@@ -31,7 +32,7 @@ type Props = {
   id: string;
   base: "/admin" | "/portal";
   staff: boolean;
-  search: { status?: string; missing?: string; q?: string; c?: string; k?: string; a?: string; t?: string; p?: string; ct?: string; sl?: string };
+  search: { status?: string; missing?: string; q?: string; c?: string; k?: string; a?: string; t?: string; p?: string; ct?: string; sl?: string; ki?: string };
 };
 
 /** Vacancy page with briefing (F13). Staff additionally see suggestions and can apply them. */
@@ -180,10 +181,11 @@ async function StaffSections({ vacancyId, briefing, search }: { vacancyId: strin
       <ApplicationsList vacancyId={vacancyId} viewerId={session.userId} />
       <TalentPool vacancyId={vacancyId} status={search.p} />
       <Suggestions vacancyId={vacancyId} briefing={briefing} />
+      <AiVacancyPanel vacancyId={vacancyId} status={search.ki} />
       <QuestionEditor vacancyId={vacancyId} status={search.q} />
       <CriteriaEditor vacancyId={vacancyId} status={search.c} />
       <AssessmentEditor vacancyId={vacancyId} status={search.t} />
-      <AdsSection vacancyId={vacancyId} status={search.a} />
+      <AdsSection vacancyId={vacancyId} status={search.a} aiStatus={search.ki && ["adDraft", "adChecks"].includes(search.ki) ? search.ki : undefined} />
       <CampaignsSection vacancyId={vacancyId} status={search.k} />
     </>
   );

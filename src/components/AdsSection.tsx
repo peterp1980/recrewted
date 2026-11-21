@@ -4,20 +4,26 @@ import { fromStored } from "@/lib/briefing/schema";
 import { createClient } from "@/lib/supabase/server";
 import { approveAd, generateAdVersion, saveAdVersion } from "@/app/ad-actions";
 import { Notice } from "./Notice";
+import { AiNotice } from "./AiNotice";
+import { Sparkles } from "lucide-react";
+import { aiAllowed } from "@/lib/ai/run";
+import { aiAdDraft } from "@/app/ai-actions";
 
 const input = "w-full rounded-lg border border-neutral-300 px-3 py-2";
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Berlin" });
 const CHANNELS: Channel[] = ["portal", "social"];
 
 /** Job ad generator (F8): generate, edit (each save is a version), check, approve. */
-export async function AdsSection({ vacancyId, status }: { vacancyId: string; status?: string }) {
+export async function AdsSection({ vacancyId, status, aiStatus }: { vacancyId: string; status?: string; aiStatus?: string }) {
   const t = getMessages().ads;
+  const ai = getMessages().ai;
   const supabase = await createClient();
   const [{ data: ads }, { data: v }] = await Promise.all([
-    supabase.from("job_ads").select("id, channel, version, title, body, status, template_key, approved_at").eq("vacancy_id", vacancyId).order("version", { ascending: false }),
-    supabase.from("vacancies").select("vacancy_briefings(data)").eq("id", vacancyId).single(),
+    supabase.from("job_ads").select("id, channel, version, title, body, status, template_key, approved_at, ai_recommendation_id").eq("vacancy_id", vacancyId).order("version", { ascending: false }),
+    supabase.from("vacancies").select("organization_id, vacancy_briefings(data)").eq("id", vacancyId).single(),
   ]);
   const briefing = fromStored(v?.vacancy_briefings?.data);
+  const aiOn = v?.organization_id ? await aiAllowed(v.organization_id, "assist") : false;
 
   const notice =
     status === "saved" ? <Notice kind="ok">{t.saved}</Notice>
@@ -40,6 +46,18 @@ export async function AdsSection({ vacancyId, status }: { vacancyId: string; sta
         </label>
         <button type="submit" className="rounded-lg border border-neutral-300 px-4 py-2 hover:bg-brand-50">{t.generate}</button>
       </form>
+      {aiOn && (
+        <div className="flex flex-wrap gap-2">
+          {CHANNELS.map((ch) => (
+            <form key={ch} action={aiAdDraft}>
+              <input type="hidden" name="vacancyId" value={vacancyId} />
+              <input type="hidden" name="channel" value={ch} />
+              <button type="submit" className="inline-flex items-center gap-1.5 rounded-lg border border-violet-300 bg-violet-50 px-4 py-2 text-violet-900 hover:bg-violet-100"><Sparkles className="h-4 w-4" aria-hidden="true" />{ai.adButton(t.channels[ch])}</button>
+            </form>
+          ))}
+        </div>
+      )}
+      {aiStatus && <AiNotice status={aiStatus} />}
 
       {CHANNELS.map((ch) => {
         const versions = (ads ?? []).filter((a) => a.channel === ch);
@@ -51,6 +69,7 @@ export async function AdsSection({ vacancyId, status }: { vacancyId: string; sta
             <h3 className="font-semibold">{t.channels[ch]}</h3>
             {!latest ? <p className="text-muted">{t.none}</p> : (
               <>
+                {latest.ai_recommendation_id && <p className="rounded-lg bg-violet-50 px-3 py-2 text-sm text-violet-900"><span className="font-semibold">{ai.badge}:</span> {ai.disclaimer}</p>}
                 <p className="text-sm text-muted">
                   {t.version} {latest.version} · {t.status[latest.status]}
                   {approved && approved.id !== latest.id ? ` · ${t.status.approved}: ${t.version} ${approved.version}` : ""}
@@ -60,6 +79,7 @@ export async function AdsSection({ vacancyId, status }: { vacancyId: string; sta
                   <input type="hidden" name="vacancyId" value={vacancyId} />
                   <input type="hidden" name="channel" value={ch} />
                   <input type="hidden" name="templateKey" value={latest.template_key ?? ""} />
+                  {latest.ai_recommendation_id && <input type="hidden" name="aiRecId" value={latest.ai_recommendation_id} />}
                   <label className="grid gap-1"><span>{t.headline}</span><input name="title" defaultValue={latest.title} maxLength={200} className={input} /></label>
                   <label className="grid gap-1"><span>{t.body}</span><textarea name="body" defaultValue={latest.body} rows={ch === "portal" ? 14 : 5} className={input} /></label>
                   <button type="submit" className="justify-self-start rounded-lg border border-neutral-300 px-4 py-2 hover:bg-white">{t.saveVersion}</button>

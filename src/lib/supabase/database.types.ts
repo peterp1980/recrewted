@@ -40,10 +40,10 @@ export type Database = {
         ]
       }
       ai_recommendations: {
-        Row: { accepted: boolean | null; application_id: string | null; created_at: string; decided_by: string | null; id: string; input_ref: Json; kind: string; model: string; output: Json; vacancy_id: string | null }
-        Insert: { accepted?: boolean | null; application_id?: string | null; created_at?: string; decided_by?: string | null; id?: string; input_ref: Json; kind: string; model: string; output: Json; vacancy_id?: string | null }
-        Update: { accepted?: boolean | null; application_id?: string | null; created_at?: string; decided_by?: string | null; id?: string; input_ref?: Json; kind?: string; model?: string; output?: Json; vacancy_id?: string | null }
-        Relationships: Rel[]
+        Row: { accepted: boolean | null; application_id: string | null; created_at: string; decided_by: string | null; id: string; input_ref: Json; kind: string; model: string; output: Json; vacancy_id: string | null; organization_id: string | null; prompt_version: string | null; input_hash: string | null; latency_ms: number | null; requested_by: string | null; status: string; final_output: Json | null; decided_at: string | null; error: string | null }
+        Insert: { accepted?: boolean | null; application_id?: string | null; created_at?: string; decided_by?: string | null; id?: string; input_ref: Json; kind: string; model: string; output: Json; vacancy_id?: string | null; organization_id?: string | null; prompt_version?: string | null; input_hash?: string | null; latency_ms?: number | null; requested_by?: string | null; status?: string; final_output?: Json | null; decided_at?: string | null; error?: string | null }
+        Update: { accepted?: boolean | null; application_id?: string | null; created_at?: string; decided_by?: string | null; id?: string; input_ref?: Json; kind?: string; model?: string; output?: Json; vacancy_id?: string | null; organization_id?: string | null; prompt_version?: string | null; input_hash?: string | null; latency_ms?: number | null; requested_by?: string | null; status?: string; final_output?: Json | null; decided_at?: string | null; error?: string | null }
+        Relationships: [{ foreignKeyName: "ai_recommendations_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: false; referencedRelation: "organizations"; referencedColumns: ["id"] }]
       }
       application_attribution: {
         Row: { referrer_id: string | null; marketing_consent: boolean; ad_account_owner: E["account_owner"] | null; application_id: string; campaign_id: string | null; channel: string | null; click_id: string | null; click_id_expires_at: string | null; click_id_type: string | null; entry_point: E["entry_point"]; utm_campaign: string | null; utm_content: string | null; utm_medium: string | null; utm_source: string | null }
@@ -170,9 +170,9 @@ export type Database = {
         Relationships: Rel[]
       }
       job_ads: {
-        Row: { approved_at: string | null; approved_by: string | null; body: string; channel: string; created_at: string; id: string; status: E["ad_status"]; template_key: string | null; title: string; vacancy_id: string; version: number }
-        Insert: { approved_at?: string | null; approved_by?: string | null; body: string; channel: string; created_at?: string; id?: string; status?: E["ad_status"]; template_key?: string | null; title: string; vacancy_id: string; version?: number }
-        Update: { approved_at?: string | null; approved_by?: string | null; body?: string; channel?: string; created_at?: string; id?: string; status?: E["ad_status"]; template_key?: string | null; title?: string; vacancy_id?: string; version?: number }
+        Row: { ai_recommendation_id: string | null; approved_at: string | null; approved_by: string | null; body: string; channel: string; created_at: string; id: string; status: E["ad_status"]; template_key: string | null; title: string; vacancy_id: string; version: number }
+        Insert: { ai_recommendation_id?: string | null; approved_at?: string | null; approved_by?: string | null; body: string; channel: string; created_at?: string; id?: string; status?: E["ad_status"]; template_key?: string | null; title: string; vacancy_id: string; version?: number }
+        Update: { ai_recommendation_id?: string | null; approved_at?: string | null; approved_by?: string | null; body?: string; channel?: string; created_at?: string; id?: string; status?: E["ad_status"]; template_key?: string | null; title?: string; vacancy_id?: string; version?: number }
         Relationships: Rel[]
       }
       mail_outbox: {
@@ -182,9 +182,9 @@ export type Database = {
         Relationships: [{ foreignKeyName: "mail_outbox_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] }]
       }
       organizations: {
-        Row: { created_at: string; id: string; name: string; pipedrive_org_id: number | null; website: string | null; slug: string | null; career_enabled: boolean; brand_color: string | null; candidate_tone: string; career_domain: string | null; weekly_report: boolean }
-        Insert: { created_at?: string; id?: string; name: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string; career_domain?: string | null; weekly_report?: boolean }
-        Update: { created_at?: string; id?: string; name?: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string; career_domain?: string | null; weekly_report?: boolean }
+        Row: { created_at: string; id: string; name: string; pipedrive_org_id: number | null; website: string | null; slug: string | null; career_enabled: boolean; brand_color: string | null; candidate_tone: string; career_domain: string | null; weekly_report: boolean; ai_assist: boolean; ai_scoring: boolean }
+        Insert: { created_at?: string; id?: string; name: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string; career_domain?: string | null; weekly_report?: boolean; ai_assist?: boolean; ai_scoring?: boolean }
+        Update: { created_at?: string; id?: string; name?: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string; career_domain?: string | null; weekly_report?: boolean; ai_assist?: boolean; ai_scoring?: boolean }
         Relationships: []
       }
       postal_codes: {
@@ -327,6 +327,7 @@ export type Database = {
       cancel_booking: { Args: { app: string; by_whom: string }; Returns: boolean }
       queue_interview_reminders: { Args: Record<string, never>; Returns: number }
       claim_due_whatsapp: { Args: { max_count?: number }; Returns: Database["public"]["Tables"]["whatsapp_outbox"]["Row"][] }
+      ai_monitoring: { Args: { since?: string }; Returns: { kind: string; total: number; accepted: number; modified: number; rejected: number; open: number; failed: number; avg_latency_ms: number | null; rating_pairs: number | null; mean_abs_deviation: number | null }[] }
       referral_stats: { Args: { org: string }; Returns: { referrer_id: string; applications: number; shortlisted: number; hired: number }[] }
       queue_pending_reminders: { Args: { days?: number }; Returns: number }
       run_retention: { Args: { application_months?: number; click_id_days?: number; event_months?: number; mail_days?: number; pool_months?: number }; Returns: Json }
