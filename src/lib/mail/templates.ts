@@ -1,7 +1,7 @@
 // E-mail texts to candidates. Written plainly, like a person would write them.
 // Variables are inserted as plain text; mails are sent as text/plain.
 
-export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite" | "profile_link" | "job_alert" | "status_update";
+export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite" | "profile_link" | "job_alert" | "status_update" | "weekly_report";
 
 export type MailData = {
   firstName: string;
@@ -14,6 +14,9 @@ export type MailData = {
   minutes?: number | null;
   /** status_update: the new status (or "pending" for the 7-day reminder). */
   status?: string;
+  /** weekly_report: customer name and one line per vacancy. */
+  organization?: string;
+  lines?: { title: string; text: string }[];
   /** job_alert: matching new jobs. */
   jobs?: { title: string; employer: string | null; place: string | null; url: string }[];
   /** The employer's form of address; missing means formal (mails queued before 0012). */
@@ -52,6 +55,10 @@ const statusMail = (d: MailData, du: boolean) => {
 
 const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: string }> = {
   status_update: (d) => statusMail(d, false),
+  weekly_report: (d) => ({
+    subject: `Ihr Wochenbericht – ${d.organization ?? ""}`,
+    text: `Hallo ${d.firstName},\n\nhier der Stand Ihrer Stellen in der letzten Woche:\n\n${(d.lines ?? []).map((l) => `${l.title}\n${l.text}`).join("\n\n")}\n\nShortlist, Bewertungsbögen und den Bericht als PDF finden Sie im Kundenportal:\n${d.link ?? ""}\n\n${sign(d)}`,
+  }),
   application_received: (d) => ({
     subject: `Ihre Bewerbung als ${d.jobTitle}`,
     text: `Hallo ${d.firstName},\n\ndanke für Ihre Bewerbung als ${d.jobTitle}${at(d)}. Sie ist gut bei uns angekommen.\n\nWir schauen sie uns in den nächsten Tagen an und melden uns bei Ihnen – egal, wie es ausgeht.\n\n${sign(d)}`,

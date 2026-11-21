@@ -3,6 +3,7 @@ import { processConversions } from "@/lib/conversions/process";
 import { processDueMails } from "@/lib/mail/outbox";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { queueJobAlerts } from "@/lib/profile/send-alerts";
+import { isMondayInBerlin, queueWeeklyReports } from "@/lib/reports/send";
 
 /**
  * Daily job (vercel.json): retention (F20), CV files of deleted applications,
@@ -27,6 +28,15 @@ export async function GET(request: NextRequest) {
   // "Still on it" mails for applications in review for 7 days (0019).
   const { data: reminders, error: remErr } = await admin.rpc("queue_pending_reminders", {});
   result.pendingReminders = remErr ? { error: remErr.message } : reminders;
+
+  // Weekly report for customers, Mondays (0020).
+  if (isMondayInBerlin()) {
+    try {
+      result.weeklyReports = await queueWeeklyReports();
+    } catch (e) {
+      result.weeklyReports = { error: e instanceof Error ? e.message : "failed" };
+    }
+  }
 
   // Job alerts for the talent pool (0018), queued before the mails are processed below.
   try {

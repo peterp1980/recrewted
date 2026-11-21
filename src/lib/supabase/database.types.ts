@@ -182,9 +182,9 @@ export type Database = {
         Relationships: [{ foreignKeyName: "mail_outbox_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] }]
       }
       organizations: {
-        Row: { created_at: string; id: string; name: string; pipedrive_org_id: number | null; website: string | null; slug: string | null; career_enabled: boolean; brand_color: string | null; candidate_tone: string; career_domain: string | null }
-        Insert: { created_at?: string; id?: string; name: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string; career_domain?: string | null }
-        Update: { created_at?: string; id?: string; name?: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string; career_domain?: string | null }
+        Row: { created_at: string; id: string; name: string; pipedrive_org_id: number | null; website: string | null; slug: string | null; career_enabled: boolean; brand_color: string | null; candidate_tone: string; career_domain: string | null; weekly_report: boolean }
+        Insert: { created_at?: string; id?: string; name: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string; career_domain?: string | null; weekly_report?: boolean }
+        Update: { created_at?: string; id?: string; name?: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string; career_domain?: string | null; weekly_report?: boolean }
         Relationships: []
       }
       postal_codes: {

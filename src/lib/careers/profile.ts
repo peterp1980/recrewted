@@ -8,6 +8,8 @@ export type CareerSettings = {
   tone: "sie" | "du";
   /** Own domain for the career page, e.g. karriere.beispiel.de (0017). */
   domain: string | null;
+  /** Weekly report mail on Mondays (0020). */
+  weeklyReport: boolean;
 };
 
 import { normalizeDomain } from "./domain";
@@ -46,7 +48,7 @@ export function parseSettingsForm(form: FormData): SettingsInput {
   const domainRaw = str(form.get("domain"), 260);
   const domain = domainRaw ? normalizeDomain(domainRaw) : null;
   if (domainRaw && !domain) return { ok: false, error: "domain" };
-  return { ok: true, value: { slug: slug || null, enabled, brandColor: color || null, tone: form.get("tone") === "du" ? "du" : "sie", domain } };
+  return { ok: true, value: { slug: slug || null, enabled, brandColor: color || null, tone: form.get("tone") === "du" ? "du" : "sie", domain, weeklyReport: form.get("weeklyReport") === "on" } };
 }
 
 /** Text colour that stays readable on the brand colour (WCAG relative luminance). */

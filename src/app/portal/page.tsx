@@ -22,6 +22,13 @@ export default async function PortalHome({ searchParams }: Props) {
           <p className="text-ink/80">
             {m.portal.organization}: <strong>{orgs.map((o) => o.name).join(", ")}</strong>
           </p>
+        ) : null}
+        {orgs && orgs.length > 0 ? (
+          <p className="flex flex-wrap gap-3">
+            {orgs.map((o) => (
+              <a key={o.id} href={`/api/reports/weekly?org=${o.id}`} className="btn-secondary py-2 text-sm">{m.reports.download}{orgs.length > 1 ? ` – ${o.name}` : ""}</a>
+            ))}
+          </p>
         ) : (
           <Notice kind="info">{m.portal.noOrganization}</Notice>
         )}

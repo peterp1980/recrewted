@@ -469,6 +469,10 @@ export const de = {
     briefingShow: "Briefing ansehen",
     open: "Ansehen",
   },
+  reports: {
+    download: "Wochenbericht (PDF)",
+    setting: "Wochenbericht montags per E-Mail an die Nutzer des Kunden",
+  },
   compare: {
     title: "Shortlist vergleichen",
     lead: "Alle vorgeschlagenen Kandidaten nebeneinander – mit Bewertung je Kriterium, Begründung und Test-Ergebnis. Ein Klick genügt für Ihre Rückmeldung.",

@@ -79,3 +79,12 @@ describe("status mails", () => {
     expect(renderMail("status_update", { ...d, status: "unknown" }).subject).toContain("Zwischenstand");
   });
 });
+
+describe("weekly report mail", () => {
+  it("lists the vacancies and links to the portal", () => {
+    const m = renderMail("weekly_report", { firstName: "Peter", jobTitle: "", organization: "Hafermann Reisen", link: "https://recrewted.de/portal", lines: [{ title: "Busfahrer:in", text: "12 Bewerbungen · 5 passend" }] });
+    expect(m.subject).toBe("Ihr Wochenbericht – Hafermann Reisen");
+    expect(m.text).toContain("Busfahrer:in\n12 Bewerbungen · 5 passend");
+    expect(m.text).toContain("https://recrewted.de/portal");
+  });
+});

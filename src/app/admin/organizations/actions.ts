@@ -23,7 +23,7 @@ export async function saveCareerSettings(form: FormData) {
   const { data: before } = await supabase.from("organizations").select("career_domain").eq("id", id).maybeSingle();
   const { data, error } = await supabase
     .from("organizations")
-    .update({ slug: p.slug, career_enabled: p.enabled, brand_color: p.brandColor, candidate_tone: p.tone, career_domain: p.domain })
+    .update({ slug: p.slug, career_enabled: p.enabled, brand_color: p.brandColor, candidate_tone: p.tone, career_domain: p.domain, weekly_report: p.weeklyReport })
     .eq("id", id)
     .select("slug")
     .maybeSingle();

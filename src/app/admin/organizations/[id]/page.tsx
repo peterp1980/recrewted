@@ -24,7 +24,7 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
   const supabase = await createClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("id, name, website, slug, career_enabled, brand_color, candidate_tone, career_domain, career_pages(status, published_at), vacancies(id, title, status)")
+    .select("id, name, website, slug, career_enabled, brand_color, candidate_tone, career_domain, weekly_report, career_pages(status, published_at), vacancies(id, title, status)")
     .eq("id", id)
     .maybeSingle();
   if (!org) notFound();
@@ -55,7 +55,10 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
           <h2 className="text-lg font-semibold">{t.profile}</h2>
           <p className="text-sm text-muted">{page ? e.status[page.status] : e.status.draft}</p>
         </div>
-        <Link href={`/admin/organizations/${org.id}/karriereseite`} className="btn-primary"><Pencil className="h-4 w-4" aria-hidden="true" /> {e.open}</Link>
+        <div className="flex flex-wrap gap-2">
+          <a href={`/api/reports/weekly?org=${org.id}`} className="btn-secondary">{getMessages().reports.download}</a>
+          <Link href={`/admin/organizations/${org.id}/karriereseite`} className="btn-primary"><Pencil className="h-4 w-4" aria-hidden="true" /> {e.open}</Link>
+        </div>
       </section>
 
       {vacancies.length > 0 && (
@@ -96,6 +99,9 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
               <label className="flex items-center gap-2"><input type="radio" name="tone" value="du" defaultChecked={org.candidate_tone === "du"} /> {t.toneDu}</label>
             </div>
           </fieldset>
+          <label className="flex items-center gap-2 font-medium">
+            <input type="checkbox" name="weeklyReport" defaultChecked={org.weekly_report} /> {getMessages().reports.setting}
+          </label>
           <label className="grid gap-1">
             <span className="font-medium">{t.domain}</span>
             <span className="text-sm text-muted">{t.domainHint}</span>
