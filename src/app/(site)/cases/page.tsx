@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { ArrowRight, Quote, X } from "lucide-react";
 import { site } from "@/content/site";
 import { siteUrl } from "@/lib/site";
+import { PageHero } from "@/components/PageHero";
 
 const t = site.cases;
 const c = t.featured;
@@ -12,14 +13,10 @@ export const metadata: Metadata = { title: `${t.title} – recrewted`, descripti
 export default function CasesPage() {
   return (
     <main className="overflow-x-clip">
-      <div className="mx-auto max-w-6xl px-4 pt-14 md:pt-20">
-        <p className="eyebrow">Referenzen</p>
-        <h1 className="mt-3 text-4xl font-extrabold sm:text-5xl">{t.title}</h1>
-        <p className="mt-4 max-w-2xl text-lg text-ink/75">{t.lead}</p>
-      </div>
+      <PageHero eyebrow="Referenzen" title={t.title} lead={t.lead} />
 
       {/* Main case */}
-      <article aria-labelledby="stepin" className="mt-12">
+      <article aria-labelledby="stepin" className="mt-16">
         <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="flex flex-col gap-5">
             <Image src={c.logo} alt={c.name} width={200} height={70} className="h-12 w-auto self-start" />
@@ -46,15 +43,16 @@ export default function CasesPage() {
         </section>
 
         {/* Quote */}
-        <section className="mt-20 bg-brand-800 text-white">
-          <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-[0.6fr_1.4fr] md:py-20">
+        <section className="relative mt-20 overflow-hidden bg-night text-white">
+          <div aria-hidden="true" className="hero-glow absolute inset-0 opacity-70" />
+          <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-[0.6fr_1.4fr] md:py-20">
             <Image src={c.quotePhoto} alt={c.quoteBy} width={800} height={790} className="mx-auto aspect-square w-full max-w-xs rounded-3xl object-cover shadow-2xl" />
             <figure>
-              <Quote aria-hidden="true" className="h-10 w-10 text-brand-300" />
+              <Quote aria-hidden="true" className="h-10 w-10 text-accent-500" />
               <blockquote className="mt-4 text-xl leading-relaxed sm:text-2xl">„{c.quote}“</blockquote>
               <figcaption className="mt-6">
                 <span className="block font-semibold">{c.quoteBy}</span>
-                <span className="text-brand-100">{c.quoteRole}</span>
+                <span className="text-white/60">{c.quoteRole}</span>
               </figcaption>
             </figure>
           </div>
@@ -71,12 +69,13 @@ export default function CasesPage() {
               ))}
             </ul>
           </div>
-          <div className="flex flex-col justify-between gap-6 rounded-3xl bg-ink p-8 text-white">
-            <div>
+          <div className="relative flex flex-col justify-between gap-6 overflow-hidden rounded-3xl bg-night p-8 text-white">
+            <div aria-hidden="true" className="hero-glow absolute inset-0 opacity-60" />
+            <div className="relative">
               <h3 className="text-2xl font-bold">Die Lösung</h3>
               <p className="mt-3 text-lg text-white/80">{c.solution}</p>
             </div>
-            <Link href="/kontakt" className="inline-flex items-center gap-2 self-start rounded-lg bg-white px-5 py-3 font-semibold text-ink hover:bg-brand-50">
+            <Link href="/kontakt" className="btn-light relative self-start px-5 py-3">
               So etwas brauchen wir auch <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
