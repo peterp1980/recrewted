@@ -68,6 +68,7 @@ export function SiteFooter({ note }: { note?: string }) {
           <Link href="/kontakt" className="hover:text-white">Kontakt</Link>
           <Link href="/impressum" className="hover:text-white">Impressum</Link>
           <Link href="/datenschutz" className="hover:text-white">Datenschutz</Link>
+          <Link href="/barrierefreiheit" className="hover:text-white">Barrierefreiheit</Link>
           <span className="[&_button]:text-white/70 [&_button:hover]:text-white"><ConsentSettingsLink /></span>
         </nav>
       </div>

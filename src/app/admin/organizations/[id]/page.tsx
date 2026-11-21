@@ -1,3 +1,4 @@
+import { FairnessSettings } from "@/components/FairnessSettings";
 import { AiSwitches } from "@/components/AiSwitches";
 import { AtsSection } from "@/components/AtsSection";
 import { TeamSection } from "@/components/TeamSection";
@@ -16,19 +17,19 @@ import { domainStatus } from "@/lib/careers/vercel";
 
 export const metadata = { title: "Unternehmen – recrewted" };
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ status?: string; error?: string; r?: string; ats?: string; msg?: string; field?: string; team?: string; ki?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ status?: string; error?: string; r?: string; ats?: string; msg?: string; field?: string; team?: string; ki?: string; fair?: string }> };
 
 const field = "rounded-lg border border-neutral-300 px-3 py-2";
 
 export default async function OrganizationPage({ params, searchParams }: Props) {
-  const [{ id }, { status, error, r, ats, msg, field: atsField, team, ki }] = await Promise.all([params, searchParams]);
+  const [{ id }, { status, error, r, ats, msg, field: atsField, team, ki, fair }] = await Promise.all([params, searchParams]);
   const session = await requireAccess(`/admin/organizations/${id}`);
   const t = getMessages().organizations;
   const e = getMessages().editor;
   const supabase = await createClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("id, name, website, slug, career_enabled, brand_color, candidate_tone, career_domain, weekly_report, ai_assist, ai_scoring, career_pages(status, published_at), vacancies(id, title, status)")
+    .select("id, name, website, slug, career_enabled, brand_color, candidate_tone, career_domain, weekly_report, ai_assist, ai_scoring, blind_review, career_pages(status, published_at), vacancies(id, title, status)")
     .eq("id", id)
     .maybeSingle();
   if (!org) notFound();
@@ -138,6 +139,7 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
         )}
       </section>
 
+      <FairnessSettings organizationId={org.id} blindReview={org.blind_review} canChange status={fair} />
       <AiSwitches organizationId={org.id} assist={org.ai_assist} scoring={org.ai_scoring} status={ki} />
       <TeamSection organizationId={org.id} from="admin" status={team} canManage viewerId={session.userId} />
       <AtsSection organizationId={org.id} from="admin" status={ats} msg={msg} field={atsField} />

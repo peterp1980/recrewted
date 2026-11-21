@@ -30,6 +30,10 @@ export async function GET(request: NextRequest) {
   const { data: reminders, error: remErr } = await admin.rpc("queue_pending_reminders", {});
   result.pendingReminders = remErr ? { error: remErr.message } : reminders;
 
+  // Customers reminded of shortlisted candidates without feedback (0026, working days).
+  const { data: fbReminders, error: fbErr } = await admin.rpc("queue_feedback_reminders", {});
+  result.feedbackReminders = fbErr ? { error: fbErr.message } : fbReminders;
+
   // Interview reminders for the next 12 to 36 hours (0024).
   const { data: interviewReminders, error: irErr } = await admin.rpc("queue_interview_reminders", {});
   result.interviewReminders = irErr ? { error: irErr.message } : interviewReminders;

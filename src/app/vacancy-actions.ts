@@ -178,6 +178,8 @@ export async function updateVacancySettings(formData: FormData) {
       price_eur: price,
       media_markup_pct: markup,
       employer_visible: formData.get("employerVisible") === "on",
+      // Pay transparency: what candidates learn about pay before the interview when no range is published.
+      salary_note: String(formData.get("salaryNote") ?? "").trim().slice(0, 300) || null,
     })
     .eq("id", vacancyId);
   revalidatePath(path);

@@ -20,13 +20,19 @@ export async function processAtsTransfers(limit = 20): Promise<{ sent: number; f
   for (const t of claimed ?? []) {
     const [{ data: conn }, { data: app }] = await Promise.all([
       admin.from("ats_connections").select("provider, enabled, config, secret_enc").eq("id", t.connection_id).single(),
-      admin.from("applications").select("id, cv_storage_path, candidates(first_name, last_name, email, phone), vacancies(title, ats_job_id)").eq("id", t.application_id).single(),
+      admin.from("applications").select("id, status, cv_storage_path, candidates(first_name, last_name, email, phone), vacancies(title, ats_job_id, organizations(blind_review))").eq("id", t.application_id).single(),
     ]);
     const finish = async (patch: { status: string; error?: string | null; external_id?: string | null; sent_at?: string }) => {
       await admin.from("ats_transfers").update({ error: null, ...patch }).eq("id", t.id);
     };
     if (!conn || !app?.candidates || !app.vacancies || !isProvider(conn.provider)) {
       await finish({ status: "failed", error: "Verbindung oder Bewerbung nicht mehr vorhanden." });
+      out.failed++;
+      continue;
+    }
+    // Blind review: identity goes to the customer's ATS only once they chose to meet the candidate.
+    if (app.vacancies.organizations?.blind_review && !["interview", "hired"].includes(app.status)) {
+      await finish({ status: "failed", error: "Anonyme Vorauswahl: Übergabe erst nach „Gespräch vereinbart“. Danach erneut übergeben." });
       out.failed++;
       continue;
     }

@@ -1,3 +1,4 @@
+import { displayName, pseudonyms } from "@/lib/portal/blind";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
@@ -31,12 +32,13 @@ export default async function ComparePage({ params, searchParams }: { params: Pr
   // RLS: customers only see applications from the shortlist on.
   const { data: apps } = await supabase
     .from("applications")
-    .select("id, status, score, candidates(first_name, last_name), scorecard_ratings(criterion_id, rating, reason), assessment_attempts(status, auto_points, manual_points, max_points)")
+    .select("id, status, score, shortlisted_at, candidates(first_name, last_name), scorecard_ratings(criterion_id, rating, reason), assessment_attempts(status, auto_points, manual_points, max_points)")
     .eq("vacancy_id", id)
     .not("shortlisted_at", "is", null)
     .order("score", { ascending: false, nullsFirst: false });
   const { data: criteria } = await supabase.from("scorecard_criteria").select("id, name, weight").eq("vacancy_id", id).order("position");
   const list = apps ?? [];
+  const names = pseudonyms(list);
   if (list.length) await logRead(session.userId, "applications", list.map((a) => a.id), "portal_compare");
 
   const notice = f === "saved" ? <Notice kind="ok">{m.feedback.saved}</Notice> : f === "reason" ? <Notice kind="error">{m.feedback.reasonRequired}</Notice> : f === "error" ? <Notice kind="error">{m.feedback.error}</Notice> : null;
@@ -60,7 +62,7 @@ export default async function ComparePage({ params, searchParams }: { params: Pr
                 <th className="sticky left-0 z-10 min-w-48 bg-canvas px-4 py-3 font-medium text-muted">{t.candidate}</th>
                 {list.map((a) => (
                   <th key={a.id} className={`${col} font-semibold`}>
-                    <Link href={`/portal/applications/${a.id}`} className="text-base hover:underline">{a.candidates?.first_name} {a.candidates?.last_name}</Link>
+                    <Link href={`/portal/applications/${a.id}`} className="text-base hover:underline">{displayName(a.candidates, names.get(a.id))}</Link>
                     <span className="block text-xs font-normal text-muted">{m.applications.status[a.status]}</span>
                   </th>
                 ))}

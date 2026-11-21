@@ -89,7 +89,7 @@ export async function cancelSlot(form: FormData) {
 async function teamApplication(applicationId: string) {
   const session = await team();
   const supabase = await createClient();
-  const { data: app } = await supabase.from("applications").select("id, vacancy_id, candidate_id, candidates(email, first_name), vacancies(title, organization_id, employer_visible, organizations(name, candidate_tone))").eq("id", applicationId).maybeSingle();
+  const { data: app } = await supabase.from("applications").select("id, vacancy_id, candidate_id, candidates(email, first_name), vacancies(title, organization_id, employer_visible, salary_min, salary_max, salary_period, salary_note, organizations(name, candidate_tone))").eq("id", applicationId).maybeSingle();
   if (!app?.vacancies) redirect("/");
   if (!isStaff(session.role)) {
     const { data: role } = await supabase.from("customer_members").select("member_role").eq("organization_id", app.vacancies.organization_id).eq("profile_id", session.userId).maybeSingle();
@@ -107,6 +107,9 @@ export async function inviteToBook(form: FormData) {
   const admin = createAdminClient();
   const { count } = await admin.from("interview_slots").select("id", { count: "exact", head: true }).eq("vacancy_id", app.vacancy_id).is("cancelled_at", null).gt("starts_at", new Date(Date.now() + 2 * 3_600_000).toISOString());
   if (!count) redirect(back("noSlots"));
+  // Pay transparency: candidates must know the pay before the interview (EU Directive 2023/970, Art. 5).
+  const v = app.vacancies;
+  if ((v.salary_min === null || v.salary_max === null) && !v.salary_note) redirect(back("noSalary"));
   const link = bookingUrl(applicationId);
   if (!link) redirect(back("error"));
   if (!app.candidates?.email) redirect(back("noEmail"));
@@ -119,6 +122,7 @@ export async function inviteToBook(form: FormData) {
     data: {
       firstName: app.candidates.first_name, jobTitle: app.vacancies.title, employer: app.vacancies.employer_visible ? (org?.name ?? null) : null,
       tone: org?.candidate_tone === "du" ? "du" : "sie", applicationId, invitedBy: session.userId, senderName: session.fullName,
+      salaryMin: v.salary_min, salaryMax: v.salary_max, salaryPeriod: v.salary_period, salaryNote: v.salary_note,
     },
   });
   if (!error) sendSoon();

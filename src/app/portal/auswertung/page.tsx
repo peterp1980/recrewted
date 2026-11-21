@@ -38,11 +38,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   if (!org) return <main><p className="card">{t.none}</p></main>;
 
   const supabase = await createClient();
-  const [{ data: vacancies }, { data: raw }, { data: bench }] = await Promise.all([
+  const [{ data: vacancies }, { data: raw }, { data: bench }, { data: cx }] = await Promise.all([
     supabase.from("vacancies").select("id, title, status, category").eq("organization_id", org.id).neq("status", "draft").order("created_at", { ascending: false }),
     supabase.rpc("employer_dashboard", { org: org.id }),
     supabase.rpc("employer_benchmarks", { org: org.id }),
+    supabase.rpc("candidate_experience", { org: org.id }),
   ]);
+  const experience = cx?.[0] && Number(cx[0].answers) >= 5 ? cx[0] : null;
+  const sv = getMessages().survey;
   const rows = (raw ?? []).map(normalize);
   const byId = new Map(rows.map((r) => [r.vacancy_id, r]));
   const list = (vacancies ?? []).filter((v) => byId.has(v.id));
@@ -125,6 +128,22 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                 </tbody>
               </table>
             </div>
+          </section>
+
+          <section aria-labelledby="cx-h" className="card flex flex-col gap-3">
+            <h2 id="cx-h" className="text-lg font-semibold">{sv.dashboardTitle}</h2>
+            <p className="text-sm text-ink/80">{sv.dashboardLead}</p>
+            {experience ? (
+              <dl className="grid grid-cols-3 gap-3">
+                {([[sv.all, experience.avg_score], [sv.hired, experience.hired_avg], [sv.rejected, experience.rejected_avg]] as const).map(([k, v]) => (
+                  <div key={k} className="rounded-2xl bg-canvas p-3">
+                    <dt className="text-sm text-muted">{k}</dt>
+                    <dd className="font-display text-2xl font-extrabold tabular-nums">{v === null ? "–" : `${String(v).replace(".", ",")} / 5`}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : <p className="text-muted">{sv.dashboardNone}</p>}
+            {experience && <p className="text-xs text-muted">{Number(experience.answers)} Antworten</p>}
           </section>
 
           <section aria-labelledby="bm-h" className="card flex flex-col gap-3">

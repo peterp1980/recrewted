@@ -118,3 +118,16 @@ describe("interview mails (0024)", () => {
     expect(renderMail("team_booking", { ...d, candidate: "Kai Kandidat", event: "cancelled", applicationId: "a1" }).subject).toBe("Kai Kandidat hat den Termin abgesagt: Busfahrer");
   });
 });
+
+describe("pay transparency and reminders (0026)", () => {
+  const base = { firstName: "Kai", jobTitle: "Busfahrer", startsAt: "2026-12-01T09:00:00Z", minutes: 30, mode: "onsite", location: "Witten", link: "https://x/t" };
+  it("puts the pay into every interview invitation and confirmation", () => {
+    expect(renderMail("booking_invite", { ...base, salaryNote: "3.200–3.600 € brutto im Monat" }).text).toContain("Gehalt: 3.200–3.600 € brutto im Monat");
+    expect(renderMail("interview_booked", { ...base, tone: "du", salaryMin: 42000, salaryMax: 56000, salaryPeriod: "year" }).text).toMatch(/Gehalt: 42\.000.*56\.000/);
+    expect(renderMail("interview_booked", base).text).not.toContain("Gehalt:");
+  });
+  it("reminds customers and asks candidates once", () => {
+    expect(renderMail("feedback_reminder", { firstName: "Olaf", jobTitle: "Busfahrer", vacancyId: "v1", open: 2 }).subject).toBe("2 Kandidaten warten auf Ihre Rückmeldung: Busfahrer");
+    expect(renderMail("candidate_survey", { firstName: "Kai", jobTitle: "Busfahrer", link: "https://x/umfrage/t", tone: "du" }).text).toContain("Wie hast du den Ablauf erlebt?");
+  });
+});

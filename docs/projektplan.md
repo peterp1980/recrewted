@@ -84,7 +84,7 @@ Gesamt ≈ 77 Tage, mit Puffer rund 4–5 Monate bei einer Person. Der Pilot kan
 ## Stand 21.11.2026 (Branch `mvp`)
 
 Gebaut: alle Features außer F15 Pipedrive und F16 PandaDoc (warten auf API-Zugänge).
-Migrationen 0001–0025 sind auf Prod eingespielt. Gehalt ist seit 0016 optional (Entscheidung Peter).
+Migrationen 0001–0026 sind auf Prod eingespielt. Gehalt ist seit 0016 optional (Entscheidung Peter).
 
 Assessment (Freigabe Peter, 21.11.2026, aus Release 2 vorgezogen): Tests je Vakanz direkt nach der Bewerbung oder per Link; Ja/Nein, Auswahl, Freitext, Case, Upload; Zeitlimit; Browser-Protokoll (Fenster verlassen, Kopieren, Einfügen – nur Zeitpunkt); automatische Punkte nur für geschlossene Fragen, offene bewertet ein Mensch. Vor dem Livegang mit dem DSB abstimmen (Protokollierung, Speicherdauer).
 

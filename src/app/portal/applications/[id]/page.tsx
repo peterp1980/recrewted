@@ -1,3 +1,4 @@
+import { displayName, pseudonyms } from "@/lib/portal/blind";
 import { BookingBox } from "@/components/BookingBox";
 import { canEdit } from "@/lib/team/roles";
 import { myRole } from "@/lib/team/server";
@@ -49,23 +50,27 @@ export default async function PortalApplicationPage({ params, searchParams }: Pr
   await logRead(session.userId, "scorecard_ratings", [id], "portal_candidate");
 
   let cvUrl: string | null = null;
-  if (app.cv_storage_path) {
+  if (app.cv_storage_path && app.candidates) {
     const { data } = await createAdminClient().storage.from("cvs").createSignedUrl(app.cv_storage_path, 300);
     cvUrl = data?.signedUrl ?? null;
   }
+  // Blind review: without visible identity (RLS) the candidate appears under a pseudonym, without contact and CV.
   const c = app.candidates;
+  const { data: siblings } = await supabase.from("applications").select("id, shortlisted_at").eq("vacancy_id", app.vacancy_id);
+  const name = displayName(c, pseudonyms(siblings ?? []).get(app.id));
 
   return (
     <main className="flex flex-col gap-6">
       <Link href={`/portal/vacancies/${app.vacancy_id}`} className="text-sm underline">{t.back}: {app.vacancies?.title}</Link>
       <div className="flex flex-wrap items-baseline gap-3">
-        <h1 className="text-2xl font-semibold">{c?.first_name} {c?.last_name}</h1>
+        <h1 className="text-2xl font-semibold">{name}</h1>
         <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-brand-800 text-sm">{m.applications.status[app.status]}</span>
       </div>
       {f === "saved" && <Notice kind="ok">{t.saved}</Notice>}
       {f === "reason" && <Notice kind="error">{t.reasonRequired}</Notice>}
       {f === "error" && <Notice kind="error">{t.error}</Notice>}
 
+      {!c && <Notice kind="info">{m.feedback.blind}</Notice>}
       <section className="flex flex-wrap gap-6 rounded-2xl bg-white p-4">
         <div>
           {c?.email && <p><a href={`mailto:${c.email}`} className="underline">{c.email}</a></p>}

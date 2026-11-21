@@ -182,9 +182,9 @@ export type Database = {
         Relationships: [{ foreignKeyName: "mail_outbox_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] }]
       }
       organizations: {
-        Row: { created_at: string; id: string; name: string; pipedrive_org_id: number | null; website: string | null; slug: string | null; career_enabled: boolean; brand_color: string | null; candidate_tone: string; career_domain: string | null; weekly_report: boolean; ai_assist: boolean; ai_scoring: boolean }
-        Insert: { created_at?: string; id?: string; name: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string; career_domain?: string | null; weekly_report?: boolean; ai_assist?: boolean; ai_scoring?: boolean }
-        Update: { created_at?: string; id?: string; name?: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string; career_domain?: string | null; weekly_report?: boolean; ai_assist?: boolean; ai_scoring?: boolean }
+        Row: { created_at: string; id: string; name: string; pipedrive_org_id: number | null; website: string | null; slug: string | null; career_enabled: boolean; brand_color: string | null; candidate_tone: string; career_domain: string | null; weekly_report: boolean; ai_assist: boolean; ai_scoring: boolean; blind_review: boolean }
+        Insert: { created_at?: string; id?: string; name: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string; career_domain?: string | null; weekly_report?: boolean; ai_assist?: boolean; ai_scoring?: boolean; blind_review?: boolean }
+        Update: { created_at?: string; id?: string; name?: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string; career_domain?: string | null; weekly_report?: boolean; ai_assist?: boolean; ai_scoring?: boolean; blind_review?: boolean }
         Relationships: []
       }
       postal_codes: {
@@ -280,6 +280,12 @@ export type Database = {
         Update: { id?: string; candidate_id?: string | null; from_phone?: string; body?: string | null; wa_message_id?: string | null; received_at?: string }
         Relationships: []
       }
+      candidate_surveys: {
+        Row: { application_id: string; organization_id: string; outcome: string; sent_at: string; answered_at: string | null; score: number | null; comment: string | null }
+        Insert: { application_id: string; organization_id: string; outcome: string; sent_at?: string; answered_at?: string | null; score?: number | null; comment?: string | null }
+        Update: { application_id?: string; organization_id?: string; outcome?: string; sent_at?: string; answered_at?: string | null; score?: number | null; comment?: string | null }
+        Relationships: []
+      }
       referrers: {
         Row: { id: string; organization_id: string; name: string; email: string | null; code: string; active: boolean; created_by: string | null; created_at: string }
         Insert: { id?: string; organization_id: string; name: string; email?: string | null; code: string; active?: boolean; created_by?: string | null; created_at?: string }
@@ -295,9 +301,9 @@ export type Database = {
         ]
       }
       vacancies: {
-        Row: { ats_job_id: string | null; openings: number; price_eur: number | null; media_markup_pct: number; category: string | null; employer_visible: boolean; latitude: number | null; longitude: number | null; postal_code: string | null; created_at: string; created_by: string | null; employment_type: string | null; filled_at: string | null; id: string; location: string | null; organization_id: string; pipedrive_deal_id: number | null; pricing_model: E["pricing_model"] | null; published_at: string | null; remote: boolean; salary_max: number | null; salary_min: number | null; salary_period: string; status: E["vacancy_status"]; title: string; updated_at: string }
-        Insert: { ats_job_id?: string | null; openings?: number; price_eur?: number | null; media_markup_pct?: number; category?: string | null; employer_visible?: boolean; latitude?: number | null; longitude?: number | null; postal_code?: string | null; created_at?: string; created_by?: string | null; employment_type?: string | null; filled_at?: string | null; id?: string; location?: string | null; organization_id: string; pipedrive_deal_id?: number | null; pricing_model?: E["pricing_model"] | null; published_at?: string | null; remote?: boolean; salary_max?: number | null; salary_min?: number | null; salary_period?: string; status?: E["vacancy_status"]; title: string; updated_at?: string }
-        Update: { ats_job_id?: string | null; openings?: number; price_eur?: number | null; media_markup_pct?: number; category?: string | null; employer_visible?: boolean; latitude?: number | null; longitude?: number | null; postal_code?: string | null; created_at?: string; created_by?: string | null; employment_type?: string | null; filled_at?: string | null; id?: string; location?: string | null; organization_id?: string; pipedrive_deal_id?: number | null; pricing_model?: E["pricing_model"] | null; published_at?: string | null; remote?: boolean; salary_max?: number | null; salary_min?: number | null; salary_period?: string; status?: E["vacancy_status"]; title?: string; updated_at?: string }
+        Row: { ats_job_id: string | null; salary_note: string | null; openings: number; price_eur: number | null; media_markup_pct: number; category: string | null; employer_visible: boolean; latitude: number | null; longitude: number | null; postal_code: string | null; created_at: string; created_by: string | null; employment_type: string | null; filled_at: string | null; id: string; location: string | null; organization_id: string; pipedrive_deal_id: number | null; pricing_model: E["pricing_model"] | null; published_at: string | null; remote: boolean; salary_max: number | null; salary_min: number | null; salary_period: string; status: E["vacancy_status"]; title: string; updated_at: string }
+        Insert: { ats_job_id?: string | null; salary_note?: string | null; openings?: number; price_eur?: number | null; media_markup_pct?: number; category?: string | null; employer_visible?: boolean; latitude?: number | null; longitude?: number | null; postal_code?: string | null; created_at?: string; created_by?: string | null; employment_type?: string | null; filled_at?: string | null; id?: string; location?: string | null; organization_id: string; pipedrive_deal_id?: number | null; pricing_model?: E["pricing_model"] | null; published_at?: string | null; remote?: boolean; salary_max?: number | null; salary_min?: number | null; salary_period?: string; status?: E["vacancy_status"]; title: string; updated_at?: string }
+        Update: { ats_job_id?: string | null; salary_note?: string | null; openings?: number; price_eur?: number | null; media_markup_pct?: number; category?: string | null; employer_visible?: boolean; latitude?: number | null; longitude?: number | null; postal_code?: string | null; created_at?: string; created_by?: string | null; employment_type?: string | null; filled_at?: string | null; id?: string; location?: string | null; organization_id?: string; pipedrive_deal_id?: number | null; pricing_model?: E["pricing_model"] | null; published_at?: string | null; remote?: boolean; salary_max?: number | null; salary_min?: number | null; salary_period?: string; status?: E["vacancy_status"]; title?: string; updated_at?: string }
         Relationships: [
           { foreignKeyName: "vacancies_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
           { foreignKeyName: "vacancies_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: false; referencedRelation: "organizations"; referencedColumns: ["id"] },
@@ -328,6 +334,8 @@ export type Database = {
       queue_interview_reminders: { Args: Record<string, never>; Returns: number }
       claim_due_whatsapp: { Args: { max_count?: number }; Returns: Database["public"]["Tables"]["whatsapp_outbox"]["Row"][] }
       ai_monitoring: { Args: { since?: string }; Returns: { kind: string; total: number; accepted: number; modified: number; rejected: number; open: number; failed: number; avg_latency_ms: number | null; rating_pairs: number | null; mean_abs_deviation: number | null }[] }
+      queue_feedback_reminders: { Args: Record<string, never>; Returns: number }
+      candidate_experience: { Args: { org: string }; Returns: { answers: number; avg_score: number | null; hired_avg: number | null; rejected_avg: number | null }[] }
       referral_stats: { Args: { org: string }; Returns: { referrer_id: string; applications: number; shortlisted: number; hired: number }[] }
       queue_pending_reminders: { Args: { days?: number }; Returns: number }
       run_retention: { Args: { application_months?: number; click_id_days?: number; event_months?: number; mail_days?: number; pool_months?: number }; Returns: Json }

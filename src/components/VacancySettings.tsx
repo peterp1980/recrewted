@@ -10,7 +10,7 @@ export async function VacancySettings({ vacancyId }: { vacancyId: string }) {
   const m = getMessages();
   const t = m.settings;
   const supabase = await createClient();
-  const { data: v } = await supabase.from("vacancies").select("status, openings, pricing_model, price_eur, media_markup_pct, employer_visible").eq("id", vacancyId).single();
+  const { data: v } = await supabase.from("vacancies").select("status, openings, pricing_model, price_eur, media_markup_pct, employer_visible, salary_note").eq("id", vacancyId).single();
   if (!v) return null;
   return (
     <section id="einstellungen" aria-labelledby="einst-h" className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-white p-4">
@@ -34,6 +34,7 @@ export async function VacancySettings({ vacancyId }: { vacancyId: string }) {
         </label>
         <label className="grid gap-1"><span>{t.price}</span><input name="price" inputMode="decimal" defaultValue={v.price_eur ?? ""} className={input} /></label>
         <label className="grid gap-1"><span>{t.markup}</span><span className="text-sm text-muted">{t.markupHint}</span><input name="markup" inputMode="decimal" defaultValue={Number(v.media_markup_pct)} className={input} /></label>
+        <label className="grid gap-1 sm:col-span-2"><span>{t.salaryNote}</span><span className="text-sm text-muted">{t.salaryNoteHint}</span><input name="salaryNote" maxLength={300} defaultValue={v.salary_note ?? ""} placeholder="z. B. 3.200–3.600 € brutto im Monat, je nach Erfahrung" className={input} /></label>
         <label className="flex items-center gap-2 sm:col-span-2"><input type="checkbox" name="employerVisible" defaultChecked={v.employer_visible} className="h-5 w-5" /> {t.employerVisible}</label>
         <button type="submit" className="justify-self-start rounded-lg bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-800">{t.save}</button>
       </form>

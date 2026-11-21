@@ -1,6 +1,7 @@
 import "server-only";
 import { siteUrl } from "@/lib/site";
 import { signBookingToken, verifyBookingToken } from "./token";
+import { signSurveyToken } from "@/lib/survey/token";
 
 const secret = () => process.env.DATA_REQUEST_SECRET ?? null;
 
@@ -18,6 +19,11 @@ const NEEDS_LINK = new Set(["booking_invite", "interview_booked", "interview_can
 
 /** Mails queued by the database carry no link (it cannot sign); the personal link is added when sending. */
 export function withBookingLink<T extends { link?: string | null; applicationId?: string }>(template: string, data: T): T {
-  if (!NEEDS_LINK.has(template) || data.link || !data.applicationId) return data;
+  if (data.link || !data.applicationId) return data;
+  if (template === "candidate_survey") {
+    const s = secret();
+    return { ...data, link: s ? `${siteUrl()}/umfrage/${signSurveyToken(data.applicationId, s)}` : null };
+  }
+  if (!NEEDS_LINK.has(template)) return data;
   return { ...data, link: bookingUrl(data.applicationId) };
 }

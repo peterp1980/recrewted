@@ -1,3 +1,4 @@
+import { displayName, pseudonyms } from "@/lib/portal/blind";
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { Criterion } from "./ratings";
@@ -21,13 +22,15 @@ export async function loadScorecard(applicationId: string): Promise<ScorecardDat
     .eq("id", applicationId)
     .maybeSingle();
   if (!app) return null;
+  // Blind review: no name visible (RLS) → the same pseudonym as in the portal.
+  const { data: siblings } = app.candidates ? { data: [] } : await supabase.from("applications").select("id, shortlisted_at").eq("vacancy_id", app.vacancy_id);
   const [{ data: criteria }, { data: ratings }] = await Promise.all([
     supabase.from("scorecard_criteria").select("id, name, description, weight").eq("vacancy_id", app.vacancy_id).order("position"),
     supabase.from("scorecard_ratings").select("criterion_id, rating, reason, rated_at, ai_suggested").eq("application_id", applicationId),
   ]);
   return {
     applicationId: app.id,
-    candidateName: `${app.candidates?.first_name ?? ""} ${app.candidates?.last_name ?? ""}`.trim(),
+    candidateName: displayName(app.candidates, pseudonyms(siblings ?? []).get(app.id)),
     vacancyTitle: app.vacancies?.title ?? "",
     employer: app.vacancies?.organizations?.name ?? null,
     status: app.status,

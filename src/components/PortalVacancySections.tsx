@@ -1,3 +1,4 @@
+import { displayName, pseudonyms } from "@/lib/portal/blind";
 import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { logRead } from "@/lib/audit";
@@ -21,6 +22,7 @@ export async function PortalVacancySections({ vacancyId, viewerId }: { vacancyId
     supabase.from("contracts").select("id, kind, status, signed_at, storage_path").eq("vacancy_id", vacancyId).eq("status", "completed"),
   ]);
   if (shortlist?.length) await logRead(viewerId, "applications", shortlist.map((a) => a.id), "portal_shortlist");
+  const names = pseudonyms(shortlist ?? []);
 
   const links = await Promise.all(
     (contracts ?? []).filter((c) => c.storage_path).map(async (c) => {
@@ -61,7 +63,7 @@ export async function PortalVacancySections({ vacancyId, viewerId }: { vacancyId
             {shortlist.map((a) => (
               <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-neutral-200 bg-white p-3">
                 <div>
-                  <Link href={`/portal/applications/${a.id}`} className="font-medium hover:underline">{a.candidates?.first_name} {a.candidates?.last_name}</Link>
+                  <Link href={`/portal/applications/${a.id}`} className="font-medium hover:underline">{displayName(a.candidates, names.get(a.id))}</Link>
                   <p className="text-sm text-muted">{m.applications.status[a.status]} · {m.scorecard.total} {scoreText(a.score === null ? null : Number(a.score))}</p>
                 </div>
                 <Link href={`/portal/applications/${a.id}`} className="rounded-lg border border-neutral-300 px-3 py-1 text-sm hover:bg-brand-50">{t.open}</Link>
