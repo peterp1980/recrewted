@@ -46,7 +46,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | 11 | F4 Bewertungsbogen inkl. PDF und KI-Vorschlag | gebaut (Branch `mvp`); KI-Vorschlag wartet auf Anbieter-Entscheidung |
 | 12 | F5 Pipeline (Kanban) + Mail-Vorlagen | gebaut (Branch `mvp`) |
 | 13 | F14 Kundenportal + F6 Rückmeldung Einstellung | gebaut (Branch `mvp`); Kundenaufwand-KPI mit F12 |
-| 14 | F7 Managed-Kampagnen (Erfassung, UTM-Links) | 3 |
+| 14 | F7 Managed-Kampagnen (Erfassung, UTM-Links) | gebaut (Branch `mvp`); Kosten manuell bis API-Anbindung |
 | | **Summe M1** | **≈ 48** |
 
 **Meilenstein 2 – MVP vollständig**
@@ -56,7 +56,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | 15 | F12 Herkunft bis Einstellung + Server-Conversions (4 Plattformen) | 8 |
 | 16 | F8 Job-Ad-Generator mit AGG-Prüfung | 5 |
 | 17 | F9 Portale (Indeed-Feed, BA; StepStone je Vertrag) | 5 |
-| 18 | F11 Stelle besetzt → überall offline (≤ 1 h) | 2 |
+| 18 | F11 Stelle besetzt → überall offline (≤ 1 h) | gebaut (Branch `mvp`); Pausieren auf den Werbeplattformen braucht API-Zugang |
 | 19 | F21 B2B-Seiten + Redirects (abhängig vom Design) | 4 |
 | 20 | Härtung: E2E-Tests Abläufe 1–9, WCAG 2.2 AA, Lighthouse ≥ 90, Pentest-Vorbereitung | 5 |
 | | **Summe M2** | **≈ 29** |

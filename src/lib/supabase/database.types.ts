@@ -35,7 +35,9 @@ export type Database = {
         Row: { campaign_id: string; clicks: number | null; cost_eur: number; day: string; impressions: number | null }
         Insert: { campaign_id: string; clicks?: number | null; cost_eur?: number; day: string; impressions?: number | null }
         Update: { campaign_id?: string; clicks?: number | null; cost_eur?: number; day?: string; impressions?: number | null }
-        Relationships: Rel[]
+        Relationships: [
+          { foreignKeyName: "ad_costs_campaign_id_fkey"; columns: ["campaign_id"]; isOneToOne: false; referencedRelation: "campaigns"; referencedColumns: ["id"] },
+        ]
       }
       ai_recommendations: {
         Row: { accepted: boolean | null; application_id: string | null; created_at: string; decided_by: string | null; id: string; input_ref: Json; kind: string; model: string; output: Json; vacancy_id: string | null }
@@ -72,7 +74,10 @@ export type Database = {
         Row: { ad_account_id: string | null; budget_eur: number | null; channel: string; created_at: string; ends_on: string | null; external_campaign_id: string | null; id: string; starts_on: string | null; status: E["campaign_status"]; target_qualified: number | null; utm_campaign: string | null; vacancy_id: string }
         Insert: { ad_account_id?: string | null; budget_eur?: number | null; channel: string; created_at?: string; ends_on?: string | null; external_campaign_id?: string | null; id?: string; starts_on?: string | null; status?: E["campaign_status"]; target_qualified?: number | null; utm_campaign?: string | null; vacancy_id: string }
         Update: { ad_account_id?: string | null; budget_eur?: number | null; channel?: string; created_at?: string; ends_on?: string | null; external_campaign_id?: string | null; id?: string; starts_on?: string | null; status?: E["campaign_status"]; target_qualified?: number | null; utm_campaign?: string | null; vacancy_id?: string }
-        Relationships: Rel[]
+        Relationships: [
+          { foreignKeyName: "campaigns_ad_account_id_fkey"; columns: ["ad_account_id"]; isOneToOne: false; referencedRelation: "ad_accounts"; referencedColumns: ["id"] },
+          { foreignKeyName: "campaigns_vacancy_id_fkey"; columns: ["vacancy_id"]; isOneToOne: false; referencedRelation: "vacancies"; referencedColumns: ["id"] },
+        ]
       }
       candidates: {
         Row: { created_at: string; email: string | null; first_name: string; id: string; last_name: string; phone: string | null; talent_pool_consent_at: string | null }
