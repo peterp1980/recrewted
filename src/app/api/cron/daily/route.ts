@@ -24,6 +24,10 @@ export async function GET(request: NextRequest) {
   const uploadPaths = ((retention as { assessment_paths?: string[] } | null)?.assessment_paths ?? []).filter(Boolean);
   if (uploadPaths.length) await admin.storage.from("assessment-uploads").remove(uploadPaths);
 
+  // "Still on it" mails for applications in review for 7 days (0019).
+  const { data: reminders, error: remErr } = await admin.rpc("queue_pending_reminders", {});
+  result.pendingReminders = remErr ? { error: remErr.message } : reminders;
+
   // Job alerts for the talent pool (0018), queued before the mails are processed below.
   try {
     result.jobAlerts = await queueJobAlerts();

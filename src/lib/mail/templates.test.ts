@@ -64,3 +64,18 @@ describe("profile and job alerts", () => {
     expect(m.text).toContain("https://recrewted.de/profil/abc");
   });
 });
+
+describe("status mails", () => {
+  const d = { firstName: "Eva", jobTitle: "Busfahrer:in (m/w/d)", employer: "Hafermann Reisen" };
+  it("has a text for every status, in both forms of address", () => {
+    for (const status of ["pending", "shortlisted", "interview", "hired", "rejected"]) {
+      const sie = renderMail("status_update", { ...d, status });
+      const du = renderMail("status_update", { ...d, status, tone: "du" });
+      expect(sie.subject).toContain("Busfahrer:in (m/w/d)");
+      expect(sie.text).toMatch(/^Hallo Eva,\n\n/);
+      expect(du.text).not.toMatch(/\b(Sie|Ihre?)\b/);
+    }
+    expect(renderMail("status_update", { ...d, status: "interview" }).text).toContain("Hafermann Reisen möchte Sie gern kennenlernen");
+    expect(renderMail("status_update", { ...d, status: "unknown" }).subject).toContain("Zwischenstand");
+  });
+});

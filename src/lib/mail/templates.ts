@@ -1,7 +1,7 @@
 // E-mail texts to candidates. Written plainly, like a person would write them.
 // Variables are inserted as plain text; mails are sent as text/plain.
 
-export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite" | "profile_link" | "job_alert";
+export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite" | "profile_link" | "job_alert" | "status_update";
 
 export type MailData = {
   firstName: string;
@@ -12,6 +12,8 @@ export type MailData = {
   link?: string | null;
   /** assessment_invite: time limit in minutes, if any. */
   minutes?: number | null;
+  /** status_update: the new status (or "pending" for the 7-day reminder). */
+  status?: string;
   /** job_alert: matching new jobs. */
   jobs?: { title: string; employer: string | null; place: string | null; url: string }[];
   /** The employer's form of address; missing means formal (mails queued before 0012). */
@@ -24,7 +26,32 @@ const at = (d: MailData) => (d.employer ? ` bei ${d.employer}` : "");
 const limitSie = (d: MailData) => (d.minutes ? `Für den Test haben Sie ${d.minutes} Minuten Zeit, sobald Sie ihn starten. Planen Sie sich also eine ruhige Zeit ein.` : "Für den Test gibt es kein Zeitlimit.");
 const limitDu = (d: MailData) => (d.minutes ? `Für den Test hast du ${d.minutes} Minuten Zeit, sobald du ihn startest. Plan dir also eine ruhige Zeit ein.` : "Für den Test gibt es kein Zeitlimit.");
 
+// Short, human status messages. Unknown statuses fall back to "pending".
+const STATUS_SIE: Record<string, (d: MailData) => string> = {
+  pending: (d) => `Ihre Bewerbung als ${d.jobTitle}${at(d)} ist nicht vergessen: Wir sind noch dabei, alle Bewerbungen sorgfältig anzuschauen. Sie hören von uns, sobald es Neues gibt.`,
+  shortlisted: (d) => `gute Nachrichten: Wir haben Ihre Bewerbung als ${d.jobTitle} dem Unternehmen${d.employer ? ` ${d.employer}` : ""} vorgestellt. Das Unternehmen schaut sie sich jetzt an. Wir melden uns, sobald wir eine Rückmeldung haben.`,
+  interview: (d) => `${d.employer ?? "Das Unternehmen"} möchte Sie gern kennenlernen – Ihre Bewerbung als ${d.jobTitle} hat überzeugt. Wir melden uns in Kürze, um einen Termin abzustimmen.`,
+  hired: (d) => `herzlichen Glückwunsch zur neuen Stelle als ${d.jobTitle}${at(d)}! Wir freuen uns mit Ihnen und wünschen einen guten Start.`,
+  rejected: (d) => `danke für Ihre Bewerbung als ${d.jobTitle}${at(d)} und Ihre Geduld. Diesmal hat es leider nicht gepasst – das Unternehmen hat sich für andere Bewerbungen entschieden. Das sagt nichts über Ihre Qualifikation insgesamt aus. Auf unserer Jobbörse finden Sie weitere Stellen.`,
+};
+const STATUS_DU: Record<string, (d: MailData) => string> = {
+  pending: (d) => `deine Bewerbung als ${d.jobTitle}${at(d)} ist nicht vergessen: Wir sind noch dabei, alle Bewerbungen sorgfältig anzuschauen. Du hörst von uns, sobald es Neues gibt.`,
+  shortlisted: (d) => `gute Nachrichten: Wir haben deine Bewerbung als ${d.jobTitle} dem Unternehmen${d.employer ? ` ${d.employer}` : ""} vorgestellt. Das Unternehmen schaut sie sich jetzt an. Wir melden uns, sobald wir eine Rückmeldung haben.`,
+  interview: (d) => `${d.employer ?? "Das Unternehmen"} möchte dich gern kennenlernen – deine Bewerbung als ${d.jobTitle} hat überzeugt. Wir melden uns in Kürze, um einen Termin abzustimmen.`,
+  hired: (d) => `herzlichen Glückwunsch zur neuen Stelle als ${d.jobTitle}${at(d)}! Wir freuen uns mit dir und wünschen dir einen guten Start.`,
+  rejected: (d) => `danke für deine Bewerbung als ${d.jobTitle}${at(d)} und deine Geduld. Diesmal hat es leider nicht gepasst – das Unternehmen hat sich für andere Bewerbungen entschieden. Das sagt nichts über deine Qualifikation insgesamt aus. Auf unserer Jobbörse findest du weitere Stellen.`,
+};
+const STATUS_SUBJECT: Record<string, string> = { pending: "Kurzer Zwischenstand", shortlisted: "Ihre Bewerbung ist beim Unternehmen", interview: "Einladung zum Kennenlernen", hired: "Herzlichen Glückwunsch!", rejected: "Ihre Bewerbung" };
+const STATUS_SUBJECT_DU: Record<string, string> = { ...STATUS_SUBJECT, shortlisted: "Deine Bewerbung ist beim Unternehmen", rejected: "Deine Bewerbung" };
+const statusMail = (d: MailData, du: boolean) => {
+  const key = d.status && d.status in STATUS_SIE ? d.status : "pending";
+  const body = (du ? STATUS_DU : STATUS_SIE)[key](d);
+  // "pending" starts mid-sentence in lower case after the greeting like the others.
+  return { subject: `${(du ? STATUS_SUBJECT_DU : STATUS_SUBJECT)[key]} – ${d.jobTitle}`, text: `Hallo ${d.firstName},\n\n${body}\n\n${sign(d)}` };
+};
+
 const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: string }> = {
+  status_update: (d) => statusMail(d, false),
   application_received: (d) => ({
     subject: `Ihre Bewerbung als ${d.jobTitle}`,
     text: `Hallo ${d.firstName},\n\ndanke für Ihre Bewerbung als ${d.jobTitle}${at(d)}. Sie ist gut bei uns angekommen.\n\nWir schauen sie uns in den nächsten Tagen an und melden uns bei Ihnen – egal, wie es ausgeht.\n\n${sign(d)}`,
@@ -66,6 +93,7 @@ const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: 
 // Informal versions for employers that address candidates with "du". Data requests stay formal:
 // they come from recrewted, not from an employer.
 const TEMPLATES_DU: Partial<Record<MailTemplate, (d: MailData) => { subject: string; text: string }>> = {
+  status_update: (d) => statusMail(d, true),
   application_received: (d) => ({
     subject: `Deine Bewerbung als ${d.jobTitle}`,
     text: `Hallo ${d.firstName},\n\ndanke für deine Bewerbung als ${d.jobTitle}${at(d)}. Sie ist gut bei uns angekommen.\n\nWir schauen sie uns in den nächsten Tagen an und melden uns bei dir – egal, wie es ausgeht.\n\n${sign(d)}`,

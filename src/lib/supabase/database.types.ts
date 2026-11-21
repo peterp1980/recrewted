@@ -257,6 +257,7 @@ export type Database = {
     Functions: {
       claim_due_mails: { Args: { max_count: number }; Returns: Database["public"]["Tables"]["mail_outbox"]["Row"][] }
       submit_application: { Args: { p: Json }; Returns: Json }
+      queue_pending_reminders: { Args: { days?: number }; Returns: number }
       run_retention: { Args: { application_months?: number; click_id_days?: number; event_months?: number; mail_days?: number; pool_months?: number }; Returns: Json }
       candidate_export: { Args: { cand: string }; Returns: Json }
     }
