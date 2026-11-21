@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getMessages } from "@/i18n";
 import { ConsentSettingsLink } from "./ConsentAndTracking";
 import { Logo } from "./Logo";
 
@@ -48,6 +49,7 @@ export function SiteFooter({ note }: { note?: string }) {
           <Link href="/pakete" className="hover:text-brand-800">Pakete</Link>
           <Link href="/cases" className="hover:text-brand-800">Cases</Link>
           <Link href="/jobs" className="hover:text-brand-800">Offene Stellen</Link>
+          <Link href="/profil" className="hover:text-brand-800">{getMessages().profile.footer}</Link>
         </nav>
         <nav aria-label="Rechtliches" className="flex flex-col gap-2 text-sm">
           <Link href="/kontakt" className="hover:text-brand-800">Kontakt</Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { applyMessages, type Tone } from "@/i18n";
+import { applyMessages, getMessages, type Tone } from "@/i18n";
 import { MAX_CV_BYTES } from "@/lib/apply/parse";
 import type { ScreeningQuestion } from "@/lib/screening/rules";
 import { prepareCvUpload, submitApplication, type ApplyState } from "./actions";
@@ -142,6 +142,10 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
         <label className="flex items-start gap-3">
           <input type="checkbox" name="talentPoolConsent" defaultChecked={v.talentPoolConsent === "on"} className="mt-1 h-5 w-5 shrink-0" />
           <span className="text-ink/80">{t.talentPool}</span>
+        </label>
+        <label className="flex items-start gap-3">
+          <input type="checkbox" name="profileOptIn" defaultChecked={v.profileOptIn === "on"} className="mt-1 h-5 w-5 shrink-0" />
+          <span className="text-ink/80">{getMessages().profile.applyOptIn}</span>
         </label>
       </div>
 

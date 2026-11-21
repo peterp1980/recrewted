@@ -2,10 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { processConversions } from "@/lib/conversions/process";
 import { processDueMails } from "@/lib/mail/outbox";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { queueJobAlerts } from "@/lib/profile/send-alerts";
 
 /**
  * Daily job (vercel.json): retention (F20), CV files of deleted applications,
- * unused CV uploads, conversions (F12), delayed mails.
+ * unused CV uploads, job alerts, conversions (F12), delayed mails.
  */
 export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -22,6 +23,13 @@ export async function GET(request: NextRequest) {
   // Uploaded work samples of deleted applications (assessment, migration 0015).
   const uploadPaths = ((retention as { assessment_paths?: string[] } | null)?.assessment_paths ?? []).filter(Boolean);
   if (uploadPaths.length) await admin.storage.from("assessment-uploads").remove(uploadPaths);
+
+  // Job alerts for the talent pool (0018), queued before the mails are processed below.
+  try {
+    result.jobAlerts = await queueJobAlerts();
+  } catch (e) {
+    result.jobAlerts = { error: e instanceof Error ? e.message : "failed" };
+  }
 
   // CV uploads that never became part of an application (older than a day).
   const { data: incoming } = await admin.storage.from("cvs").list("incoming", { limit: 1000 });

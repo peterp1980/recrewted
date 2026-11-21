@@ -1,7 +1,7 @@
 // E-mail texts to candidates. Written plainly, like a person would write them.
 // Variables are inserted as plain text; mails are sent as text/plain.
 
-export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite";
+export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite" | "profile_link" | "job_alert";
 
 export type MailData = {
   firstName: string;
@@ -12,6 +12,8 @@ export type MailData = {
   link?: string | null;
   /** assessment_invite: time limit in minutes, if any. */
   minutes?: number | null;
+  /** job_alert: matching new jobs. */
+  jobs?: { title: string; employer: string | null; place: string | null; url: string }[];
   /** The employer's form of address; missing means formal (mails queued before 0012). */
   tone?: "sie" | "du";
 };
@@ -46,6 +48,14 @@ const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: 
   assessment_invite: (d) => ({
     subject: `Ihr nächster Schritt: kurzer Test – ${d.jobTitle}`,
     text: `Hallo ${d.firstName},\n\nzu Ihrer Bewerbung als ${d.jobTitle}${at(d)} gehört ein kurzer Test. Über diesen Link können Sie ihn machen:\n\n${d.link ?? ""}\n\n${limitSie(d)} Der Link gilt 14 Tage.\n\n${sign(d)}`,
+  }),
+  profile_link: (d) => ({
+    subject: "Ihr Bewerberprofil bei recrewted",
+    text: `Hallo ${d.firstName},\n\nüber diesen Link kommen Sie zu Ihrem Bewerberprofil:\n\n${d.link ?? ""}\n\nDort sehen Sie Ihre Bewerbungen, können Ihre Daten ändern, Job-Benachrichtigungen einstellen oder alles löschen. Der Link gilt 30 Tage; einen neuen bekommen Sie jederzeit auf recrewted.de/profil.\n\nWenn Sie das nicht angefordert haben, können Sie diese E-Mail einfach ignorieren.\n\n${sign(d)}`,
+  }),
+  job_alert: (d) => ({
+    subject: (d.jobs?.length ?? 0) === 1 ? "Eine neue Stelle, die zu Ihnen passen könnte" : `${d.jobs?.length ?? 0} neue Stellen, die zu Ihnen passen könnten`,
+    text: `Hallo ${d.firstName},\n\nseit unserer letzten Nachricht sind diese Stellen dazugekommen:\n\n${(d.jobs ?? []).map((j) => `${j.title}${j.employer ? ` – ${j.employer}` : ""}${j.place ? `, ${j.place}` : ""}\n${j.url}`).join("\n\n")}\n\nBewerben geht wie immer in zwei Minuten.\n\nWelche Stellen wir Ihnen schicken – oder ob überhaupt –, stellen Sie in Ihrem Profil ein:\n${d.link ?? ""}\n\n${sign(d)}`,
   }),
   question: (d) => ({
     subject: `Rückfrage zu Ihrer Bewerbung als ${d.jobTitle}`,

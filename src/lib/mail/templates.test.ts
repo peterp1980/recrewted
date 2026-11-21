@@ -46,3 +46,21 @@ describe("assessment invitation", () => {
     expect(renderMail("assessment_invite", { ...d, minutes: null }).text).toContain("kein Zeitlimit");
   });
 });
+
+describe("profile and job alerts", () => {
+  it("sends the profile link", () => {
+    const m = renderMail("profile_link", { firstName: "Mia", jobTitle: "", link: "https://recrewted.de/profil/abc" });
+    expect(m.subject).toBe("Ihr Bewerberprofil bei recrewted");
+    expect(m.text).toContain("https://recrewted.de/profil/abc");
+  });
+  it("lists the jobs and links to the settings", () => {
+    const m = renderMail("job_alert", { firstName: "Mia", jobTitle: "", link: "https://recrewted.de/profil/abc", jobs: [
+      { title: "Busfahrer:in (m/w/d)", employer: "Hafermann Reisen", place: "Witten", url: "https://recrewted.de/jobs/x" },
+      { title: "Kundenservice (m/w/d)", employer: null, place: null, url: "https://recrewted.de/jobs/y" },
+    ] });
+    expect(m.subject).toBe("2 neue Stellen, die zu Ihnen passen könnten");
+    expect(m.text).toContain("Busfahrer:in (m/w/d) – Hafermann Reisen, Witten\nhttps://recrewted.de/jobs/x");
+    expect(m.text).toContain("Kundenservice (m/w/d)\nhttps://recrewted.de/jobs/y");
+    expect(m.text).toContain("https://recrewted.de/profil/abc");
+  });
+});

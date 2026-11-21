@@ -2,6 +2,8 @@
 
 import { ENTRY_PARAM, entryParam } from "@/lib/careers/profile";
 import { createAttempt, queueInvite } from "@/lib/assessments/server";
+import { prefsFromJob } from "@/lib/profile/alerts";
+import { sendProfileLink } from "@/lib/profile/server";
 import { randomUUID } from "node:crypto";
 import { after } from "next/server";
 import { cookies } from "next/headers";
@@ -123,7 +125,17 @@ export async function submitApplication(_prev: ApplyState, form: FormData): Prom
     return fail(["server"]);
   }
 
-  const applicationId = (data as { application_id: string }).application_id;
+  const { application_id: applicationId, candidate_id: candidateId } = data as { application_id: string; candidate_id: string };
+
+  // Job alerts: first guess of the preferences from this job (only if none are set yet).
+  if (value.talentPoolConsent) {
+    const { data: cand } = await admin.from("candidates").select("alert_prefs").eq("id", candidateId).single();
+    if (cand && Object.keys((cand.alert_prefs as object) ?? {}).length === 0) {
+      await admin.from("candidates").update({ alert_prefs: prefsFromJob(job) }).eq("id", candidateId);
+    }
+  }
+  // Applicant profile on request: link by e-mail.
+  if (form.get("profileOptIn") === "on" && value.email) await sendProfileLink(candidateId);
   if (cv) {
     // CVs live in the private "cvs" bucket and are only reachable via short-lived signed URLs.
     const path = `${applicationId}/lebenslauf.${cv.ext}`;

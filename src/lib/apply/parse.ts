@@ -1,6 +1,7 @@
 // Short application (F2): only what is needed, no cover letter, no account.
 
-export const CONSENT_VERSION = "2026-11-21";
+// Bump when the wording of the processing or talent pool consent changes (stored with every application).
+export const CONSENT_VERSION = "2026-11-21b";
 export const MAX_CV_BYTES = 10 * 1024 * 1024;
 
 export type ApplicationInput = {
