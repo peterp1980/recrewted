@@ -1,5 +1,5 @@
 import { getMessages } from "@/i18n";
-import { EMPLOYMENT_TYPES, REMOTE_OPTIONS, SALARY_PERIODS, type Briefing, type BriefingField } from "@/lib/briefing/schema";
+import { CATEGORIES, EMPLOYMENT_TYPES, REMOTE_OPTIONS, SALARY_PERIODS, type Briefing, type BriefingField } from "@/lib/briefing/schema";
 import { saveBriefing } from "@/app/vacancy-actions";
 
 const input = "w-full rounded-md border border-neutral-400 px-3 py-2";
@@ -56,7 +56,21 @@ export function BriefingForm({ vacancyId, briefing: b, missing }: Props) {
             </select>
           </label>
         </div>
-        <Text name="location" label={f.location} value={b.location} field="location" maxLength={150} autoComplete="address-level2" />
+        <label className="grid gap-1">
+          <span className="font-medium">{f.category}</span>
+          <select name="category" defaultValue={b.category ?? ""} className={cls("category")} {...aria("category")}>
+            <option value="">{t.options.choose}</option>
+            {CATEGORIES.map((o) => (
+              <option key={o} value={o}>{t.options.category[o]}</option>
+            ))}
+          </select>
+        </label>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="sm:col-span-2">
+            <Text name="location" label={f.location} value={b.location} field="location" maxLength={150} autoComplete="address-level2" />
+          </div>
+          <Text name="postalCode" label={f.postalCode} value={b.postalCode} field="postalCode" inputMode="numeric" pattern="\d{5}" maxLength={5} autoComplete="postal-code" />
+        </div>
       </fieldset>
 
       <fieldset className="grid gap-4">

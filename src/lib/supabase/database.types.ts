@@ -118,6 +118,12 @@ export type Database = {
         Update: { created_at?: string; id?: string; name?: string; pipedrive_org_id?: number | null; website?: string | null }
         Relationships: []
       }
+      postal_codes: {
+        Row: { code: string; latitude: number; longitude: number; place: string }
+        Insert: { code: string; latitude: number; longitude: number; place: string }
+        Update: { code?: string; latitude?: number; longitude?: number; place?: string }
+        Relationships: []
+      }
       profiles: {
         Row: { created_at: string; full_name: string | null; id: string; role: E["user_role"] }
         Insert: { created_at?: string; full_name?: string | null; id: string; role?: E["user_role"] }
@@ -149,9 +155,9 @@ export type Database = {
         Relationships: Rel[]
       }
       vacancies: {
-        Row: { created_at: string; created_by: string | null; employment_type: string | null; filled_at: string | null; id: string; location: string | null; organization_id: string; pipedrive_deal_id: number | null; pricing_model: E["pricing_model"] | null; published_at: string | null; remote: boolean; salary_max: number | null; salary_min: number | null; salary_period: string; status: E["vacancy_status"]; title: string; updated_at: string }
-        Insert: { created_at?: string; created_by?: string | null; employment_type?: string | null; filled_at?: string | null; id?: string; location?: string | null; organization_id: string; pipedrive_deal_id?: number | null; pricing_model?: E["pricing_model"] | null; published_at?: string | null; remote?: boolean; salary_max?: number | null; salary_min?: number | null; salary_period?: string; status?: E["vacancy_status"]; title: string; updated_at?: string }
-        Update: { created_at?: string; created_by?: string | null; employment_type?: string | null; filled_at?: string | null; id?: string; location?: string | null; organization_id?: string; pipedrive_deal_id?: number | null; pricing_model?: E["pricing_model"] | null; published_at?: string | null; remote?: boolean; salary_max?: number | null; salary_min?: number | null; salary_period?: string; status?: E["vacancy_status"]; title?: string; updated_at?: string }
+        Row: { category: string | null; employer_visible: boolean; latitude: number | null; longitude: number | null; postal_code: string | null; created_at: string; created_by: string | null; employment_type: string | null; filled_at: string | null; id: string; location: string | null; organization_id: string; pipedrive_deal_id: number | null; pricing_model: E["pricing_model"] | null; published_at: string | null; remote: boolean; salary_max: number | null; salary_min: number | null; salary_period: string; status: E["vacancy_status"]; title: string; updated_at: string }
+        Insert: { category?: string | null; employer_visible?: boolean; latitude?: number | null; longitude?: number | null; postal_code?: string | null; created_at?: string; created_by?: string | null; employment_type?: string | null; filled_at?: string | null; id?: string; location?: string | null; organization_id: string; pipedrive_deal_id?: number | null; pricing_model?: E["pricing_model"] | null; published_at?: string | null; remote?: boolean; salary_max?: number | null; salary_min?: number | null; salary_period?: string; status?: E["vacancy_status"]; title: string; updated_at?: string }
+        Update: { category?: string | null; employer_visible?: boolean; latitude?: number | null; longitude?: number | null; postal_code?: string | null; created_at?: string; created_by?: string | null; employment_type?: string | null; filled_at?: string | null; id?: string; location?: string | null; organization_id?: string; pipedrive_deal_id?: number | null; pricing_model?: E["pricing_model"] | null; published_at?: string | null; remote?: boolean; salary_max?: number | null; salary_min?: number | null; salary_period?: string; status?: E["vacancy_status"]; title?: string; updated_at?: string }
         Relationships: [
           { foreignKeyName: "vacancies_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
           { foreignKeyName: "vacancies_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: false; referencedRelation: "organizations"; referencedColumns: ["id"] },

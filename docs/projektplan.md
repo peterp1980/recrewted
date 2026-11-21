@@ -39,7 +39,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | 4 | F13 Briefing → Suchprofil | gebaut (Branch `mvp`) |
 | 5 | F16 PandaDoc (Vorlagen, Versand, Webhook, PDF in Storage) | 4 |
 | 6 | F15 Pipedrive (Deal ↔ Vakanz, Stages spiegeln) | 2 |
-| 7 | F1 Jobbörse + Google for Jobs, F10 Gehaltsfeld | 4,5 |
+| 7 | F1 Jobbörse + Google for Jobs, F10 Gehaltsfeld | gebaut (Branch `mvp`); Umkreissuche braucht PLZ-Import |
 | 8 | F2 Kurzbewerbung mobil + Eingangsmail | 4 |
 | 9 | F20 Consent-Banner, Einwilligungen, Löschjobs | 4 |
 | 10 | F3 Ausschlussfragen + zeitversetzte Absage | 2 |

@@ -12,7 +12,9 @@ const complete: Briefing = {
   ...emptyBriefing(),
   title: "Elektroniker (m/w/d)",
   employmentType: "full_time",
+  category: "craft",
   location: "München",
+  postalCode: "80331",
   tasks: ["Wartung von Anlagen"],
   mustHave: ["Ausbildung als Elektroniker", "Führerschein Klasse B"],
   niceToHave: ["SPS-Kenntnisse"],
@@ -59,12 +61,13 @@ describe("missingForSubmit", () => {
   });
 
   it("does not need a location for fully remote jobs", () => {
-    expect(missingForSubmit({ ...complete, location: "", remote: "remote" })).toEqual([]);
+    expect(missingForSubmit({ ...complete, location: "", postalCode: "", remote: "remote" })).toEqual([]);
     expect(missingForSubmit({ ...complete, location: "" })).toContain("location");
+    expect(missingForSubmit({ ...complete, postalCode: "8033" })).toContain("postalCode");
   });
 
   it("lists everything missing on an empty briefing", () => {
-    expect(missingForSubmit(emptyBriefing())).toEqual(["title", "employmentType", "location", "tasks", "mustHave", "salary", "contactName", "contactEmail"]);
+    expect(missingForSubmit(emptyBriefing())).toEqual(["title", "employmentType", "category", "location", "postalCode", "tasks", "mustHave", "salary", "contactName", "contactEmail"]);
   });
 });
 

@@ -5,16 +5,23 @@
 export const EMPLOYMENT_TYPES = ["full_time", "part_time", "mini_job", "working_student", "apprenticeship", "freelance"] as const;
 export const REMOTE_OPTIONS = ["onsite", "hybrid", "remote"] as const;
 export const SALARY_PERIODS = ["year", "month", "hour"] as const;
+export const CATEGORIES = [
+  "craft", "engineering", "it", "healthcare", "social", "office", "sales", "marketing",
+  "logistics", "production", "hospitality", "finance_legal", "construction", "other",
+] as const;
 
 export type EmploymentType = (typeof EMPLOYMENT_TYPES)[number];
 export type RemoteOption = (typeof REMOTE_OPTIONS)[number];
 export type SalaryPeriod = (typeof SALARY_PERIODS)[number];
+export type Category = (typeof CATEGORIES)[number];
 
 export type Briefing = {
   v: 1;
   title: string;
   employmentType: EmploymentType | null;
+  category: Category | null;
   location: string;
+  postalCode: string;
   remote: RemoteOption;
   tasks: string[];
   mustHave: string[];
@@ -32,10 +39,10 @@ export type Briefing = {
 };
 
 export type BriefingField =
-  | "title" | "employmentType" | "location" | "tasks" | "mustHave" | "salary" | "salaryRange" | "startDate" | "contactName" | "contactEmail";
+  | "title" | "employmentType" | "category" | "location" | "postalCode" | "tasks" | "mustHave" | "salary" | "salaryRange" | "startDate" | "contactName" | "contactEmail";
 
 export const emptyBriefing = (): Briefing => ({
-  v: 1, title: "", employmentType: null, location: "", remote: "onsite", tasks: [], mustHave: [], niceToHave: [],
+  v: 1, title: "", employmentType: null, category: null, location: "", postalCode: "", remote: "onsite", tasks: [], mustHave: [], niceToHave: [],
   salaryMin: null, salaryMax: null, salaryPeriod: "year", startDate: null, benefits: [],
   contactName: "", contactEmail: "", contactPhone: "", notes: "",
 });
@@ -66,7 +73,9 @@ export function parseBriefingForm(form: FormData): Briefing {
     v: 1,
     title: str(g("title"), 150),
     employmentType: oneOf(g("employmentType"), [...EMPLOYMENT_TYPES, ""] as const, "") || null,
+    category: oneOf(g("category"), [...CATEGORIES, ""] as const, "") || null,
     location: str(g("location"), 150),
+    postalCode: str(g("postalCode"), 5).replace(/\D/g, ""),
     remote: oneOf(g("remote"), REMOTE_OPTIONS, "onsite"),
     tasks: lines(g("tasks")),
     mustHave: lines(g("mustHave")),
@@ -93,7 +102,9 @@ export function fromStored(data: unknown): Briefing {
     ...emptyBriefing(),
     title: str(d.title, 150),
     employmentType: oneOf(d.employmentType, [...EMPLOYMENT_TYPES, ""] as const, "") || null,
+    category: oneOf(d.category, [...CATEGORIES, ""] as const, "") || null,
     location: str(d.location, 150),
+    postalCode: str(d.postalCode, 5).replace(/\D/g, ""),
     remote: oneOf(d.remote, REMOTE_OPTIONS, "onsite"),
     tasks: arr(d.tasks),
     mustHave: arr(d.mustHave),
@@ -117,7 +128,9 @@ export function missingForSubmit(b: Briefing): BriefingField[] {
   const missing: BriefingField[] = [];
   if (b.title.length < 3) missing.push("title");
   if (!b.employmentType) missing.push("employmentType");
+  if (!b.category) missing.push("category");
   if (b.remote !== "remote" && b.location.length < 2) missing.push("location");
+  if (b.remote !== "remote" && !/^\d{5}$/.test(b.postalCode)) missing.push("postalCode");
   if (b.tasks.length === 0) missing.push("tasks");
   if (b.mustHave.length === 0) missing.push("mustHave");
   if (b.salaryMin === null || b.salaryMax === null) missing.push("salary");
