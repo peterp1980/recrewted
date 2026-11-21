@@ -1,3 +1,4 @@
+import { RecruiterCockpit } from "@/components/RecruiterCockpit";
 import { getMessages } from "@/i18n";
 import { Notice } from "@/components/Notice";
 import { NewVacancyForm } from "@/components/NewVacancyForm";
@@ -21,6 +22,7 @@ export default async function AdminHome({ searchParams }: Props) {
     <main className="flex flex-col gap-8">
       <h1 className="text-2xl font-semibold">{m.admin.title}</h1>
       {error === "create" && <Notice kind="error">{m.vacancy.createError}</Notice>}
+      <RecruiterCockpit />
       <section aria-labelledby="list" className="flex flex-col gap-3">
         <h2 id="list" className="text-xl font-semibold">{m.vacancy.listTitle}</h2>
         <VacancyList items={vacancies} base="/admin" />

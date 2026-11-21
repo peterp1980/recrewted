@@ -217,3 +217,38 @@ export async function cancelMail(form: FormData) {
     .is("sent_at", null);
   redirect(applicationPage(applicationId, count ? "mailCancelled" : "error"));
 }
+
+/** Answers a candidate's request for feedback after a rejection: job-related, AGG-checked, by e-mail. */
+export async function answerFeedbackRequest(form: FormData) {
+  const session = await staffOnly();
+  const applicationId = String(form.get("applicationId") ?? "");
+  if (!isUuid(applicationId)) redirect("/admin");
+  const back = (s: string) => `/admin/applications/${applicationId}?fr=${s}#feedback-anfrage`;
+  const answer = String(form.get("answer") ?? "").trim();
+  if (answer.length < 20 || answer.length > 3000) redirect(back("invalid"));
+  if (findAggIssues(answer).length) redirect(back("agg"));
+  const admin = createAdminClient();
+  const { data: app } = await admin
+    .from("applications")
+    .select("candidate_id, candidates(first_name, email), vacancies(title, organizations(candidate_tone))")
+    .eq("id", applicationId)
+    .single();
+  if (!app?.candidates?.email) redirect(back("noEmail"));
+  const { data: updated } = await admin
+    .from("feedback_requests")
+    .update({ answer, answered_at: new Date().toISOString(), answered_by: session.userId })
+    .eq("application_id", applicationId)
+    .is("answered_at", null)
+    .select("application_id");
+  if (!updated?.length) redirect(back("error"));
+  await admin.from("mail_outbox").insert({
+    application_id: applicationId,
+    candidate_id: app.candidate_id,
+    to_email: app.candidates.email,
+    template: "feedback_answer",
+    data: { firstName: app.candidates.first_name, jobTitle: app.vacancies?.title ?? "", message: answer, senderName: session.fullName, tone: app.vacancies?.organizations?.candidate_tone === "du" ? "du" : "sie" },
+  });
+  after(() => processDueMails(5).then(() => undefined).catch((e) => console.error("mail processing failed", e)));
+  revalidatePath(`/admin/applications/${applicationId}`);
+  redirect(back("sent"));
+}

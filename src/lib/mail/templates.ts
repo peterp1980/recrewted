@@ -7,7 +7,7 @@ import { salaryText } from "@/lib/jobs/format";
 
 export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite" | "profile_link" | "job_alert" | "status_update" | "weekly_report" | "pool_invite" | "team_mention" | "team_shortlist" | "vacancy_request"
   | "booking_invite" | "interview_booked" | "interview_cancelled" | "interview_reminder" | "team_booking"
-  | "feedback_reminder" | "candidate_survey";
+  | "feedback_reminder" | "candidate_survey" | "team_withdrawn" | "feedback_answer";
 
 export type MailData = {
   firstName: string;
@@ -148,6 +148,14 @@ const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: 
     subject: `Eine Stelle, die zu Ihnen passen könnte: ${d.jobTitle}`,
     text: `Hallo ${d.firstName},\n\nSie haben uns erlaubt, uns bei passenden Stellen zu melden – hier ist eine: ${d.jobTitle}${at(d)}.\n\n${d.message ? `${d.message}\n\n` : ""}Alle Infos und die Bewerbung in zwei Minuten:\n${d.link ?? ""}\n\nKein Interesse? Dann müssen Sie nichts tun. In Ihrem Bewerberprofil können Sie die Benachrichtigungen jederzeit abschalten.\n\n${sign(d)}`,
   }),
+  team_withdrawn: (d) => ({
+    subject: `Bewerbung zurückgezogen: ${d.jobTitle}`,
+    text: `Hallo,\n\neine Person auf der Shortlist für ${d.jobTitle} hat ihre Bewerbung zurückgezogen. Ein vereinbarter Termin ist damit abgesagt.\n\n${siteUrl()}${d.staff ? "/admin" : "/portal"}/vacancies/${d.vacancyId ?? ""}\n\nViele Grüße\nrecrewted`,
+  }),
+  feedback_answer: (d) => ({
+    subject: `Rückmeldung zu Ihrer Bewerbung: ${d.jobTitle}`,
+    text: `Hallo ${d.firstName},\n\nSie hatten um eine kurze Rückmeldung gebeten, warum es für die Stelle ${d.jobTitle} nicht gepasst hat. Hier ist sie:\n\n${d.message ?? ""}\n\nWir wünschen Ihnen viel Erfolg bei der weiteren Suche.\n\n${sign(d)}`,
+  }),
   feedback_reminder: (d) => ({
     subject: `${d.open ?? "Kandidaten"} ${d.open === 1 ? "Kandidat wartet" : "Kandidaten warten"} auf Ihre Rückmeldung: ${d.jobTitle}`,
     text: `Hallo${d.firstName ? ` ${d.firstName}` : ""},\n\nauf der Shortlist für ${d.jobTitle} ${d.open === 1 ? "wartet eine Person" : `warten ${d.open ?? "einige"} Personen`} seit einigen Tagen auf Ihre Rückmeldung. Gute Kandidaten sind oft schnell vergeben – ein Klick genügt: Kennenlernen oder passt nicht, mit einem Satz Begründung.\n\n${siteUrl()}/portal/vacancies/${d.vacancyId ?? ""}/vergleich\n\nViele Grüße\nrecrewted`,
@@ -218,6 +226,10 @@ const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: 
 const TEMPLATES_DU: Partial<Record<MailTemplate, (d: MailData) => { subject: string; text: string }>> = {
   status_update: (d) => statusMail(d, true),
   ...interviewDu,
+  feedback_answer: (d) => ({
+    subject: `Rückmeldung zu deiner Bewerbung: ${d.jobTitle}`,
+    text: `Hallo ${d.firstName},\n\ndu hattest um eine kurze Rückmeldung gebeten, warum es für die Stelle ${d.jobTitle} nicht gepasst hat. Hier ist sie:\n\n${d.message ?? ""}\n\nWir wünschen dir viel Erfolg bei der weiteren Suche.\n\n${sign(d)}`,
+  }),
   candidate_survey: (d) => ({
     subject: "Eine kurze Frage zu deiner Bewerbung",
     text: `Hallo ${d.firstName},\n\ndeine Bewerbung als ${d.jobTitle} ist abgeschlossen. Wie hast du den Ablauf erlebt? Eine Frage, ein Klick – freiwillig und anonym ausgewertet:\n${d.link ?? ""}\n\nDanke!\n${sign(d)}`,

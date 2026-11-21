@@ -84,10 +84,12 @@ export async function attemptByToken(token: string): Promise<CandidateAttempt | 
   const admin = createAdminClient();
   const { data: a } = await admin
     .from("assessment_attempts")
-    .select("id, status, sent_at, started_at, deadline_at, assessment_id, assessments(title, intro, time_limit_minutes, vacancies(title, employer_visible, organizations(name, candidate_tone, brand_color)))")
+    .select("id, status, sent_at, started_at, deadline_at, assessment_id, applications(status), assessments(title, intro, time_limit_minutes, vacancies(title, employer_visible, organizations(name, candidate_tone, brand_color)))")
     .eq("token_hash", hashToken(token))
     .maybeSingle();
   if (!a) return null;
+  // A withdrawn application closes its test links (0027).
+  if ((a.applications as { status?: string } | null)?.status === "withdrawn") return null;
   if (a.status === "sent" && Date.parse(a.sent_at) < Date.now() - LINK_DAYS * 86_400_000) return null;
   const s = a.assessments as unknown as { title: string; intro: string; time_limit_minutes: number | null; vacancies: { title: string; employer_visible: boolean; organizations: { name: string; candidate_tone: string; brand_color: string | null } | null } | null } | null;
   if (!s) return null;

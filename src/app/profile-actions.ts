@@ -59,3 +59,28 @@ export async function saveJobAlerts(form: FormData) {
   revalidatePath(`/profil/${token}`);
   redirect(`/profil/${token}?s=${error ? "error" : "alerts"}#jobs`);
 }
+
+/** The candidate withdraws an application (any time). Booked interview and pending mails are cancelled. */
+export async function withdrawApplication(form: FormData) {
+  const { id, token } = candidate(form);
+  const app = String(form.get("applicationId") ?? "");
+  if (!/^[0-9a-f-]{36}$/.test(app) || form.get("confirm") !== "on") redirect(`/profil/${token}?s=confirm#bewerbungen`);
+  const { data, error } = await createAdminClient().rpc("withdraw_application", { app, cand: id });
+  if (!error && data) after(() => processDueMails(5).catch((e) => console.error("mail processing failed", e)));
+  revalidatePath(`/profil/${token}`);
+  redirect(`/profil/${token}?s=${error ? "error" : data ? "withdrawn" : "notOpen"}#bewerbungen`);
+}
+
+/** After a rejection: ask for a short, job-related reason. A recruiter answers by e-mail. */
+export async function requestRejectionFeedback(form: FormData) {
+  const { id, token } = candidate(form);
+  const app = String(form.get("applicationId") ?? "");
+  if (!/^[0-9a-f-]{36}$/.test(app)) redirect(`/profil/${token}`);
+  const admin = createAdminClient();
+  const { data: a } = await admin.from("applications").select("id, status").eq("id", app).eq("candidate_id", id).maybeSingle();
+  if (!a || a.status !== "rejected") redirect(`/profil/${token}?s=error#bewerbungen`);
+  const { error } = await admin.from("feedback_requests").upsert({ application_id: app }, { onConflict: "application_id", ignoreDuplicates: true });
+  if (!error) await admin.from("audit_log").insert({ action: "feedback_requested", table_name: "applications", record_id: app, details: { by: "data_subject" } });
+  revalidatePath(`/profil/${token}`);
+  redirect(`/profil/${token}?s=${error ? "error" : "feedbackRequested"}#bewerbungen`);
+}

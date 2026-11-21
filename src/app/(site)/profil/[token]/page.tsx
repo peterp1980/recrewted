@@ -8,7 +8,7 @@ import { parsePrefs, RADII } from "@/lib/profile/alerts";
 import { candidateFromToken } from "@/lib/profile/server";
 import { signToken } from "@/lib/privacy/token";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { saveJobAlerts, saveProfileData } from "@/app/profile-actions";
+import { requestRejectionFeedback, saveJobAlerts, saveProfileData, withdrawApplication } from "@/app/profile-actions";
 
 export const metadata: Metadata = { title: "Bewerberprofil – recrewted", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -34,12 +34,19 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
 
   const prefs = parsePrefs(c.alert_prefs);
   const apps = [...(c.applications ?? [])].sort((a, b) => Date.parse(b.submitted_at) - Date.parse(a.submitted_at));
+  const { data: fbReqs } = apps.length ? await admin.from("feedback_requests").select("application_id, answered_at").in("application_id", apps.map((a) => a.id)) : { data: [] };
+  const fb = new Map((fbReqs ?? []).map((r) => [r.application_id, r.answered_at]));
+  const OPEN = ["new", "screening", "qualified", "shortlisted", "interview"];
   const secret = process.env.DATA_REQUEST_SECRET;
   const privacyHref = secret ? `/datenschutz/anfrage/${signToken(id, secret)}` : "/datenschutz/anfrage";
   const notice =
     s === "saved" ? <Notice kind="ok">{t.saved}</Notice>
     : s === "alerts" ? <Notice kind="ok">{t.alertsSaved}</Notice>
     : s === "invalid" ? <Notice kind="error">{t.invalidData}</Notice>
+    : s === "withdrawn" ? <Notice kind="ok">{t.withdrawn}</Notice>
+    : s === "confirm" ? <Notice kind="error">{t.withdrawConfirmMissing}</Notice>
+    : s === "notOpen" ? <Notice kind="info">{t.withdrawNotOpen}</Notice>
+    : s === "feedbackRequested" ? <Notice kind="ok">{t.feedbackRequested}</Notice>
     : s === "error" ? <Notice kind="error">{t.error}</Notice>
     : null;
 
@@ -52,7 +59,7 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
       </div>
       {notice}
 
-      <section aria-labelledby="bew" className="flex flex-col gap-3">
+      <section id="bewerbungen" aria-labelledby="bew" className="flex scroll-mt-20 flex-col gap-3">
         <h2 id="bew" className="text-xl font-semibold">{t.applications}</h2>
         {apps.length === 0 ? (
           <p className="text-muted">{t.noApplications}</p>
@@ -67,6 +74,28 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
                     <p className="text-sm text-muted">{[v?.employer_visible ? v.organizations?.name : null, v?.location, t.appliedOn(dateFmt.format(new Date(a.submitted_at)))].filter(Boolean).join(" · ")}</p>
                   </div>
                   <span className="rounded-full bg-brand-50 px-3 py-1 text-sm font-semibold text-brand-800">{t.status[a.status] ?? a.status}</span>
+                  {OPEN.includes(a.status) && (
+                    <details className="w-full text-sm">
+                      <summary className="cursor-pointer text-ink/70 underline">{t.withdraw}</summary>
+                      <form action={withdrawApplication} className="mt-2 flex flex-col gap-2 rounded-xl bg-canvas p-3">
+                        <input type="hidden" name="token" value={token} />
+                        <input type="hidden" name="applicationId" value={a.id} />
+                        <label className="flex items-start gap-2"><input type="checkbox" name="confirm" required className="mt-1" /> {t.withdrawConfirm(v?.title ?? "")}</label>
+                        <button type="submit" className="self-start rounded-lg border border-red-300 px-3 py-1.5 font-medium text-red-800 hover:bg-red-50">{t.withdrawButton}</button>
+                      </form>
+                    </details>
+                  )}
+                  {a.status === "rejected" && (
+                    fb.has(a.id) ? (
+                      <p className="w-full text-sm text-muted">{fb.get(a.id) ? t.feedbackAnswered : t.feedbackPending}</p>
+                    ) : (
+                      <form action={requestRejectionFeedback} className="w-full">
+                        <input type="hidden" name="token" value={token} />
+                        <input type="hidden" name="applicationId" value={a.id} />
+                        <button type="submit" className="text-sm text-brand-800 underline">{t.feedbackRequest}</button>
+                      </form>
+                    )
+                  )}
                 </li>
               );
             })}

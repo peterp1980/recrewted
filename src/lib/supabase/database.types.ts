@@ -286,6 +286,12 @@ export type Database = {
         Update: { application_id?: string; organization_id?: string; outcome?: string; sent_at?: string; answered_at?: string | null; score?: number | null; comment?: string | null }
         Relationships: []
       }
+      feedback_requests: {
+        Row: { application_id: string; requested_at: string; answered_at: string | null; answered_by: string | null; answer: string | null }
+        Insert: { application_id: string; requested_at?: string; answered_at?: string | null; answered_by?: string | null; answer?: string | null }
+        Update: { application_id?: string; requested_at?: string; answered_at?: string | null; answered_by?: string | null; answer?: string | null }
+        Relationships: [{ foreignKeyName: "feedback_requests_application_id_fkey"; columns: ["application_id"]; isOneToOne: true; referencedRelation: "applications"; referencedColumns: ["id"] }]
+      }
       referrers: {
         Row: { id: string; organization_id: string; name: string; email: string | null; code: string; active: boolean; created_by: string | null; created_at: string }
         Insert: { id?: string; organization_id: string; name: string; email?: string | null; code: string; active?: boolean; created_by?: string | null; created_at?: string }
@@ -336,6 +342,7 @@ export type Database = {
       ai_monitoring: { Args: { since?: string }; Returns: { kind: string; total: number; accepted: number; modified: number; rejected: number; open: number; failed: number; avg_latency_ms: number | null; rating_pairs: number | null; mean_abs_deviation: number | null }[] }
       queue_feedback_reminders: { Args: Record<string, never>; Returns: number }
       candidate_experience: { Args: { org: string }; Returns: { answers: number; avg_score: number | null; hired_avg: number | null; rejected_avg: number | null }[] }
+      withdraw_application: { Args: { app: string; cand: string }; Returns: boolean }
       referral_stats: { Args: { org: string }; Returns: { referrer_id: string; applications: number; shortlisted: number; hired: number }[] }
       queue_pending_reminders: { Args: { days?: number }; Returns: number }
       run_retention: { Args: { application_months?: number; click_id_days?: number; event_months?: number; mail_days?: number; pool_months?: number }; Returns: Json }

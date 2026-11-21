@@ -1,3 +1,4 @@
+import { FeedbackRequestBox } from "@/components/FeedbackRequestBox";
 import { AiRatingPanel, loadOpenRating } from "@/components/AiRatingPanel";
 import { BookingBox } from "@/components/BookingBox";
 import { WhatsAppLog } from "@/components/WhatsAppLog";
@@ -20,14 +21,14 @@ import { CandidateMail } from "@/components/CandidateMail";
 import { AssessmentResults } from "@/components/AssessmentResults";
 import { saveRatings, setApplicationStatus } from "@/app/application-actions";
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ s?: string; m?: string; x?: string; link?: string; ats?: string; cm?: string; bk?: string; ki?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ s?: string; m?: string; x?: string; link?: string; ats?: string; cm?: string; bk?: string; ki?: string; fr?: string }> };
 
 export const metadata = { title: "Bewerbung – recrewted" };
 
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
 
 export default async function ApplicationPage({ params, searchParams }: Props) {
-  const [{ id }, { s, m, x, link, ats, cm, bk, ki }] = await Promise.all([params, searchParams]);
+  const [{ id }, { s, m, x, link, ats, cm, bk, ki, fr }] = await Promise.all([params, searchParams]);
   if (!isUuid(id)) notFound();
   const session = await requireAccess("/admin");
   const msg = getMessages();
@@ -127,6 +128,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
       </section>
 
       <AssessmentResults applicationId={id} vacancyId={app.vacancy_id} status={x} link={link} />
+      <FeedbackRequestBox applicationId={id} status={fr} />
       <BookingBox applicationId={id} canAct status={bk} />
       <AtsTransferBox applicationId={id} vacancyId={app.vacancy_id} status={ats} />
       <WhatsAppLog candidateId={app.candidate_id} />

@@ -131,3 +131,10 @@ describe("pay transparency and reminders (0026)", () => {
     expect(renderMail("candidate_survey", { firstName: "Kai", jobTitle: "Busfahrer", link: "https://x/umfrage/t", tone: "du" }).text).toContain("Wie hast du den Ablauf erlebt?");
   });
 });
+
+describe("self-service mails (0027)", () => {
+  it("answers feedback requests in the employer's tone and tells the team about withdrawals", () => {
+    expect(renderMail("feedback_answer", { firstName: "Kai", jobTitle: "Busfahrer", message: "– Führerschein D: fehlt", tone: "du" }).text).toContain("du hattest um eine kurze Rückmeldung gebeten");
+    expect(renderMail("team_withdrawn", { firstName: "", jobTitle: "Busfahrer", vacancyId: "v1" }).text).toContain("/portal/vacancies/v1");
+  });
+});
