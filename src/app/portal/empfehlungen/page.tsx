@@ -2,6 +2,8 @@ import { getMessages } from "@/i18n";
 import { requireAccess } from "@/lib/auth/session";
 import { ReferralsSection } from "@/components/ReferralsSection";
 import { createClient } from "@/lib/supabase/server";
+import { canEdit } from "@/lib/team/roles";
+import { myRole } from "@/lib/team/server";
 
 export const metadata = { title: "Empfehlungen – recrewted" };
 
@@ -25,7 +27,7 @@ export default async function PortalReferralsPage({ searchParams }: { searchPara
           ))}
         </nav>
       )}
-      <ReferralsSection organizationId={current.organization_id} from="portal" status={r} />
+      <ReferralsSection organizationId={current.organization_id} from="portal" status={r} canEdit={canEdit(await myRole(session.userId, current.organization_id))} />
     </main>
   );
 }

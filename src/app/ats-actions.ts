@@ -10,6 +10,8 @@ import { isProvider, parseConfig, testConnection } from "@/lib/ats/providers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/vacancies/paths";
+import { canManage } from "@/lib/team/roles";
+import { myRole } from "@/lib/team/server";
 
 // ATS connection of a customer: customers and recrewted staff switch it on, enter the key and map jobs.
 // Writes go through the service role because signed-in users have no write access to the table (0022);
@@ -27,9 +29,8 @@ async function authorize(orgId: string): Promise<Session> {
   if (!session) redirect("/login");
   if (!isUuid(orgId)) redirect("/");
   if (isStaff(session.role)) return session;
-  const supabase = await createClient();
-  const { data } = await supabase.from("customer_members").select("organization_id").eq("organization_id", orgId).eq("profile_id", session.userId).maybeSingle();
-  if (!data) redirect("/portal");
+  // Integrations hold the customer's API key: owners only.
+  if (!canManage(await myRole(session.userId, orgId))) redirect(`/portal/integrationen?org=${orgId}&ats=forbidden#ats`);
   return session;
 }
 

@@ -1,4 +1,5 @@
 import { AtsSection } from "@/components/AtsSection";
+import { TeamSection } from "@/components/TeamSection";
 import { ReferralsSection } from "@/components/ReferralsSection";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -14,12 +15,12 @@ import { domainStatus } from "@/lib/careers/vercel";
 
 export const metadata = { title: "Unternehmen – recrewted" };
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ status?: string; error?: string; r?: string; ats?: string; msg?: string; field?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ status?: string; error?: string; r?: string; ats?: string; msg?: string; field?: string; team?: string }> };
 
 const field = "rounded-lg border border-neutral-300 px-3 py-2";
 
 export default async function OrganizationPage({ params, searchParams }: Props) {
-  const [{ id }, { status, error, r, ats, msg, field: atsField }] = await Promise.all([params, searchParams]);
+  const [{ id }, { status, error, r, ats, msg, field: atsField, team }] = await Promise.all([params, searchParams]);
   const session = await requireAccess(`/admin/organizations/${id}`);
   const t = getMessages().organizations;
   const e = getMessages().editor;
@@ -136,6 +137,7 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
         )}
       </section>
 
+      <TeamSection organizationId={org.id} from="admin" status={team} canManage viewerId={session.userId} />
       <AtsSection organizationId={org.id} from="admin" status={ats} msg={msg} field={atsField} />
       <ReferralsSection organizationId={org.id} from="admin" status={r} />
     </main>

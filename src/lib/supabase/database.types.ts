@@ -155,9 +155,9 @@ export type Database = {
         ]
       }
       customer_members: {
-        Row: { organization_id: string; profile_id: string }
-        Insert: { organization_id: string; profile_id: string }
-        Update: { organization_id?: string; profile_id?: string }
+        Row: { organization_id: string; profile_id: string; member_role: string; invited_by: string | null; created_at: string }
+        Insert: { organization_id: string; profile_id: string; member_role?: string; invited_by?: string | null; created_at?: string }
+        Update: { organization_id?: string; profile_id?: string; member_role?: string; invited_by?: string | null; created_at?: string }
         Relationships: [
           { foreignKeyName: "customer_members_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: false; referencedRelation: "organizations"; referencedColumns: ["id"] },
           { foreignKeyName: "customer_members_profile_id_fkey"; columns: ["profile_id"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
@@ -241,6 +241,18 @@ export type Database = {
           { foreignKeyName: "ats_transfers_connection_id_fkey"; columns: ["connection_id"]; isOneToOne: false; referencedRelation: "ats_connections"; referencedColumns: ["id"] },
         ]
       }
+      vacancy_contacts: {
+        Row: { vacancy_id: string; profile_id: string; created_at: string }
+        Insert: { vacancy_id: string; profile_id: string; created_at?: string }
+        Update: { vacancy_id?: string; profile_id?: string; created_at?: string }
+        Relationships: [{ foreignKeyName: "vacancy_contacts_vacancy_id_fkey"; columns: ["vacancy_id"]; isOneToOne: false; referencedRelation: "vacancies"; referencedColumns: ["id"] }]
+      }
+      application_comments: {
+        Row: { id: string; application_id: string; author_id: string | null; author_name: string | null; author_side: string; body: string; kind: string; mentions: string[]; created_at: string }
+        Insert: { id?: string; application_id: string; author_id?: string | null; author_name?: string | null; author_side?: string; body: string; kind?: string; mentions?: string[]; created_at?: string }
+        Update: { id?: string; application_id?: string; author_id?: string | null; author_name?: string | null; author_side?: string; body?: string; kind?: string; mentions?: string[]; created_at?: string }
+        Relationships: [{ foreignKeyName: "application_comments_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] }]
+      }
       referrers: {
         Row: { id: string; organization_id: string; name: string; email: string | null; code: string; active: boolean; created_by: string | null; created_at: string }
         Insert: { id?: string; organization_id: string; name: string; email?: string | null; code: string; active?: boolean; created_by?: string | null; created_at?: string }
@@ -279,6 +291,11 @@ export type Database = {
       claim_due_mails: { Args: { max_count: number }; Returns: Database["public"]["Tables"]["mail_outbox"]["Row"][] }
       submit_application: { Args: { p: Json }; Returns: Json }
       claim_ats_transfers: { Args: { max_count?: number }; Returns: Database["public"]["Tables"]["ats_transfers"]["Row"][] }
+      org_team: { Args: { org: string }; Returns: { profile_id: string; full_name: string | null; email: string | null; member_role: string; created_at: string }[] }
+      user_id_by_email: { Args: { addr: string }; Returns: string | null }
+      mentionable: { Args: { app: string }; Returns: { profile_id: string; full_name: string; side: string }[] }
+      employer_dashboard: { Args: { org: string }; Returns: { vacancy_id: string; applications: number; qualified: number; shortlisted: number; interviews: number; hired: number; first_shortlist_days: number | null; sources: Json }[] }
+      employer_benchmarks: { Args: { org: string }; Returns: { category: string; vacancies: number; median_shortlist_days: number | null; avg_qualified: number | null; avg_shortlisted: number | null; hire_rate: number | null }[] }
       referral_stats: { Args: { org: string }; Returns: { referrer_id: string; applications: number; shortlisted: number; hired: number }[] }
       queue_pending_reminders: { Args: { days?: number }; Returns: number }
       run_retention: { Args: { application_months?: number; click_id_days?: number; event_months?: number; mail_days?: number; pool_months?: number }; Returns: Json }

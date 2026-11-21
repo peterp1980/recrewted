@@ -8,7 +8,7 @@ import { Notice } from "./Notice";
 const field = "w-full rounded-lg border border-neutral-300 px-3 py-2";
 
 /** Employee referral links of one customer, with results. Used in the portal and in the admin. */
-export async function ReferralsSection({ organizationId, from, status }: { organizationId: string; from: "admin" | "portal"; status?: string }) {
+export async function ReferralsSection({ organizationId, from, status, canEdit = true }: { organizationId: string; from: "admin" | "portal"; status?: string; canEdit?: boolean }) {
   const t = getMessages().referrals;
   const supabase = await createClient();
   const [{ data: org }, { data: referrers }, { data: stats }] = await Promise.all([
@@ -33,14 +33,14 @@ export async function ReferralsSection({ organizationId, from, status }: { organ
       {status && t.notices[status] && <Notice kind={status === "created" || status === "saved" ? "ok" : "error"}>{t.notices[status]}</Notice>}
       {!(org.career_enabled && careerBase) && <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{t.noPage}</p>}
 
-      <form action={createReferrer} className="flex flex-col gap-2 sm:flex-row sm:items-end">
+      {canEdit && <form action={createReferrer} className="flex flex-col gap-2 sm:flex-row sm:items-end">
         {hidden}
         <label className="grid flex-1 gap-1">
           <span className="font-medium">{t.name}</span>
           <input name="name" required minLength={2} maxLength={120} placeholder={t.namePlaceholder} className={field} />
         </label>
         <button type="submit" className="rounded-lg bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-800">{t.add}</button>
-      </form>
+      </form>}
 
       {(referrers ?? []).length === 0 ? (
         <p className="text-muted">{t.none}</p>
@@ -74,12 +74,12 @@ export async function ReferralsSection({ organizationId, from, status }: { organ
                     <td className="py-2 pr-3 text-right tabular-nums">{Number(s?.shortlisted ?? 0)}</td>
                     <td className="py-2 pr-3 text-right tabular-nums">{Number(s?.hired ?? 0)}</td>
                     <td className="py-2 text-right">
-                      <form action={setReferrerActive}>
+                      {canEdit && <form action={setReferrerActive}>
                         {hidden}
                         <input type="hidden" name="referrerId" value={r.id} />
                         <input type="hidden" name="active" value={r.active ? "0" : "1"} />
                         <button type="submit" className="rounded-lg border border-neutral-300 px-3 py-1 hover:bg-brand-50">{r.active ? t.deactivate : t.activate}</button>
-                      </form>
+                      </form>}
                     </td>
                   </tr>
                 );

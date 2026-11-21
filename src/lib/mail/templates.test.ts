@@ -88,3 +88,16 @@ describe("weekly report mail", () => {
     expect(m.text).toContain("https://recrewted.de/portal");
   });
 });
+
+describe("team mails (0023)", () => {
+  it("links staff to the admin and customers to the portal, without header injection", () => {
+    const base = { firstName: "Olaf", jobTitle: "Busfahrer", author: "Vera\nBcc: x@y.de", candidate: "Kai K.", excerpt: "Passt gut", applicationId: "a-1" };
+    const c = renderMail("team_mention", base);
+    expect(c.subject).not.toContain("\n");
+    expect(c.text).toContain("/portal/applications/a-1#kommentare");
+    expect(renderMail("team_mention", { ...base, staff: true, question: true }).subject).toBe("Rückfrage zu Kai K. (Busfahrer)");
+    expect(renderMail("team_mention", { ...base, staff: true }).text).toContain("/admin/applications/a-1");
+    expect(renderMail("team_shortlist", { firstName: "", jobTitle: "Busfahrer", vacancyId: "v-1" }).text).toContain("/portal/vacancies/v-1");
+    expect(renderMail("vacancy_request", { firstName: "Rita", jobTitle: "Busfahrer", organization: "Hafermann", vacancyId: "v-1" }).subject).toBe("Neue Vakanz angefragt: Busfahrer (Hafermann)");
+  });
+});

@@ -19,6 +19,9 @@ import { DistributionSection } from "./DistributionSection";
 import { PortalVacancySections } from "./PortalVacancySections";
 import { ApplicationsList } from "./ApplicationsList";
 import { getSession } from "@/lib/auth/session";
+import { canEdit as roleCanEdit } from "@/lib/team/roles";
+import { myRole } from "@/lib/team/server";
+import { VacancyContacts } from "./VacancyContacts";
 
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
 const EDITABLE_FOR_CUSTOMER = ["draft", "contract_pending"];
@@ -27,7 +30,7 @@ type Props = {
   id: string;
   base: "/admin" | "/portal";
   staff: boolean;
-  search: { status?: string; missing?: string; q?: string; c?: string; k?: string; a?: string; t?: string; p?: string };
+  search: { status?: string; missing?: string; q?: string; c?: string; k?: string; a?: string; t?: string; p?: string; ct?: string };
 };
 
 /** Vacancy page with briefing (F13). Staff additionally see suggestions and can apply them. */
@@ -39,14 +42,17 @@ export async function VacancyDetail({ id, base, staff, search }: Props) {
   const supabase = await createClient();
   const { data: vacancy } = await supabase
     .from("vacancies")
-    .select("id, title, status, organizations(name), vacancy_briefings(data, submitted_at)")
+    .select("id, title, status, organization_id, organizations(name), vacancy_briefings(data, submitted_at)")
     .eq("id", id)
     .maybeSingle();
   if (!vacancy) notFound(); // also when RLS hides it
 
   const briefing = fromStored(vacancy.vacancy_briefings?.data);
   const submittedAt = vacancy.vacancy_briefings?.submitted_at;
-  const editable = staff || EDITABLE_FOR_CUSTOMER.includes(vacancy.status);
+  // Viewers (department) read only; owners and members edit until the contract is signed.
+  const session = await getSession();
+  const teamCanEdit = staff || (session ? roleCanEdit(await myRole(session.userId, vacancy.organization_id)) : false);
+  const editable = staff || (teamCanEdit && EDITABLE_FOR_CUSTOMER.includes(vacancy.status));
   const missing = (search.missing ?? "").split(",").filter(Boolean) as BriefingField[];
   const flagged = flaggedItems(briefing);
 
@@ -99,6 +105,8 @@ export async function VacancyDetail({ id, base, staff, search }: Props) {
           <Notice kind="info">{t.locked}</Notice>
         )}
       </section>
+
+      <VacancyContacts vacancyId={vacancy.id} organizationId={vacancy.organization_id} canEdit={teamCanEdit} status={search.ct} />
 
       {staff && <StaffSections vacancyId={vacancy.id} briefing={briefing} search={search} />}
     </main>

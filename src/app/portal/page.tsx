@@ -4,6 +4,9 @@ import { NewVacancyForm } from "@/components/NewVacancyForm";
 import { VacancyList } from "@/components/VacancyList";
 import { createClient } from "@/lib/supabase/server";
 import { listVacancies } from "@/lib/vacancies/queries";
+import { getSession } from "@/lib/auth/session";
+import { canEdit } from "@/lib/team/roles";
+import { myOrganizations } from "@/lib/team/server";
 
 type Props = { searchParams: Promise<{ error?: string }> };
 
@@ -12,7 +15,14 @@ export default async function PortalHome({ searchParams }: Props) {
   const { error } = await searchParams;
   const supabase = await createClient();
   // RLS returns only the customer's own organizations and vacancies.
-  const [{ data: orgs }, vacancies] = await Promise.all([supabase.from("organizations").select("id, name").order("name"), listVacancies()]);
+  const session = await getSession();
+  const [{ data: orgs }, vacancies, mine] = await Promise.all([
+    supabase.from("organizations").select("id, name").order("name"),
+    listVacancies(),
+    session ? myOrganizations(session.userId) : Promise.resolve([]),
+  ]);
+  // Department viewers do not request vacancies.
+  const editableOrgs = (orgs ?? []).filter((o) => canEdit(mine.find((x) => x.id === o.id)?.role));
 
   return (
     <main className="flex flex-col gap-8">
@@ -38,11 +48,11 @@ export default async function PortalHome({ searchParams }: Props) {
         <h2 id="list" className="text-xl font-semibold">{m.vacancy.listTitle}</h2>
         <VacancyList items={vacancies} base="/portal" />
       </section>
-      {orgs && orgs.length > 0 && (
+      {editableOrgs.length > 0 && (
         <section aria-labelledby="new" className="flex flex-col gap-3">
           <h2 id="new" className="text-xl font-semibold">{m.vacancy.newTitle}</h2>
           <p className="text-ink/80">{m.vacancy.newLead}</p>
-          <NewVacancyForm organizations={orgs} />
+          <NewVacancyForm organizations={editableOrgs} />
         </section>
       )}
     </main>

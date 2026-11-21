@@ -8,6 +8,7 @@ import { getSession } from "@/lib/auth/session";
 import { isStaff } from "@/lib/auth/roles";
 import { fromStored, missingForSubmit, parseBriefingForm } from "@/lib/briefing/schema";
 import { suggestCriteria, suggestQuestions } from "@/lib/briefing/suggestions";
+import { briefingFromTemplate, findTemplate } from "@/lib/briefing/templates";
 import { findAggIssues } from "@/lib/agg";
 import { parseQuestionForm } from "@/lib/screening/rules";
 import { createClient } from "@/lib/supabase/server";
@@ -23,7 +24,9 @@ async function signedIn() {
 export async function createVacancy(formData: FormData) {
   const session = await signedIn();
   const base = vacancyBase(session.role);
-  const title = String(formData.get("title") ?? "").trim().slice(0, 150);
+  const template = findTemplate(formData.get("template"));
+  // With a role template the title may stay empty; the template's title is used then.
+  const title = String(formData.get("title") ?? "").trim().slice(0, 150) || template?.title || "";
   const organizationId = String(formData.get("organizationId") ?? "");
   if (title.length < 3 || !isUuid(organizationId)) redirect(`${base}?error=create`);
 
@@ -34,7 +37,7 @@ export async function createVacancy(formData: FormData) {
     .select("id")
     .single();
   if (error || !data) redirect(`${base}?error=create`);
-  await supabase.from("vacancy_briefings").insert({ vacancy_id: data.id, data: { v: 1, title } });
+  await supabase.from("vacancy_briefings").insert({ vacancy_id: data.id, data: briefingFromTemplate(template, title) });
   redirect(vacancyPath(session.role, data.id));
 }
 

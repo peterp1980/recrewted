@@ -1,7 +1,9 @@
 // E-mail texts to candidates. Written plainly, like a person would write them.
 // Variables are inserted as plain text; mails are sent as text/plain.
 
-export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite" | "profile_link" | "job_alert" | "status_update" | "weekly_report" | "pool_invite";
+import { siteUrl } from "@/lib/site";
+
+export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite" | "profile_link" | "job_alert" | "status_update" | "weekly_report" | "pool_invite" | "team_mention" | "team_shortlist" | "vacancy_request";
 
 export type MailData = {
   firstName: string;
@@ -19,6 +21,15 @@ export type MailData = {
   lines?: { title: string; text: string }[];
   /** job_alert: matching new jobs. */
   jobs?: { title: string; employer: string | null; place: string | null; url: string }[];
+  /** Team mails (0023): comment author, candidate initials, comment excerpt, links. */
+  author?: string;
+  candidate?: string;
+  excerpt?: string;
+  applicationId?: string;
+  vacancyId?: string;
+  /** team_mention: recipient is recrewted staff (link to the admin instead of the portal); the comment is a question. */
+  staff?: boolean;
+  question?: boolean;
   /** The employer's form of address; missing means formal (mails queued before 0012). */
   tone?: "sie" | "du";
 };
@@ -58,6 +69,21 @@ const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: 
   pool_invite: (d) => ({
     subject: `Eine Stelle, die zu Ihnen passen könnte: ${d.jobTitle}`,
     text: `Hallo ${d.firstName},\n\nSie haben uns erlaubt, uns bei passenden Stellen zu melden – hier ist eine: ${d.jobTitle}${at(d)}.\n\n${d.message ? `${d.message}\n\n` : ""}Alle Infos und die Bewerbung in zwei Minuten:\n${d.link ?? ""}\n\nKein Interesse? Dann müssen Sie nichts tun. In Ihrem Bewerberprofil können Sie die Benachrichtigungen jederzeit abschalten.\n\n${sign(d)}`,
+  }),
+  team_mention: (d) => {
+    const link = `${siteUrl()}${d.staff ? "/admin" : "/portal"}/applications/${d.applicationId ?? ""}#kommentare`;
+    return {
+      subject: d.question ? `Rückfrage zu ${d.candidate ?? "einem Kandidaten"} (${d.jobTitle})` : `${d.author ?? "Jemand"} hat Sie erwähnt: ${d.candidate ?? ""} – ${d.jobTitle}`,
+      text: `Hallo${d.firstName ? ` ${d.firstName}` : ""},\n\n${d.author ?? "Jemand"} ${d.question ? "hat eine Frage" : "hat Sie in einem Kommentar erwähnt"} – Kandidat ${d.candidate ?? ""}, Stelle ${d.jobTitle}:\n\n„${d.excerpt ?? ""}“\n\nAntworten können Sie direkt am Kandidaten:\n${link}\n\nViele Grüße\nrecrewted`,
+    };
+  },
+  team_shortlist: (d) => ({
+    subject: `Neue Kandidaten für Sie: ${d.jobTitle}`,
+    text: `Hallo${d.firstName ? ` ${d.firstName}` : ""},\n\nfür die Stelle ${d.jobTitle} haben wir neue vorqualifizierte Kandidaten auf die Shortlist gesetzt. Bewertungsbogen und Unterlagen liegen im Portal:\n${siteUrl()}/portal/vacancies/${d.vacancyId ?? ""}\n\nEin kurzes Feedback (Kennenlernen oder passt nicht, mit einem Satz Begründung) hilft uns, die nächsten Vorschläge noch genauer zu machen.\n\nViele Grüße\nrecrewted`,
+  }),
+  vacancy_request: (d) => ({
+    subject: `Neue Vakanz angefragt: ${d.jobTitle} (${d.organization ?? ""})`,
+    text: `Hallo${d.firstName ? ` ${d.firstName}` : ""},\n\n${d.organization ?? "Ein Kunde"} hat das Briefing für „${d.jobTitle}“ abgeschickt. Bitte prüfen, Fragen und Kriterien anlegen und das Angebot vorbereiten:\n${siteUrl()}/admin/vacancies/${d.vacancyId ?? ""}\n\nrecrewted`,
   }),
   weekly_report: (d) => ({
     subject: `Ihr Wochenbericht – ${d.organization ?? ""}`,
@@ -138,7 +164,7 @@ const TEMPLATES_DU: Partial<Record<MailTemplate, (d: MailData) => { subject: str
 export function renderMail(template: MailTemplate, data: MailData): { subject: string; text: string } {
   const clean = (s: string | null | undefined) => (s ?? "").replace(/[\r\n]+/g, " ").trim();
   // Line breaks in names or titles must not alter the subject (header injection).
-  const safe: MailData = { ...data, firstName: clean(data.firstName), jobTitle: clean(data.jobTitle), employer: clean(data.employer) || null, senderName: clean(data.senderName) || null };
+  const safe: MailData = { ...data, firstName: clean(data.firstName), jobTitle: clean(data.jobTitle), employer: clean(data.employer) || null, senderName: clean(data.senderName) || null, author: clean(data.author), candidate: clean(data.candidate), organization: clean(data.organization) };
   const render = (data.tone === "du" && TEMPLATES_DU[template]) || TEMPLATES[template];
   const { subject, text } = render(safe);
   return { subject, text: text.replace(/\n{3,}/g, "\n\n") };
