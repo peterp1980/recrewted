@@ -152,13 +152,19 @@ export type Database = {
         Row: { created_at: string; created_by: string | null; employment_type: string | null; filled_at: string | null; id: string; location: string | null; organization_id: string; pipedrive_deal_id: number | null; pricing_model: E["pricing_model"] | null; published_at: string | null; remote: boolean; salary_max: number | null; salary_min: number | null; salary_period: string; status: E["vacancy_status"]; title: string; updated_at: string }
         Insert: { created_at?: string; created_by?: string | null; employment_type?: string | null; filled_at?: string | null; id?: string; location?: string | null; organization_id: string; pipedrive_deal_id?: number | null; pricing_model?: E["pricing_model"] | null; published_at?: string | null; remote?: boolean; salary_max?: number | null; salary_min?: number | null; salary_period?: string; status?: E["vacancy_status"]; title: string; updated_at?: string }
         Update: { created_at?: string; created_by?: string | null; employment_type?: string | null; filled_at?: string | null; id?: string; location?: string | null; organization_id?: string; pipedrive_deal_id?: number | null; pricing_model?: E["pricing_model"] | null; published_at?: string | null; remote?: boolean; salary_max?: number | null; salary_min?: number | null; salary_period?: string; status?: E["vacancy_status"]; title?: string; updated_at?: string }
-        Relationships: Rel[]
+        Relationships: [
+          { foreignKeyName: "vacancies_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
+          { foreignKeyName: "vacancies_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: false; referencedRelation: "organizations"; referencedColumns: ["id"] },
+        ]
       }
       vacancy_briefings: {
         Row: { data: Json; submitted_at: string | null; submitted_by: string | null; vacancy_id: string }
         Insert: { data?: Json; submitted_at?: string | null; submitted_by?: string | null; vacancy_id: string }
         Update: { data?: Json; submitted_at?: string | null; submitted_by?: string | null; vacancy_id?: string }
-        Relationships: Rel[]
+        Relationships: [
+          { foreignKeyName: "vacancy_briefings_submitted_by_fkey"; columns: ["submitted_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
+          { foreignKeyName: "vacancy_briefings_vacancy_id_fkey"; columns: ["vacancy_id"]; isOneToOne: true; referencedRelation: "vacancies"; referencedColumns: ["id"] },
+        ]
       }
     }
     Views: { [_ in never]: never }
