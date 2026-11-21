@@ -43,6 +43,21 @@ describe("career page profile", () => {
       expect(await errorOf(c, () => c.query("update organizations set candidate_tone = 'ihr' where id = $1", [ORG]))).toMatch(/check constraint/);
     }));
 
+  it("stores images, facts and quotes; image links must be https or site-relative", () =>
+    asUser(db, ADMIN, async (c) => {
+      await c.query(
+        "update organizations set career_hero_url = 'https://x.supabase.co/storage/v1/object/public/career-media/a.jpg', career_logo_url = '/cases/hafermann.png', career_facts = $2, career_testimonials = $3 where id = $1",
+        [ORG, JSON.stringify([{ value: "111 Jahre", label: "Tradition" }]), JSON.stringify([{ quote: "Gern hier.", name: "A", role: "B" }])],
+      );
+      expect(await errorOf(c, () => c.query("update organizations set career_hero_url = 'javascript:alert(1)' where id = $1", [ORG]))).toMatch(/check constraint/);
+      expect(await errorOf(c, () => c.query("update organizations set career_facts = '{}' where id = $1", [ORG]))).toMatch(/check constraint/);
+    }));
+
+  it("creates the public bucket for career images", async () => {
+    const r = await db.query("select public, file_size_limit from storage.buckets where id = 'career-media'");
+    expect(r.rows[0]).toEqual({ public: true, file_size_limit: "5242880" });
+  });
+
   it("does not let customers change their own profile", () =>
     asUser(db, CUSTOMER, async (c) => {
       const r = await c.query("update organizations set slug = 'hijack' where id = $1", [ORG]);

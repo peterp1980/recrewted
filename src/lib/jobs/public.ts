@@ -3,7 +3,7 @@ import { fromStored } from "@/lib/briefing/schema";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { distanceKm, type PublicJob } from "./format";
 import { matchesText, type JobFilters } from "./filters";
-import { benefitsFromStored, type Benefit } from "@/lib/careers/profile";
+import { benefitsFromStored, factsFromStored, imageUrl, testimonialsFromStored, type Benefit, type Fact, type Testimonial } from "@/lib/careers/profile";
 
 // The job board is public, but vacancies are not: this module reads active
 // vacancies with the service role and returns only public fields. Pricing,
@@ -115,6 +115,11 @@ export type CareerPage = {
   office: string | null;
   contact: string | null;
   brandColor: string | null;
+  logoUrl: string | null;
+  heroUrl: string | null;
+  facts: Fact[];
+  testimonials: Testimonial[];
+  tone: "sie" | "du";
   jobs: PublicJob[];
 };
 
@@ -126,7 +131,7 @@ export async function getCareerPage(slug: string): Promise<CareerPage | null> {
   const admin = createAdminClient();
   const { data: org } = await admin
     .from("organizations")
-    .select("id, name, slug, website, career_enabled, career_headline, career_intro, career_benefits, career_office, career_contact, brand_color")
+    .select("id, name, slug, website, career_enabled, career_headline, career_intro, career_benefits, career_office, career_contact, brand_color, career_logo_url, career_hero_url, career_facts, career_testimonials, candidate_tone")
     .eq("slug", slug)
     .eq("career_enabled", true)
     .maybeSingle();
@@ -151,6 +156,11 @@ export async function getCareerPage(slug: string): Promise<CareerPage | null> {
     office: org.career_office,
     contact: org.career_contact,
     brandColor: org.brand_color,
+    logoUrl: imageUrl(org.career_logo_url),
+    heroUrl: imageUrl(org.career_hero_url),
+    facts: factsFromStored(org.career_facts),
+    testimonials: testimonialsFromStored(org.career_testimonials),
+    tone: org.candidate_tone === "du" ? "du" : "sie",
     jobs: ((data ?? []) as unknown as Row[]).map(toPublic),
   };
 }

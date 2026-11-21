@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { benefitsFromStored, benefitsToText, embedCode, entryParam, isSlug, onColor, parseBenefits, parseProfileForm, toSlug } from "./profile";
+import { benefitsFromStored, benefitsToText, embedCode, entryParam, factsFromStored, factsToText, imageUrl, isSlug, onColor, parseBenefits, parseFacts, parseProfileForm, parseTestimonials, testimonialsFromStored, testimonialsToText, toSlug } from "./profile";
 
 const form = (o: Record<string, string>) => {
   const f = new FormData();
@@ -59,5 +59,33 @@ describe("helpers", () => {
     expect(code).toContain('src="https://recrewted.de/widget/projx"');
     expect(code).toContain('e.origin!=="https://recrewted.de"');
     expect(code).toContain("A &quot;B&quot;");
+  });
+});
+
+describe("facts, quotes and images", () => {
+  it("accepts https and site paths only", () => {
+    expect(imageUrl("https://x.supabase.co/a.jpg")).toBe("https://x.supabase.co/a.jpg");
+    expect(imageUrl("/cases/gulp.png")).toBe("/cases/gulp.png");
+    expect(imageUrl("javascript:alert(1)")).toBeNull();
+    expect(imageUrl("http://x/a.jpg")).toBeNull();
+    expect(imageUrl('https://x/a.jpg" onerror="x')).toBeNull();
+  });
+  it("parses facts and round-trips", () => {
+    const f = parseFacts("111 Jahre | Familientradition\nnur Text\n40.000 | Gäste pro Jahr");
+    expect(f).toEqual([{ value: "111 Jahre", label: "Familientradition" }, { value: "40.000", label: "Gäste pro Jahr" }]);
+    expect(parseFacts(factsToText(f))).toEqual(f);
+    expect(factsFromStored([{ value: "1", label: "x" }, { value: "" }])).toEqual([{ value: "1", label: "x" }]);
+  });
+  it("parses quotes with optional photo and round-trips", () => {
+    const t = parseTestimonials("Angela D. | Gruppenreisen | https://x/a.jpg\nIch arbeite gern hier.\nSeit 30 Jahren.\n\nMichael B. | Reiseleitung\nTolle Gäste.\n\nNur eine Zeile");
+    expect(t).toEqual([
+      { name: "Angela D.", role: "Gruppenreisen", photo: "https://x/a.jpg", quote: "Ich arbeite gern hier. Seit 30 Jahren." },
+      { name: "Michael B.", role: "Reiseleitung", photo: null, quote: "Tolle Gäste." },
+    ]);
+    expect(parseTestimonials(testimonialsToText(t))).toEqual(t);
+    expect(testimonialsFromStored([{ name: "A", quote: "B", photo: "javascript:x" }])).toEqual([{ name: "A", role: "", quote: "B", photo: null }]);
+  });
+  it("rejects bad image links in the form", () => {
+    expect(parseProfileForm(form({ slug: "x", heroUrl: "javascript:alert(1)" }))).toEqual({ ok: false, error: "image" });
   });
 });

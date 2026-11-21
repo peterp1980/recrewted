@@ -2,11 +2,16 @@ import Link from "next/link";
 import { getMessages } from "@/i18n";
 import { requireAccess } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { createOrganization } from "./actions";
 
 export const metadata = { title: "Unternehmen – recrewted" };
 
-export default async function OrganizationsPage() {
-  await requireAccess("/admin/organizations");
+type Props = { searchParams: Promise<{ error?: string }> };
+
+export default async function OrganizationsPage({ searchParams }: Props) {
+  const session = await requireAccess("/admin/organizations");
+  const { error } = await searchParams;
+  const errorText = error && error in getMessages().organizations.errors ? getMessages().organizations.errors[error as keyof ReturnType<typeof getMessages>["organizations"]["errors"]] : null;
   const t = getMessages().organizations;
   const supabase = await createClient();
   const { data: orgs } = await supabase.from("organizations").select("id, name, slug, career_enabled, vacancies(count)").order("name");
@@ -17,6 +22,21 @@ export default async function OrganizationsPage() {
         <h1 className="text-2xl font-semibold">{t.title}</h1>
         <p className="mt-1 max-w-2xl text-ink/80">{t.lead}</p>
       </div>
+      {errorText && <p role="alert" className="rounded-lg bg-red-50 p-4 text-red-900">{errorText}</p>}
+      {session.role === "admin" && (
+        <form action={createOrganization} className="card grid max-w-2xl gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+          <h2 className="font-semibold sm:col-span-3">{t.newTitle}</h2>
+          <label className="grid gap-1">
+            <span className="text-sm font-medium">{t.name}</span>
+            <input name="name" required minLength={2} maxLength={150} className="rounded-lg border border-neutral-300 px-3 py-2" />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-sm font-medium">{t.websiteField}</span>
+            <input name="website" inputMode="url" placeholder="www.beispiel.de" className="rounded-lg border border-neutral-300 px-3 py-2" />
+          </label>
+          <button type="submit" className="btn-primary">{t.create}</button>
+        </form>
+      )}
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {(orgs ?? []).map((o) => {
           const n = (o.vacancies as unknown as { count: number }[] | null)?.[0]?.count ?? 0;

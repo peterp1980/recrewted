@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Career page images (admin upload, max 4 MB); Vercel itself stops at 4.5 MB per request.
+  experimental: { serverActions: { bodySizeLimit: "4.5mb" } },
+  images: {
+    remotePatterns: [{ protocol: "https", hostname: "*.supabase.co", pathname: "/storage/v1/object/public/career-media/**" }],
+  },
   async redirects() {
     return [
       // Old job subdomain (F21): everything goes to the new job board.

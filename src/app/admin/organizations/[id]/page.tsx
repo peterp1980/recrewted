@@ -2,10 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMessages } from "@/i18n";
 import { requireAccess } from "@/lib/auth/session";
-import { benefitsFromStored, benefitsToText, embedCode, toSlug } from "@/lib/careers/profile";
+import { benefitsFromStored, benefitsToText, CAREER_BUCKET, embedCode, factsFromStored, factsToText, testimonialsFromStored, testimonialsToText, toSlug } from "@/lib/careers/profile";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { siteUrl } from "@/lib/site";
-import { saveCareerProfile } from "../actions";
+import { saveCareerProfile, uploadCareerImage } from "../actions";
 
 export const metadata = { title: "Unternehmen – recrewted" };
 
@@ -20,12 +21,16 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
   const supabase = await createClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("id, name, website, slug, career_enabled, career_headline, career_intro, career_benefits, career_office, career_contact, brand_color, candidate_tone, vacancies(id, title, status)")
+    .select("id, name, website, slug, career_enabled, career_headline, career_intro, career_benefits, career_office, career_contact, brand_color, candidate_tone, career_logo_url, career_hero_url, career_facts, career_testimonials, vacancies(id, title, status)")
     .eq("id", id)
     .maybeSingle();
   if (!org) notFound();
 
   const base = siteUrl();
+  // Images of this customer in the public bucket, newest first.
+  const storage = createAdminClient().storage.from(CAREER_BUCKET);
+  const { data: files } = await storage.list(org.id, { limit: 50, sortBy: { column: "created_at", order: "desc" } });
+  const images = (files ?? []).filter((f) => f.id).map((f) => storage.getPublicUrl(`${org.id}/${f.name}`).data.publicUrl);
   const errorText = error && error in t.errors ? t.errors[error as keyof typeof t.errors] : null;
   const readOnly = session.role !== "admin";
   const statusText: Record<string, string> = getMessages().vacancy.status;
@@ -39,9 +44,9 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
         {org.website && <a href={org.website} rel="noopener" className="text-sm text-muted underline">{org.website}</a>}
       </div>
 
-      {(status === "saved" || errorText) && (
+      {(status === "saved" || status === "created" || status === "uploaded" || errorText) && (
         <p role={errorText ? "alert" : "status"} className={`rounded-lg p-4 ${errorText ? "bg-red-50 text-red-900" : "bg-emerald-50 text-emerald-900"}`}>
-          {errorText ?? t.saved}
+          {errorText ?? (status === "created" ? t.created : status === "uploaded" ? t.uploaded : t.saved)}
         </p>
       )}
 
@@ -105,6 +110,18 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
               <label className="flex items-center gap-2"><input type="radio" name="tone" value="du" defaultChecked={org.candidate_tone === "du"} /> {t.toneDu}</label>
             </div>
           </fieldset>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-1">
+              <span className="font-medium">{t.logoUrl}</span>
+              <span className="text-sm text-muted">{t.imageHint}</span>
+              <input name="logoUrl" defaultValue={org.career_logo_url ?? ""} className={`${field} text-sm`} />
+            </label>
+            <label className="grid gap-1">
+              <span className="font-medium">{t.heroUrl}</span>
+              <span className="text-sm text-muted">{t.imageHint}</span>
+              <input name="heroUrl" defaultValue={org.career_hero_url ?? ""} className={`${field} text-sm`} />
+            </label>
+          </div>
           <label className="grid gap-1">
             <span className="font-medium">{t.headline}</span>
             <input name="headline" defaultValue={org.career_headline ?? ""} maxLength={150} className={field} />
@@ -119,6 +136,16 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
             <textarea name="benefits" defaultValue={benefitsToText(benefitsFromStored(org.career_benefits))} rows={6} className={field} />
           </label>
           <label className="grid gap-1">
+            <span className="font-medium">{t.facts}</span>
+            <span className="text-sm text-muted">{t.factsHint}</span>
+            <textarea name="facts" defaultValue={factsToText(factsFromStored(org.career_facts))} rows={4} className={field} />
+          </label>
+          <label className="grid gap-1">
+            <span className="font-medium">{t.testimonials}</span>
+            <span className="text-sm text-muted">{t.testimonialsHint}</span>
+            <textarea name="testimonials" defaultValue={testimonialsToText(testimonialsFromStored(org.career_testimonials))} rows={8} className={`${field} text-sm`} />
+          </label>
+          <label className="grid gap-1">
             <span className="font-medium">{t.office}</span>
             <textarea name="office" defaultValue={org.career_office ?? ""} rows={3} maxLength={1000} className={field} />
           </label>
@@ -130,6 +157,31 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
         </fieldset>
         {readOnly && <p className="text-sm text-muted">{t.errors.forbidden}</p>}
       </form>
+
+      <section id="bilder" aria-labelledby="bilder-h" className="card flex scroll-mt-20 flex-col gap-4">
+        <h2 id="bilder-h" className="text-lg font-semibold">{t.images}</h2>
+        <p className="text-sm text-muted">{t.imagesHint}</p>
+        {!readOnly && (
+          <form action={uploadCareerImage} className="flex flex-wrap items-center gap-3">
+            <input type="hidden" name="organizationId" value={org.id} />
+            <input type="file" name="file" required accept="image/jpeg,image/png,image/webp" />
+            <button type="submit" className="btn-secondary py-2">{t.upload}</button>
+          </form>
+        )}
+        {images.length === 0 ? (
+          <p className="text-muted">{t.noImages}</p>
+        ) : (
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {images.map((url) => (
+              <li key={url} className="flex flex-col gap-2 rounded-xl border border-neutral-200 p-2">
+                {/* eslint-disable-next-line @next/next/no-img-element -- admin preview of an uploaded file */}
+                <img src={url} alt="" className="h-32 w-full rounded-lg bg-canvas object-contain" />
+                <input readOnly value={url} className="w-full rounded-md border border-neutral-200 px-2 py-1 font-mono text-[11px]" />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   );
 }
