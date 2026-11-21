@@ -10,6 +10,8 @@ import { BriefingForm } from "./BriefingForm";
 import { Notice } from "./Notice";
 import { QuestionEditor } from "./QuestionEditor";
 import { CriteriaEditor } from "./CriteriaEditor";
+import { VacancySettings } from "./VacancySettings";
+import { PortalVacancySections } from "./PortalVacancySections";
 import { ApplicationsList } from "./ApplicationsList";
 import { getSession } from "@/lib/auth/session";
 
@@ -51,6 +53,8 @@ export async function VacancyDetail({ id, base, staff, search }: Props) {
     : status === "error" ? <Notice kind="error">{t.error}</Notice>
     : status === "applied" ? <Notice kind="ok">{m.suggestions.applied}</Notice>
     : status === "exists" ? <Notice kind="info">{m.suggestions.exists}</Notice>
+    : status === "settingsSaved" ? <Notice kind="ok">{m.settings.saved}</Notice>
+    : status === "salaryMissing" ? <Notice kind="error">{m.settings.salaryMissing}</Notice>
     : missing.length > 0 ? (
       <Notice kind="error">
         <p>{t.missingIntro}</p>
@@ -76,6 +80,8 @@ export async function VacancyDetail({ id, base, staff, search }: Props) {
           <ul className="ml-5 list-disc">{flagged.map((f) => <li key={f}>{f}</li>)}</ul>
         </Notice>
       )}
+
+      {!staff && !EDITABLE_FOR_CUSTOMER.includes(vacancy.status) && <CustomerSections vacancyId={vacancy.id} />}
 
       <section aria-labelledby="briefing" className="flex flex-col gap-4">
         <h2 id="briefing" className="text-xl font-semibold">{t.title}</h2>
@@ -154,10 +160,17 @@ async function StaffSections({ vacancyId, briefing, search }: { vacancyId: strin
   if (!session) return null;
   return (
     <>
+      <VacancySettings vacancyId={vacancyId} />
       <ApplicationsList vacancyId={vacancyId} viewerId={session.userId} />
       <Suggestions vacancyId={vacancyId} briefing={briefing} />
       <QuestionEditor vacancyId={vacancyId} status={search.q} />
       <CriteriaEditor vacancyId={vacancyId} status={search.c} />
     </>
   );
+}
+
+async function CustomerSections({ vacancyId }: { vacancyId: string }) {
+  const session = await getSession();
+  if (!session) return null;
+  return <PortalVacancySections vacancyId={vacancyId} viewerId={session.userId} />;
 }

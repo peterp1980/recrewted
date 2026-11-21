@@ -45,7 +45,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | 10 | F3 Ausschlussfragen + zeitversetzte Absage | gebaut (Branch `mvp`) |
 | 11 | F4 Bewertungsbogen inkl. PDF und KI-Vorschlag | gebaut (Branch `mvp`); KI-Vorschlag wartet auf Anbieter-Entscheidung |
 | 12 | F5 Pipeline (Kanban) + Mail-Vorlagen | gebaut (Branch `mvp`) |
-| 13 | F14 Kundenportal + F6 Rückmeldung Einstellung | 6 |
+| 13 | F14 Kundenportal + F6 Rückmeldung Einstellung | gebaut (Branch `mvp`); Kundenaufwand-KPI mit F12 |
 | 14 | F7 Managed-Kampagnen (Erfassung, UTM-Links) | 3 |
 | | **Summe M1** | **≈ 48** |
 

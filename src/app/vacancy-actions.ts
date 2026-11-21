@@ -136,3 +136,65 @@ export async function removeQuestion(formData: FormData) {
   revalidatePath(path);
   redirect(`${path}?q=${count ? "removed" : "error"}#fragen`);
 }
+
+const VACANCY_STATUSES = ["draft", "contract_pending", "active", "paused", "filled", "closed"] as const;
+const PRICING = ["fixed_starter", "fixed_pro", "fixed_enterprise", "service_fee_media_passthrough", "service_fee_customer_media", "success_fee", "hybrid", "subscription", "self_service_platform", "self_service_per_candidate", "license"] as const;
+
+/** Staff only: status (publication), openings, pricing (F14 cost), confidential search. */
+export async function updateVacancySettings(formData: FormData) {
+  const session = await signedIn();
+  if (!isStaff(session.role)) redirect("/");
+  const vacancyId = String(formData.get("vacancyId") ?? "");
+  if (!isUuid(vacancyId)) redirect("/admin");
+  const path = vacancyPath(session.role, vacancyId);
+  const status = String(formData.get("status") ?? "");
+  const pricing = String(formData.get("pricingModel") ?? "");
+  const openings = Number(formData.get("openings"));
+  const num = (k: string) => {
+    const v = String(formData.get(k) ?? "").replace(/\./g, "").replace(",", ".").trim();
+    return v === "" ? null : Number(v);
+  };
+  const price = num("price");
+  const markup = num("markup") ?? 0;
+  if (
+    !(VACANCY_STATUSES as readonly string[]).includes(status) ||
+    !Number.isInteger(openings) || openings < 1 || openings > 100 ||
+    (price !== null && (!Number.isFinite(price) || price < 0)) || !Number.isFinite(markup) || markup < 0 || markup > 500
+  ) redirect(`${path}?status=error#einstellungen`);
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("vacancies")
+    .update({
+      status: status as (typeof VACANCY_STATUSES)[number],
+      openings,
+      pricing_model: (PRICING as readonly string[]).includes(pricing) ? (pricing as (typeof PRICING)[number]) : null,
+      price_eur: price,
+      media_markup_pct: markup,
+      employer_visible: formData.get("employerVisible") === "on",
+    })
+    .eq("id", vacancyId);
+  revalidatePath(path);
+  if (error?.code === "23514") redirect(`${path}?status=salaryMissing#einstellungen`);
+  redirect(`${path}?status=${error ? "error" : "settingsSaved"}#einstellungen`);
+}
+
+/** Customer feedback on a shortlisted candidate (F6/F14). RLS + trigger enforce shortlist and reasons. */
+export async function giveFeedback(formData: FormData) {
+  const session = await signedIn();
+  const applicationId = String(formData.get("applicationId") ?? "");
+  const verdict = String(formData.get("verdict") ?? "");
+  const reason = String(formData.get("reason") ?? "").trim().slice(0, 500) || null;
+  if (!isUuid(applicationId) || !["fit", "no_fit", "interview", "hired", "rejected"].includes(verdict)) redirect("/portal");
+  const path = `/portal/applications/${applicationId}`;
+  if ((verdict === "no_fit" || verdict === "rejected") && !reason) redirect(`${path}?f=reason`);
+  const supabase = await createClient();
+  const { error } = await supabase.from("customer_feedback").insert({
+    application_id: applicationId,
+    verdict: verdict as "fit" | "no_fit" | "interview" | "hired" | "rejected",
+    reason,
+    created_by: session.userId,
+  });
+  revalidatePath(path);
+  redirect(`${path}?f=${error ? (error.message.includes("reason_required") ? "reason" : "error") : "saved"}`);
+}
