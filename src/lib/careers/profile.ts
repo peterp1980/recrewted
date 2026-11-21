@@ -11,6 +11,7 @@ export type CareerProfile = {
   office: string;
   contact: string;
   brandColor: string | null;
+  tone: "sie" | "du";
 };
 
 export const MAX_BENEFITS = 12;
@@ -76,6 +77,7 @@ export function parseProfileForm(form: FormData): ProfileInput {
       office: str(form.get("office"), 1000),
       contact: str(form.get("contact"), 300),
       brandColor: color || null,
+      tone: form.get("tone") === "du" ? "du" : "sie",
     },
   };
 }

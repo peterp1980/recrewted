@@ -86,7 +86,7 @@ export async function submitApplication(_prev: ApplyState, form: FormData): Prom
 
   const knockedOut = ev.knockouts.length > 0;
   const entry = entryParam(values.quelle);
-  const mailData = { firstName: value.firstName, jobTitle: job.title, employer: job.employerName };
+  const mailData = { firstName: value.firstName, jobTitle: job.title, employer: job.employerName, tone: job.tone };
   const { data, error } = await admin.rpc("submit_application", {
     p: {
       vacancy_id: vacancyId,
@@ -134,5 +134,6 @@ export async function submitApplication(_prev: ApplyState, form: FormData): Prom
 
   // Send the confirmation right away, after the response is on its way.
   after(() => processDueMails(5).catch((e) => console.error("mail processing failed", e)));
-  redirect(`${jobPath(job)}/bewerben/danke${value.email ? "" : "?tel=1"}`);
+  const q = new URLSearchParams({ ...(value.email ? {} : { tel: "1" }), ...(job.tone === "du" ? { du: "1" } : {}) }).toString();
+  redirect(`${jobPath(job)}/bewerben/danke${q ? `?${q}` : ""}`);
 }

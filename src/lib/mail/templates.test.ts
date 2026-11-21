@@ -22,3 +22,16 @@ describe("renderMail", () => {
     expect(renderMail("data_request", { firstName: "Eva", jobTitle: "", link: "https://recrewted.de/datenschutz/anfrage/abc" }).text).toContain("https://recrewted.de/datenschutz/anfrage/abc");
   });
 });
+
+describe("form of address", () => {
+  const d = { firstName: "Mia", jobTitle: "Werkstudent:in", employer: "projx GmbH" };
+  it("uses du for employers that want it and stays formal otherwise", () => {
+    expect(renderMail("application_received", { ...d, tone: "du" }).text).toContain("danke für deine Bewerbung");
+    expect(renderMail("application_received", { ...d, tone: "du" }).subject).toBe("Deine Bewerbung als Werkstudent:in");
+    expect(renderMail("application_received", d).text).toContain("danke für Ihre Bewerbung");
+    expect(renderMail("knockout_rejection", { ...d, tone: "du" }).text).not.toMatch(/\b(Sie|Ihre?n?)\b/);
+  });
+  it("keeps data requests formal", () => {
+    expect(renderMail("data_request", { ...d, link: "https://x", tone: "du" }).subject).toBe("Ihre Daten bei recrewted");
+  });
+});

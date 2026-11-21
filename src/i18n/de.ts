@@ -277,6 +277,22 @@ export const de = {
     thanksPhone: "Wir schauen uns Ihre Bewerbung in den nächsten Tagen an und melden uns telefonisch bei Ihnen.",
     moreJobs: "Weitere Jobs ansehen",
   },
+  // Informal variant for customers who address candidates with "du" (organizations.candidate_tone).
+  applyDu: {
+    errors: {
+      firstName: "Bitte gib deinen Vornamen an.",
+      lastName: "Bitte gib deinen Nachnamen an.",
+      contact: "Bitte gib eine E-Mail-Adresse oder Telefonnummer an.",
+      consent: "Ohne dein Einverständnis können wir die Bewerbung nicht bearbeiten.",
+      questions: "Bitte beantworte alle Fragen.",
+      cvType: "Bitte lade den Lebenslauf als PDF, Word-Datei oder Foto hoch.",
+      duplicate: "Du hast dich auf diese Stelle schon beworben. Wir melden uns bei dir.",
+      server: "Das hat nicht geklappt. Bitte versuch es gleich noch einmal.",
+    },
+    thanksTitle: "Danke für deine Bewerbung!",
+    thanksMail: "Du bekommst gleich eine Bestätigung per E-Mail. Wir schauen uns deine Bewerbung in den nächsten Tagen an und melden uns – egal, wie es ausgeht.",
+    thanksPhone: "Wir schauen uns deine Bewerbung in den nächsten Tagen an und melden uns telefonisch bei dir.",
+  },
   questions: {
     title: "Ausschlussfragen",
     lead: "Bewerber beantworten diese Fragen im Formular. Passt eine Antwort nicht, wird die Bewerbung automatisch aussortiert und bekommt nach 24 Stunden eine freundliche Absage.",
@@ -567,6 +583,10 @@ export const de = {
     office: "Arbeitsort und Büro",
     contact: "Ansprechperson für Fragen",
     brandColor: "Markenfarbe",
+    tone: "Ansprache der Bewerber",
+    toneHint: "Gilt für Bewerbungsformular, Bestätigungsseite und Mails an Bewerber.",
+    toneSie: "Sie",
+    toneDu: "du",
     save: "Speichern",
     saved: "Gespeichert.",
     errors: { slug: "Der Kurzname ist ungültig oder schon vergeben.", color: "Die Farbe muss als Hex-Wert angegeben werden, z. B. #4dc3cb.", forbidden: "Nur Admins können Karriereseiten ändern.", error: "Speichern hat nicht geklappt." },

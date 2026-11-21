@@ -1,20 +1,20 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { getMessages } from "@/i18n";
+import { applyMessages, type Tone } from "@/i18n";
 import { MAX_CV_BYTES } from "@/lib/apply/parse";
 import type { ScreeningQuestion } from "@/lib/screening/rules";
 import { prepareCvUpload, submitApplication, type ApplyState } from "./actions";
 
-type Props = { slug: string; questions: ScreeningQuestion[]; utm: Record<string, string> };
+type Props = { slug: string; questions: ScreeningQuestion[]; utm: Record<string, string>; tone: Tone };
 type Upload = { state: "idle" | "uploading" | "done" | "error"; path: string; name: string };
 
 const input = "w-full rounded-lg border border-neutral-300 px-3 py-3 text-base";
 const initial: ApplyState = { errors: [], missingQuestions: [], values: {} };
 
 /** Mobile-first short application. Keeps typed values when the server reports an error. */
-export function ApplyForm({ slug, questions, utm }: Props) {
-  const t = getMessages().apply;
+export function ApplyForm({ slug, questions, utm, tone }: Props) {
+  const t = applyMessages(tone);
   const [state, action, pending] = useActionState(submitApplication, initial);
   const [upload, setUpload] = useState<Upload>({ state: "idle", path: "", name: "" });
 

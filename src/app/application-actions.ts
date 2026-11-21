@@ -163,7 +163,7 @@ export async function sendCandidateMail(form: FormData) {
   const supabase = await createClient();
   const { data: app } = await supabase
     .from("applications")
-    .select("id, candidates(first_name, email), vacancies(title, employer_visible, organizations(name))")
+    .select("id, candidates(first_name, email), vacancies(title, employer_visible, organizations(name, candidate_tone))")
     .eq("id", applicationId)
     .single();
   if (!app) redirect("/admin");
@@ -179,6 +179,7 @@ export async function sendCandidateMail(form: FormData) {
       employer: app.vacancies?.employer_visible ? (app.vacancies?.organizations?.name ?? null) : null,
       message: message || null,
       senderName: session.fullName,
+      tone: app.vacancies?.organizations?.candidate_tone === "du" ? "du" : "sie",
     },
   });
   if (error) redirect(applicationPage(applicationId, "error"));

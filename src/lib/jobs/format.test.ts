@@ -9,6 +9,7 @@ const job: PublicJob = {
   publishedAt: "2026-11-01T10:00:00.000Z", employerName: "Muster GmbH", employerWebsite: "https://muster.de",
   briefing: { ...emptyBriefing(), tasks: ["Wartung <Anlagen>"], mustHave: ["Ausbildung"] },
   adText: null,
+  tone: "sie",
 };
 
 describe("urls", () => {

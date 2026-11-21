@@ -20,7 +20,7 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
   const supabase = await createClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("id, name, website, slug, career_enabled, career_headline, career_intro, career_benefits, career_office, career_contact, brand_color, vacancies(id, title, status)")
+    .select("id, name, website, slug, career_enabled, career_headline, career_intro, career_benefits, career_office, career_contact, brand_color, candidate_tone, vacancies(id, title, status)")
     .eq("id", id)
     .maybeSingle();
   if (!org) notFound();
@@ -97,6 +97,14 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
               <input name="brandColor" defaultValue={org.brand_color ?? ""} placeholder="#0a7f8c" className={field} />
             </label>
           </div>
+          <fieldset className="grid gap-1">
+            <legend className="font-medium">{t.tone}</legend>
+            <span className="text-sm text-muted">{t.toneHint}</span>
+            <div className="mt-1 flex gap-6">
+              <label className="flex items-center gap-2"><input type="radio" name="tone" value="sie" defaultChecked={org.candidate_tone !== "du"} /> {t.toneSie}</label>
+              <label className="flex items-center gap-2"><input type="radio" name="tone" value="du" defaultChecked={org.candidate_tone === "du"} /> {t.toneDu}</label>
+            </div>
+          </fieldset>
           <label className="grid gap-1">
             <span className="font-medium">{t.headline}</span>
             <input name="headline" defaultValue={org.career_headline ?? ""} maxLength={150} className={field} />

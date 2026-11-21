@@ -21,6 +21,8 @@ export type PublicJob = {
   briefing: Briefing;
   /** Approved portal text (F8), shown instead of the briefing sections when present. */
   adText: string | null;
+  /** How the employer addresses candidates in the form and mails. */
+  tone: "sie" | "du";
 };
 
 const UMLAUTS: Record<string, string> = { ä: "ae", ö: "oe", ü: "ue", ß: "ss" };

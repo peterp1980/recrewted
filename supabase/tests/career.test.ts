@@ -36,6 +36,13 @@ describe("career page profile", () => {
       expect(await errorOf(c, () => c.query("update organizations set career_enabled = true where id = $1", [ORG]))).toMatch(/career_needs_slug/);
     }));
 
+  it("defaults to the formal address and accepts only sie/du", () =>
+    asUser(db, ADMIN, async (c) => {
+      expect((await c.query("select candidate_tone from organizations where id = $1", [ORG])).rows[0].candidate_tone).toBe("sie");
+      await c.query("update organizations set candidate_tone = 'du' where id = $1", [ORG]);
+      expect(await errorOf(c, () => c.query("update organizations set candidate_tone = 'ihr' where id = $1", [ORG]))).toMatch(/check constraint/);
+    }));
+
   it("does not let customers change their own profile", () =>
     asUser(db, CUSTOMER, async (c) => {
       const r = await c.query("update organizations set slug = 'hijack' where id = $1", [ORG]);

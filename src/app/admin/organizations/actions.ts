@@ -30,6 +30,7 @@ export async function saveCareerProfile(form: FormData) {
       career_office: p.office || null,
       career_contact: p.contact || null,
       brand_color: p.brandColor,
+      candidate_tone: p.tone,
     })
     .eq("id", id)
     .select("slug")
