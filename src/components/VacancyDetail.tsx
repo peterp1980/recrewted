@@ -22,6 +22,7 @@ import { getSession } from "@/lib/auth/session";
 import { canEdit as roleCanEdit } from "@/lib/team/roles";
 import { myRole } from "@/lib/team/server";
 import { VacancyContacts } from "./VacancyContacts";
+import { InterviewSlots } from "./InterviewSlots";
 
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
 const EDITABLE_FOR_CUSTOMER = ["draft", "contract_pending"];
@@ -30,7 +31,7 @@ type Props = {
   id: string;
   base: "/admin" | "/portal";
   staff: boolean;
-  search: { status?: string; missing?: string; q?: string; c?: string; k?: string; a?: string; t?: string; p?: string; ct?: string };
+  search: { status?: string; missing?: string; q?: string; c?: string; k?: string; a?: string; t?: string; p?: string; ct?: string; sl?: string };
 };
 
 /** Vacancy page with briefing (F13). Staff additionally see suggestions and can apply them. */
@@ -107,6 +108,7 @@ export async function VacancyDetail({ id, base, staff, search }: Props) {
       </section>
 
       <VacancyContacts vacancyId={vacancy.id} organizationId={vacancy.organization_id} canEdit={teamCanEdit} status={search.ct} />
+      {vacancy.status !== "draft" && <InterviewSlots vacancyId={vacancy.id} canEdit={teamCanEdit} staff={staff} status={search.sl} />}
 
       {staff && <StaffSections vacancyId={vacancy.id} briefing={briefing} search={search} />}
     </main>

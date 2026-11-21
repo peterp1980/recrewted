@@ -116,9 +116,9 @@ export type Database = {
         Relationships: [{ foreignKeyName: "career_pages_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: true; referencedRelation: "organizations"; referencedColumns: ["id"] }]
       }
       candidates: {
-        Row: { created_at: string; email: string | null; first_name: string; id: string; last_name: string; phone: string | null; talent_pool_consent_at: string | null; profile_opt_in_at: string | null; alert_prefs: Json; last_alert_at: string | null }
-        Insert: { created_at?: string; email?: string | null; first_name: string; id?: string; last_name: string; phone?: string | null; talent_pool_consent_at?: string | null; profile_opt_in_at?: string | null; alert_prefs?: Json; last_alert_at?: string | null }
-        Update: { created_at?: string; email?: string | null; first_name?: string; id?: string; last_name?: string; phone?: string | null; talent_pool_consent_at?: string | null; profile_opt_in_at?: string | null; alert_prefs?: Json; last_alert_at?: string | null }
+        Row: { created_at: string; email: string | null; first_name: string; id: string; last_name: string; phone: string | null; talent_pool_consent_at: string | null; profile_opt_in_at: string | null; alert_prefs: Json; last_alert_at: string | null; whatsapp_opt_in_at: string | null; whatsapp_phone: string | null }
+        Insert: { created_at?: string; email?: string | null; first_name: string; id?: string; last_name: string; phone?: string | null; talent_pool_consent_at?: string | null; profile_opt_in_at?: string | null; alert_prefs?: Json; last_alert_at?: string | null; whatsapp_opt_in_at?: string | null; whatsapp_phone?: string | null }
+        Update: { created_at?: string; email?: string | null; first_name?: string; id?: string; last_name?: string; phone?: string | null; talent_pool_consent_at?: string | null; profile_opt_in_at?: string | null; alert_prefs?: Json; last_alert_at?: string | null; whatsapp_opt_in_at?: string | null; whatsapp_phone?: string | null }
         Relationships: []
       }
       contact_requests: {
@@ -253,6 +253,33 @@ export type Database = {
         Update: { id?: string; application_id?: string; author_id?: string | null; author_name?: string | null; author_side?: string; body?: string; kind?: string; mentions?: string[]; created_at?: string }
         Relationships: [{ foreignKeyName: "application_comments_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] }]
       }
+      interview_slots: {
+        Row: { id: string; vacancy_id: string; starts_at: string; duration_minutes: number; mode: string; location: string | null; note: string | null; created_by: string | null; created_at: string; cancelled_at: string | null }
+        Insert: { id?: string; vacancy_id: string; starts_at: string; duration_minutes?: number; mode?: string; location?: string | null; note?: string | null; created_by?: string | null; created_at?: string; cancelled_at?: string | null }
+        Update: { id?: string; vacancy_id?: string; starts_at?: string; duration_minutes?: number; mode?: string; location?: string | null; note?: string | null; created_by?: string | null; created_at?: string; cancelled_at?: string | null }
+        Relationships: [{ foreignKeyName: "interview_slots_vacancy_id_fkey"; columns: ["vacancy_id"]; isOneToOne: false; referencedRelation: "vacancies"; referencedColumns: ["id"] }]
+      }
+      interview_bookings: {
+        Row: { id: string; slot_id: string; application_id: string; booked_at: string; cancelled_at: string | null; cancelled_by: string | null; reminder_sent_at: string | null }
+        Insert: { id?: string; slot_id: string; application_id: string; booked_at?: string; cancelled_at?: string | null; cancelled_by?: string | null; reminder_sent_at?: string | null }
+        Update: { id?: string; slot_id?: string; application_id?: string; booked_at?: string; cancelled_at?: string | null; cancelled_by?: string | null; reminder_sent_at?: string | null }
+        Relationships: [
+          { foreignKeyName: "interview_bookings_slot_id_fkey"; columns: ["slot_id"]; isOneToOne: false; referencedRelation: "interview_slots"; referencedColumns: ["id"] },
+          { foreignKeyName: "interview_bookings_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] },
+        ]
+      }
+      whatsapp_outbox: {
+        Row: { id: string; candidate_id: string; application_id: string | null; mail_id: string | null; to_phone: string; template: string; params: Json; send_after: string; sent_at: string | null; attempts: number; last_error: string | null; cancelled_at: string | null; wa_message_id: string | null; delivery: string | null; created_at: string }
+        Insert: { id?: string; candidate_id: string; application_id?: string | null; mail_id?: string | null; to_phone: string; template: string; params?: Json; send_after?: string; sent_at?: string | null; attempts?: number; last_error?: string | null; cancelled_at?: string | null; wa_message_id?: string | null; delivery?: string | null; created_at?: string }
+        Update: { id?: string; candidate_id?: string; application_id?: string | null; mail_id?: string | null; to_phone?: string; template?: string; params?: Json; send_after?: string; sent_at?: string | null; attempts?: number; last_error?: string | null; cancelled_at?: string | null; wa_message_id?: string | null; delivery?: string | null; created_at?: string }
+        Relationships: []
+      }
+      whatsapp_inbound: {
+        Row: { id: string; candidate_id: string | null; from_phone: string; body: string | null; wa_message_id: string | null; received_at: string }
+        Insert: { id?: string; candidate_id?: string | null; from_phone: string; body?: string | null; wa_message_id?: string | null; received_at?: string }
+        Update: { id?: string; candidate_id?: string | null; from_phone?: string; body?: string | null; wa_message_id?: string | null; received_at?: string }
+        Relationships: []
+      }
       referrers: {
         Row: { id: string; organization_id: string; name: string; email: string | null; code: string; active: boolean; created_by: string | null; created_at: string }
         Insert: { id?: string; organization_id: string; name: string; email?: string | null; code: string; active?: boolean; created_by?: string | null; created_at?: string }
@@ -296,6 +323,10 @@ export type Database = {
       mentionable: { Args: { app: string }; Returns: { profile_id: string; full_name: string; side: string }[] }
       employer_dashboard: { Args: { org: string }; Returns: { vacancy_id: string; applications: number; qualified: number; shortlisted: number; interviews: number; hired: number; first_shortlist_days: number | null; sources: Json }[] }
       employer_benchmarks: { Args: { org: string }; Returns: { category: string; vacancies: number; median_shortlist_days: number | null; avg_qualified: number | null; avg_shortlisted: number | null; hire_rate: number | null }[] }
+      book_slot: { Args: { app: string; slot: string }; Returns: string }
+      cancel_booking: { Args: { app: string; by_whom: string }; Returns: boolean }
+      queue_interview_reminders: { Args: Record<string, never>; Returns: number }
+      claim_due_whatsapp: { Args: { max_count?: number }; Returns: Database["public"]["Tables"]["whatsapp_outbox"]["Row"][] }
       referral_stats: { Args: { org: string }; Returns: { referrer_id: string; applications: number; shortlisted: number; hired: number }[] }
       queue_pending_reminders: { Args: { days?: number }; Returns: number }
       run_retention: { Args: { application_months?: number; click_id_days?: number; event_months?: number; mail_days?: number; pool_months?: number }; Returns: Json }

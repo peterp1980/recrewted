@@ -101,3 +101,20 @@ describe("team mails (0023)", () => {
     expect(renderMail("vacancy_request", { firstName: "Rita", jobTitle: "Busfahrer", organization: "Hafermann", vacancyId: "v-1" }).subject).toBe("Neue Vakanz angefragt: Busfahrer (Hafermann)");
   });
 });
+
+describe("interview mails (0024)", () => {
+  const d = { firstName: "Kai", jobTitle: "Busfahrer", employer: "Hafermann", startsAt: "2026-12-01T09:00:00Z", minutes: 45, mode: "onsite", location: "Landsberger Str. 72", link: "https://x/termin/t" };
+  it("confirms date, place and link in the employer's tone", () => {
+    const sie = renderMail("interview_booked", d);
+    expect(sie.subject).toBe("Ihr Termin: Busfahrer bei Hafermann");
+    expect(sie.text).toContain("Dienstag, 1. Dezember, 10:00 Uhr (45 Minuten, vor Ort)");
+    expect(sie.text).toContain("Ort: Landsberger Str. 72");
+    expect(sie.text).toContain("https://x/termin/t");
+    expect(renderMail("interview_booked", { ...d, tone: "du", rebooked: true }).text).toContain("du hast umgebucht");
+    expect(renderMail("interview_reminder", { ...d, mode: "phone" }).text).toContain("Wir rufen Sie unter Ihrer Nummer an.");
+    expect(renderMail("booking_invite", { ...d, tone: "du" }).text).toContain("Such dir einfach einen passenden Termin aus");
+  });
+  it("tells the team who booked", () => {
+    expect(renderMail("team_booking", { ...d, candidate: "Kai Kandidat", event: "cancelled", applicationId: "a1" }).subject).toBe("Kai Kandidat hat den Termin abgesagt: Busfahrer");
+  });
+});

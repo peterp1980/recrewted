@@ -1,3 +1,6 @@
+import { BookingBox } from "@/components/BookingBox";
+import { canEdit } from "@/lib/team/roles";
+import { myRole } from "@/lib/team/server";
 import { CandidateComments } from "@/components/CandidateComments";
 import { AtsTransferBox } from "@/components/AtsTransferBox";
 import Link from "next/link";
@@ -15,13 +18,13 @@ import { giveFeedback } from "@/app/vacancy-actions";
 
 export const metadata = { title: "Kandidat – recrewted" };
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ f?: string; ats?: string; cm?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ f?: string; ats?: string; cm?: string; bk?: string }> };
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
 const VERDICTS = ["fit", "no_fit", "interview", "hired", "rejected"] as const;
 
 /** Customer view of a shortlisted candidate (F14) with one-click feedback (F6). */
 export default async function PortalApplicationPage({ params, searchParams }: Props) {
-  const [{ id }, { f, ats, cm }] = await Promise.all([params, searchParams]);
+  const [{ id }, { f, ats, cm, bk }] = await Promise.all([params, searchParams]);
   if (!isUuid(id)) notFound();
   const session = await requireAccess("/portal");
   const m = getMessages();
@@ -31,7 +34,7 @@ export default async function PortalApplicationPage({ params, searchParams }: Pr
   const supabase = await createClient();
   const { data: app } = await supabase
     .from("applications")
-    .select("id, status, vacancy_id, candidate_id, cv_storage_path, candidates(first_name, last_name, email, phone), vacancies(title)")
+    .select("id, status, vacancy_id, candidate_id, cv_storage_path, candidates(first_name, last_name, email, phone), vacancies(title, organization_id)")
     .eq("id", id)
     .maybeSingle();
   if (!app) notFound();
@@ -112,6 +115,7 @@ export default async function PortalApplicationPage({ params, searchParams }: Pr
           </ul>
         </section>
       )}
+      <BookingBox applicationId={id} canAct={canEdit(await myRole(session.userId, app.vacancies?.organization_id ?? ""))} status={bk} />
       <CandidateComments applicationId={id} staff={false} status={cm} />
       <AtsTransferBox applicationId={id} vacancyId={app.vacancy_id} status={ats} />
     </main>

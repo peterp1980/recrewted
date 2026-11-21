@@ -2,6 +2,7 @@
 
 import { ENTRY_PARAM, entryParam } from "@/lib/careers/profile";
 import { refParam } from "@/lib/referrals/code";
+import { looksMobile, toE164 } from "@/lib/whatsapp/phone";
 import { createAttempt, queueInvite } from "@/lib/assessments/server";
 import { prefsFromJob } from "@/lib/profile/alerts";
 import { sendProfileLink } from "@/lib/profile/server";
@@ -127,6 +128,15 @@ export async function submitApplication(_prev: ApplyState, form: FormData): Prom
   }
 
   const { application_id: applicationId, candidate_id: candidateId } = data as { application_id: string; candidate_id: string };
+
+  // WhatsApp updates: separate, voluntary opt-in, only with a mobile number (0024).
+  if (form.get("whatsappOptIn") === "on" && value.phone) {
+    const wa = toE164(value.phone);
+    if (wa && looksMobile(wa)) {
+      await admin.from("candidates").update({ whatsapp_opt_in_at: new Date().toISOString(), whatsapp_phone: wa }).eq("id", candidateId);
+      await admin.from("audit_log").insert({ action: "whatsapp_opt_in", table_name: "candidates", record_id: candidateId, details: { consent_version: CONSENT_VERSION } });
+    }
+  }
 
   // Employee referral: counts only for an active referrer of the employer behind this vacancy.
   const ref = refParam(values.ref);

@@ -144,6 +144,10 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
           <span className="text-ink/80">{t.talentPool}</span>
         </label>
         <label className="flex items-start gap-3">
+          <input type="checkbox" name="whatsappOptIn" defaultChecked={v.whatsappOptIn === "on"} className="mt-1 h-5 w-5 shrink-0" />
+          <span className="text-ink/80">{t.whatsapp}</span>
+        </label>
+        <label className="flex items-start gap-3">
           <input type="checkbox" name="profileOptIn" defaultChecked={v.profileOptIn === "on"} className="mt-1 h-5 w-5 shrink-0" />
           <span className="text-ink/80">{getMessages().profile.applyOptIn}</span>
         </label>

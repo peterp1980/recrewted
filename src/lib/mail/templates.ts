@@ -2,8 +2,10 @@
 // Variables are inserted as plain text; mails are sent as text/plain.
 
 import { siteUrl } from "@/lib/site";
+import { modeLabel, whenLabel } from "@/lib/booking/format";
 
-export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite" | "profile_link" | "job_alert" | "status_update" | "weekly_report" | "pool_invite" | "team_mention" | "team_shortlist" | "vacancy_request";
+export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite" | "profile_link" | "job_alert" | "status_update" | "weekly_report" | "pool_invite" | "team_mention" | "team_shortlist" | "vacancy_request"
+  | "booking_invite" | "interview_booked" | "interview_cancelled" | "interview_reminder" | "team_booking";
 
 export type MailData = {
   firstName: string;
@@ -30,6 +32,13 @@ export type MailData = {
   /** team_mention: recipient is recrewted staff (link to the admin instead of the portal); the comment is a question. */
   staff?: boolean;
   question?: boolean;
+  /** Interviews (0024): start (ISO), duration in `minutes`, mode, place or link, note; team_booking event. */
+  startsAt?: string;
+  mode?: string;
+  location?: string | null;
+  note?: string | null;
+  rebooked?: boolean;
+  event?: "booked" | "rebooked" | "cancelled";
   /** The employer's form of address; missing means formal (mails queued before 0012). */
   tone?: "sie" | "du";
 };
@@ -64,8 +73,63 @@ const statusMail = (d: MailData, du: boolean) => {
   return { subject: `${(du ? STATUS_SUBJECT_DU : STATUS_SUBJECT)[key]} – ${d.jobTitle}`, text: `Hallo ${d.firstName},\n\n${body}\n\n${sign(d)}` };
 };
 
+// --- Interviews (0024) ---
+const where = (d: MailData, du: boolean) =>
+  d.mode === "phone" ? (du ? "Wir rufen dich unter deiner Nummer an." : "Wir rufen Sie unter Ihrer Nummer an.")
+  : d.mode === "video" ? `Video-Link: ${d.location ?? (du ? "kommt separat" : "folgt separat")}`
+  : `Ort: ${d.location ?? (du ? "wir schicken dir die Adresse noch" : "wir schicken Ihnen die Adresse noch")}`;
+const slotLine = (d: MailData) => (d.startsAt ? `${whenLabel(d.startsAt)} (${d.minutes ?? 30} Minuten, ${modeLabel(d.mode)})` : "");
+const bookingLink = (d: MailData) => d.link ?? "";
+
+const interviewSie = {
+  booking_invite: (d: MailData) => ({
+    subject: `Termin zum Kennenlernen: ${d.jobTitle}`,
+    text: `Hallo ${d.firstName},\n\n${d.employer ?? "das Unternehmen"} möchte Sie kennenlernen. Suchen Sie sich einfach einen passenden Termin aus – das dauert eine Minute:\n${bookingLink(d)}\n\nDer Link gilt 30 Tage. Bis 24 Stunden vorher können Sie dort auch umbuchen oder absagen.\n\n${sign(d)}`,
+  }),
+  interview_booked: (d: MailData) => ({
+    subject: `${d.rebooked ? "Neuer Termin" : "Ihr Termin"}: ${d.jobTitle}${at(d)}`,
+    text: `Hallo ${d.firstName},\n\n${d.rebooked ? "Sie haben umgebucht. Ihr neuer Termin" : "danke, Ihr Termin steht"}:\n\n${slotLine(d)}\n${where(d, false)}${d.note ? `\n${d.note}` : ""}\n\nDen Termin für Ihren Kalender, Umbuchen und Absagen finden Sie hier:\n${bookingLink(d)}\n\nWir freuen uns auf das Gespräch.\n\n${sign(d)}`,
+  }),
+  interview_cancelled: (d: MailData) => ({
+    subject: `Termin abgesagt: ${d.jobTitle}`,
+    text: `Hallo ${d.firstName},\n\nleider müssen wir Ihren Termin am ${d.startsAt ? whenLabel(d.startsAt) : ""} absagen. Das tut uns leid.\n\nSie können über Ihren Link einen neuen Termin wählen, sobald neue Termine frei sind:\n${bookingLink(d)}\n\n${sign(d)}`,
+  }),
+  interview_reminder: (d: MailData) => ({
+    subject: `Erinnerung: Ihr Termin morgen – ${d.jobTitle}`,
+    text: `Hallo ${d.firstName},\n\nkurz zur Erinnerung an Ihren Termin:\n\n${slotLine(d)}\n${where(d, false)}${d.note ? `\n${d.note}` : ""}\n\nFalls etwas dazwischenkommt, sagen Sie bitte kurz Bescheid:\n${bookingLink(d)}\n\n${sign(d)}`,
+  }),
+};
+const interviewDu = {
+  booking_invite: (d: MailData) => ({
+    subject: `Termin zum Kennenlernen: ${d.jobTitle}`,
+    text: `Hallo ${d.firstName},\n\n${d.employer ?? "das Unternehmen"} möchte dich kennenlernen. Such dir einfach einen passenden Termin aus – das dauert eine Minute:\n${bookingLink(d)}\n\nDer Link gilt 30 Tage. Bis 24 Stunden vorher kannst du dort auch umbuchen oder absagen.\n\n${sign(d)}`,
+  }),
+  interview_booked: (d: MailData) => ({
+    subject: `${d.rebooked ? "Neuer Termin" : "Dein Termin"}: ${d.jobTitle}${at(d)}`,
+    text: `Hallo ${d.firstName},\n\n${d.rebooked ? "du hast umgebucht. Dein neuer Termin" : "danke, dein Termin steht"}:\n\n${slotLine(d)}\n${where(d, true)}${d.note ? `\n${d.note}` : ""}\n\nDen Termin für deinen Kalender, Umbuchen und Absagen findest du hier:\n${bookingLink(d)}\n\nWir freuen uns auf das Gespräch.\n\n${sign(d)}`,
+  }),
+  interview_cancelled: (d: MailData) => ({
+    subject: `Termin abgesagt: ${d.jobTitle}`,
+    text: `Hallo ${d.firstName},\n\nleider müssen wir deinen Termin am ${d.startsAt ? whenLabel(d.startsAt) : ""} absagen. Das tut uns leid.\n\nÜber deinen Link kannst du einen neuen Termin wählen, sobald neue Termine frei sind:\n${bookingLink(d)}\n\n${sign(d)}`,
+  }),
+  interview_reminder: (d: MailData) => ({
+    subject: `Erinnerung: Dein Termin morgen – ${d.jobTitle}`,
+    text: `Hallo ${d.firstName},\n\nkurz zur Erinnerung an deinen Termin:\n\n${slotLine(d)}\n${where(d, true)}${d.note ? `\n${d.note}` : ""}\n\nFalls etwas dazwischenkommt, sag bitte kurz Bescheid:\n${bookingLink(d)}\n\n${sign(d)}`,
+  }),
+};
+const teamBooking = (d: MailData) => {
+  const what = d.event === "cancelled" ? "hat den Termin abgesagt" : d.event === "rebooked" ? "hat umgebucht" : "hat einen Termin gebucht";
+  const link = `${siteUrl()}${d.staff ? "/admin" : "/portal"}/applications/${d.applicationId ?? ""}`;
+  return {
+    subject: `${d.candidate ?? "Kandidat"} ${what}: ${d.jobTitle}`,
+    text: `Hallo,\n\n${d.candidate ?? "Ein Kandidat"} ${what}.\n\n${slotLine(d)}\n${d.mode === "phone" ? "Telefonat" : d.location ? `Ort/Link: ${d.location}` : ""}\n\nBewertungsbogen und Unterlagen:\n${link}\n\nViele Grüße\nrecrewted`,
+  };
+};
+
 const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: string }> = {
   status_update: (d) => statusMail(d, false),
+  ...interviewSie,
+  team_booking: teamBooking,
   pool_invite: (d) => ({
     subject: `Eine Stelle, die zu Ihnen passen könnte: ${d.jobTitle}`,
     text: `Hallo ${d.firstName},\n\nSie haben uns erlaubt, uns bei passenden Stellen zu melden – hier ist eine: ${d.jobTitle}${at(d)}.\n\n${d.message ? `${d.message}\n\n` : ""}Alle Infos und die Bewerbung in zwei Minuten:\n${d.link ?? ""}\n\nKein Interesse? Dann müssen Sie nichts tun. In Ihrem Bewerberprofil können Sie die Benachrichtigungen jederzeit abschalten.\n\n${sign(d)}`,
@@ -131,6 +195,7 @@ const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: 
 // they come from recrewted, not from an employer.
 const TEMPLATES_DU: Partial<Record<MailTemplate, (d: MailData) => { subject: string; text: string }>> = {
   status_update: (d) => statusMail(d, true),
+  ...interviewDu,
   pool_invite: (d) => ({
     subject: `Eine Stelle, die zu dir passen könnte: ${d.jobTitle}`,
     text: `Hallo ${d.firstName},\n\ndu hast uns erlaubt, uns bei passenden Stellen zu melden – hier ist eine: ${d.jobTitle}${at(d)}.\n\n${d.message ? `${d.message}\n\n` : ""}Alle Infos und die Bewerbung in zwei Minuten:\n${d.link ?? ""}\n\nKein Interesse? Dann musst du nichts tun. In deinem Bewerberprofil kannst du die Benachrichtigungen jederzeit abschalten.\n\n${sign(d)}`,
@@ -164,7 +229,7 @@ const TEMPLATES_DU: Partial<Record<MailTemplate, (d: MailData) => { subject: str
 export function renderMail(template: MailTemplate, data: MailData): { subject: string; text: string } {
   const clean = (s: string | null | undefined) => (s ?? "").replace(/[\r\n]+/g, " ").trim();
   // Line breaks in names or titles must not alter the subject (header injection).
-  const safe: MailData = { ...data, firstName: clean(data.firstName), jobTitle: clean(data.jobTitle), employer: clean(data.employer) || null, senderName: clean(data.senderName) || null, author: clean(data.author), candidate: clean(data.candidate), organization: clean(data.organization) };
+  const safe: MailData = { ...data, firstName: clean(data.firstName), jobTitle: clean(data.jobTitle), employer: clean(data.employer) || null, senderName: clean(data.senderName) || null, author: clean(data.author), candidate: clean(data.candidate), location: data.location ? clean(data.location) : null, organization: clean(data.organization) };
   const render = (data.tone === "du" && TEMPLATES_DU[template]) || TEMPLATES[template];
   const { subject, text } = render(safe);
   return { subject, text: text.replace(/\n{3,}/g, "\n\n") };

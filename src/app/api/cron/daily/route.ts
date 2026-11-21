@@ -30,6 +30,10 @@ export async function GET(request: NextRequest) {
   const { data: reminders, error: remErr } = await admin.rpc("queue_pending_reminders", {});
   result.pendingReminders = remErr ? { error: remErr.message } : reminders;
 
+  // Interview reminders for the next 12 to 36 hours (0024).
+  const { data: interviewReminders, error: irErr } = await admin.rpc("queue_interview_reminders", {});
+  result.interviewReminders = irErr ? { error: irErr.message } : interviewReminders;
+
   // Weekly report for customers, Mondays (0020).
   if (isMondayInBerlin()) {
     try {
@@ -56,5 +60,6 @@ export async function GET(request: NextRequest) {
   result.ats = await processAtsTransfers(50).catch((e) => ({ error: String(e) }));
   result.conversions = await processConversions().catch((e) => ({ error: String(e) }));
   result.mails = await processDueMails(200).catch((e) => ({ error: String(e) }));
+  // WhatsApp copies of candidate mails are sent inside processDueMails (only with opt-in and configured access).
   return NextResponse.json(result);
 }
