@@ -16,6 +16,39 @@ export const site = {
       { title: "Shortlist mit Bewertungsbogen", text: "Jeder Kandidat ist nach Ihren Kriterien bewertet und begründet. Sie geben per Klick Rückmeldung." },
     ],
     promise: "Sie sehen jederzeit, wie viele Bewerbungen eingegangen sind, wie viele passen und was ein qualifizierter Kandidat kostet.",
+    // Facts that are true by design of the product – no results claimed before the pilot.
+    facts: [
+      { value: "2 Min.", label: "dauert die Bewerbung – am Handy, ohne Anschreiben" },
+      { value: "1 Preis", label: "pro Stelle, Werbebudget inklusive" },
+      { value: "100 %", label: "der Kandidaten auf der Shortlist mit begründeter Bewertung" },
+    ],
+    // TODO(projx): names approved for the website? Same list as on /cases.
+    trustLabel: "Das Team hinter recrewted hat Recruiting-Kampagnen umgesetzt für",
+    compare: {
+      title: "Anders als eine Stellenanzeige",
+      lead: "Eine Anzeige bringt Bewerbungen. Wir liefern Kandidaten, die zu Ihren Kriterien passen – und zeigen, warum.",
+      before: "Klassische Stellenanzeige",
+      after: "recrewted",
+      rows: [
+        ["Sie zahlen für Reichweite, egal was dabei herauskommt", "Ein fester Preis pro Stelle, Werbebudget inklusive"],
+        ["Sie lesen jeden Lebenslauf selbst", "Sie bekommen eine Shortlist mit Bewertungsbogen"],
+        ["Bewerber brauchen Anschreiben und viel Zeit", "Bewerbung in zwei Minuten am Handy"],
+        ["Unklar, welcher Kanal funktioniert hat", "Gemessen bis zur Einstellung, je Kanal"],
+      ],
+    },
+    portal: {
+      title: "Alles an einem Ort",
+      lead: "Im Kundenportal sehen Sie Ihre Vakanzen, die Shortlist und jeden Bewertungsbogen. Sie geben per Klick Rückmeldung und melden die Einstellung – ohne E-Mail-Pingpong.",
+      points: ["Shortlist mit Bewertungsbögen und Lebensläufen", "Rückmeldung per Klick: passt, Gespräch, Absage", "Kennzahlen je Vakanz, laufend aktuell"],
+    },
+    faq: [
+      { q: "Was kostet das?", a: "Einen festen Preis pro Stelle, abhängig vom Paket. Das Werbebudget ist enthalten. Den genauen Preis nennen wir Ihnen nach dem Briefing, bevor es losgeht." },
+      { q: "Was passiert, wenn keine passenden Kandidaten kommen?", a: "Wir sehen früh an den Zahlen, ob eine Kampagne trägt, und steuern nach: andere Kanäle, andere Anzeigen, angepasste Kriterien. Was wir garantieren, legen wir vor dem Start gemeinsam fest." },
+      { q: "Wie viel Aufwand habe ich?", a: "Ein Briefing über ein geführtes Formular und danach Rückmeldung zu den Kandidaten auf der Shortlist. Den Rest übernehmen wir." },
+      { q: "Wer entscheidet, ob ein Kandidat passt?", a: "Unsere Recruiter bewerten nach Ihren Kriterien und begründen jede Bewertung. Software hilft beim Sortieren, entscheiden tun Menschen – am Ende Sie." },
+      { q: "Was passiert mit den Bewerberdaten?", a: "Die Daten speichern wir in Rechenzentren in Frankfurt. Lebensläufe sind nie öffentlich abrufbar, und nach Abschluss der Stelle löschen wir fristgerecht." },
+      { q: "Für welche Branchen funktioniert das?", a: "Für alle, in denen Menschen online nach Arbeit suchen – vom Handwerk über Pflege und Logistik bis zum Büro. Für viele Rollen haben wir erprobte Vorlagen." },
+    ],
   },
   services: {
     title: "Leistungen",
@@ -33,6 +66,8 @@ export const site = {
     title: "Pakete",
     lead: "Jede Vakanz hat einen festen Preis, Media inklusive. Was genau dazugehört, besprechen wir anhand Ihrer Stelle.",
     note: "Preise und Garantie stimmen wir mit Ihnen vor dem Start ab.",
+    // TODO(projx): replace with "ab … €" once prices are approved.
+    price: "Festpreis nach Briefing",
     items: [
       { name: "Starter", text: "Für eine Stelle mit klarem Profil in einer Region.", points: ["Briefing und Suchprofil", "Anzeigen für Jobbörse und Social Media", "Shortlist mit Bewertungsbogen"] },
       { name: "Pro", text: "Für Profile, die schwerer zu finden sind.", points: ["Alles aus Starter", "Mehr Kanäle und längere Laufzeit", "Laufende Optimierung nach Kosten pro qualifiziertem Kandidaten"] },

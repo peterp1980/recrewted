@@ -57,14 +57,20 @@ export function ConsentAndTracking() {
 
   if (!open) return null;
   return (
-    <div role="dialog" aria-modal="false" aria-labelledby="consent-h" className="fixed inset-x-2 bottom-2 z-50 rounded-2xl border border-neutral-200 bg-white p-4 shadow-2xl sm:inset-x-auto sm:right-4 sm:bottom-4 sm:max-w-xl">
-      <div className="mx-auto flex max-w-5xl flex-col gap-3">
-        <h2 id="consent-h" className="font-semibold">{t.title}</h2>
-        <p className="text-sm text-ink/80">{t.text} <a href="/datenschutz" className="underline">{t.privacy}</a></p>
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => decide(false, false)} className="rounded-lg border border-neutral-300 px-4 py-2 hover:bg-brand-50">{t.necessary}</button>
-          <button type="button" onClick={() => decide(true, false)} className="rounded-lg border border-neutral-300 px-4 py-2 hover:bg-brand-50">{t.statistics}</button>
-          <button type="button" onClick={() => decide(true, true)} className="btn-primary px-4 py-2">{t.all}</button>
+    <div role="dialog" aria-modal="false" aria-labelledby="consent-h" className="fixed inset-x-0 bottom-0 z-50 border-t border-neutral-200 bg-white/95 shadow-[0_-8px_30px_rgb(0_0_0/0.08)] backdrop-blur">
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:gap-8">
+        <details className="min-w-0 flex-1 text-sm">
+          <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+            <span id="consent-h" className="font-semibold">{t.title}:</span> <span className="text-ink/75">{t.short}</span>{" "}
+            <span className="font-medium text-brand-800 underline underline-offset-2">{t.more}</span>
+          </summary>
+          <p className="mt-2 text-ink/75">{t.text} <a href="/datenschutz" className="underline">{t.privacy}</a></p>
+        </details>
+        {/* All three choices look the same: no nudging towards consent. */}
+        <div className="grid shrink-0 grid-cols-3 gap-2 text-sm font-medium">
+          {([[t.necessary, false, false], [t.statistics, true, false], [t.all, true, true]] as const).map(([label, st, mk]) => (
+            <button key={label} type="button" onClick={() => decide(st, mk)} className="rounded-lg border border-brand-700 px-3 py-2 text-brand-800 hover:bg-brand-50">{label}</button>
+          ))}
         </div>
       </div>
     </div>

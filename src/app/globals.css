@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@fontsource-variable/inter";
+@import "@fontsource-variable/plus-jakarta-sans";
 
 /*
  * recrewted design tokens (derived from the existing brand on recrewted.de):
@@ -8,6 +9,7 @@
  */
 @theme {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans Variable", "Inter Variable", ui-sans-serif, sans-serif;
   --font-mono: ui-monospace, monospace;
 
   --color-brand-50: #effafb;
@@ -47,7 +49,12 @@ body {
 
 @layer base {
   h1, h2, h3 {
-    letter-spacing: -0.01em;
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
   }
   input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
   select,
@@ -83,4 +90,34 @@ body {
   .brand-gradient {
     background: linear-gradient(180deg, #9bdee6 0%, #d9c0d6 55%, #fba3c0 100%);
   }
+  /* Soft brand glow behind hero visuals. */
+  .brand-glow {
+    background:
+      radial-gradient(40% 50% at 30% 40%, rgb(29 192 209 / 0.22), transparent 70%),
+      radial-gradient(35% 45% at 75% 65%, rgb(255 67 123 / 0.16), transparent 70%);
+  }
+  .card-hover {
+    @apply transition duration-200 hover:-translate-y-0.5 hover:shadow-md;
+  }
+  .section {
+    @apply mx-auto max-w-6xl px-4 py-20 md:py-28;
+  }
+  .section-title {
+    @apply text-3xl font-bold tracking-tight sm:text-4xl;
+  }
+}
+
+/* Sections fade in while scrolling (CSS only, browsers without support show them directly). */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
 }

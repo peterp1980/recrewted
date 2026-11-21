@@ -534,9 +534,11 @@ export const de = {
   consent: {
     title: "Cookies und Messung",
     text: "Wir verwenden nur, was Sie erlauben. Notwendig ist allein das Speichern dieser Auswahl. Mit „Statistik“ zählen wir anonym, welche Seiten aufgerufen werden. Mit „Marketing“ merken wir uns 90 Tage, über welche Anzeige Sie gekommen sind, und melden eine Bewerbung an diese Werbeplattform.",
+    short: "Wir messen nur mit Ihrer Erlaubnis.",
+    more: "Details",
     necessary: "Nur notwendige",
-    statistics: "Statistik erlauben",
-    all: "Statistik und Marketing erlauben",
+    statistics: "Statistik",
+    all: "Alle erlauben",
     settings: "Cookie-Einstellungen",
     privacy: "Datenschutz",
   },
