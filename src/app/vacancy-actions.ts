@@ -187,7 +187,12 @@ export async function giveFeedback(formData: FormData) {
   const verdict = String(formData.get("verdict") ?? "");
   const reason = String(formData.get("reason") ?? "").trim().slice(0, 500) || null;
   if (!isUuid(applicationId) || !["fit", "no_fit", "interview", "hired", "rejected"].includes(verdict)) redirect("/portal");
-  const path = `/portal/applications/${applicationId}`;
+  let path = `/portal/applications/${applicationId}`;
+  // Feedback from the comparison view returns there.
+  if (formData.get("return") === "compare") {
+    const { data } = await (await createClient()).from("applications").select("vacancy_id").eq("id", applicationId).maybeSingle();
+    if (data) path = `/portal/vacancies/${data.vacancy_id}/vergleich`;
+  }
   if ((verdict === "no_fit" || verdict === "rejected") && !reason) redirect(`${path}?f=reason`);
   const supabase = await createClient();
   const { error } = await supabase.from("customer_feedback").insert({

@@ -52,7 +52,10 @@ export async function PortalVacancySections({ vacancyId, viewerId }: { vacancyId
       </section>
 
       <section aria-labelledby="sl-h" className="flex flex-col gap-3">
-        <h2 id="sl-h" className="text-xl font-semibold">{t.shortlist}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="sl-h" className="text-xl font-semibold">{t.shortlist}</h2>
+          {(shortlist?.length ?? 0) > 1 && <Link href={`/portal/vacancies/${vacancyId}/vergleich`} className="btn-primary py-2">{m.compare.open}</Link>}
+        </div>
         {shortlist?.length ? (
           <ul className="flex flex-col gap-2">
             {shortlist.map((a) => (

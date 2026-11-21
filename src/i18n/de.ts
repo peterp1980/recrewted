@@ -469,6 +469,15 @@ export const de = {
     briefingShow: "Briefing ansehen",
     open: "Ansehen",
   },
+  compare: {
+    title: "Shortlist vergleichen",
+    lead: "Alle vorgeschlagenen Kandidaten nebeneinander – mit Bewertung je Kriterium, Begründung und Test-Ergebnis. Ein Klick genügt für Ihre Rückmeldung.",
+    open: "Nebeneinander vergleichen",
+    candidate: "Kandidat",
+    feedback: "Ihre Rückmeldung",
+    invite: "Kennenlernen",
+    send: "Absenden",
+  },
   feedback: {
     title: "Ihre Rückmeldung",
     lead: "Ein Klick genügt. Bei „Passt nicht“ und „Abgesagt“ helfen uns zwei, drei Worte zum Grund, die nächsten Vorschläge besser zu machen.",
