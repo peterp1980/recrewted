@@ -126,7 +126,7 @@ export const de = {
       salaryMin: "Gehalt von",
       salaryMax: "Gehalt bis",
       salaryPeriod: "pro",
-      salaryHint: "Die Gehaltsspanne ist Pflicht und erscheint in der Anzeige (EU-Entgelttransparenz).",
+      salaryHint: "Optional. Wenn angegeben, erscheint die Spanne in der Anzeige und bei Google for Jobs. Spätestens vor dem Vorstellungsgespräch muss der Bewerber das Gehalt erfahren (EU-Entgelttransparenz).",
       startDate: "Starttermin",
       startDateHint: "Leer lassen für „ab sofort“.",
       benefits: "Benefits",
@@ -179,7 +179,7 @@ export const de = {
       postalCode: "Postleitzahl des Arbeitsorts (5 Ziffern)",
       tasks: "mindestens eine Aufgabe",
       mustHave: "mindestens ein Muss-Kriterium",
-      salary: "Gehaltsspanne (von und bis)",
+      salary: "Gehaltsspanne: bitte „von“ und „bis“ angeben oder beide leer lassen",
       salaryRange: "Gehalt „von“ ist größer als „bis“",
       startDate: "Starttermin liegt in der Vergangenheit",
       contactName: "Name des Ansprechpartners",
@@ -205,7 +205,7 @@ export const de = {
   jobs: {
     title: "Jobs",
     metaTitle: "Jobs – recrewted",
-    metaDescription: "Aktuelle Stellenangebote mit Gehaltsangabe. Bewerbung in zwei Minuten, ohne Anschreiben.",
+    metaDescription: "Aktuelle Stellenangebote. Bewerbung in zwei Minuten, ohne Anschreiben.",
     searchLabel: "Suche",
     q: "Was?",
     qPlaceholder: "Beruf, Stichwort",
@@ -417,7 +417,7 @@ export const de = {
   settings: {
     title: "Vakanz-Einstellungen",
     status: "Status",
-    statusHint: "„Aktiv“ veröffentlicht die Stelle auf der Jobbörse und bei Google for Jobs. Dafür muss die Gehaltsspanne im Briefing stehen.",
+    statusHint: "„Aktiv“ veröffentlicht die Stelle auf der Jobbörse und bei Google for Jobs.",
     openings: "Anzahl Stellen",
     pricingModel: "Preismodell",
     price: "Vereinbarter Preis (EUR)",
@@ -426,7 +426,7 @@ export const de = {
     employerVisible: "Unternehmen in der Anzeige nennen",
     save: "Einstellungen speichern",
     saved: "Einstellungen gespeichert.",
-    salaryMissing: "Ohne Gehaltsspanne kann die Stelle nicht aktiv geschaltet werden.",
+    salaryMissing: "Die Gehaltsspanne ist ungültig („von“ ist größer als „bis“).",
     pricing: {
       fixed_starter: "Festpreis Starter",
       fixed_pro: "Festpreis Pro",
@@ -527,7 +527,7 @@ export const de = {
     checksOk: "Alle Prüfungen bestanden.",
     issues: {
       gender_tag: "Im Titel fehlt (m/w/d).",
-      salary: "Die Gehaltsspanne fehlt (im Briefing oder im Text).",
+      salary: "Die Gehaltsspanne aus dem Briefing fehlt im Text.",
       location: "Der Arbeitsort fehlt im Text.",
       agg: "Formulierung könnte gegen das AGG verstoßen",
       too_long: "Für Social zu lang (max. 500 Zeichen).",

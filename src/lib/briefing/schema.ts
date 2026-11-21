@@ -133,8 +133,9 @@ export function missingForSubmit(b: Briefing): BriefingField[] {
   if (b.remote !== "remote" && !/^\d{5}$/.test(b.postalCode)) missing.push("postalCode");
   if (b.tasks.length === 0) missing.push("tasks");
   if (b.mustHave.length === 0) missing.push("mustHave");
-  if (b.salaryMin === null || b.salaryMax === null) missing.push("salary");
-  else if (b.salaryMin > b.salaryMax) missing.push("salaryRange");
+  // Salary is optional; if one value is given, both are needed and "from" must not exceed "to".
+  if ((b.salaryMin === null) !== (b.salaryMax === null)) missing.push("salary");
+  else if (b.salaryMin !== null && b.salaryMax !== null && b.salaryMin > b.salaryMax) missing.push("salaryRange");
   if (b.startDate !== null && b.startDate < new Date().toISOString().slice(0, 10)) missing.push("startDate");
   if (b.contactName.length < 2) missing.push("contactName");
   if (!EMAIL.test(b.contactEmail)) missing.push("contactEmail");

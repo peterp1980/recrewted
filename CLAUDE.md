@@ -43,7 +43,7 @@ Nichts aus Release 2/3 ins MVP ziehen, ohne dass Peter es freigibt.
 - **Bewerberdaten:** Lebensläufe in einem privaten Storage-Bucket, nie öffentlich verlinkt. Tracking-Events enthalten nur IDs, keine personenbezogenen Inhalte.
 - **Serverseitiges Tracking:** siehe `docs/tracking.md`. Browser liefert nur Einstieg + Consent, alles danach meldet der Server.
 - **KI:** Die KI schlägt vor, ein Mensch entscheidet. Jede KI-Empfehlung (Score, Text) wird mit Eingabe, Modell und Zeitpunkt protokolliert. Recruiting-KI gilt im EU AI Act als Hochrisiko – Scores müssen erklärbar sein.
-- **Anzeigen:** AGG-konform (m/w/d, keine diskriminierenden Formulierungen), Gehaltsfeld Pflicht (EU-Entgelttransparenz).
+- **Anzeigen:** AGG-konform (m/w/d, keine diskriminierenden Formulierungen). Gehalt optional (Entscheidung Peter, 21.11.2026); wenn angegeben, erscheint es in Anzeige und `JobPosting`. Nach EU-Entgelttransparenz muss der Bewerber das Gehalt spätestens vor dem Vorstellungsgespräch erfahren.
 - **Sprache:** Oberfläche und Texte auf Deutsch, Code und Kommentare auf Englisch. Mehrsprachigkeit vorbereiten (i18n-Schlüssel statt fest verdrahteter Strings).
 - **Secrets:** nie ins Repo. `.env.local` lokal, Vercel/Supabase-Umgebungsvariablen für Deploys.
 

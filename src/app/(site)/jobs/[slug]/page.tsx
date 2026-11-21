@@ -14,7 +14,7 @@ const dateFmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "long", timeZone: 
 async function load(slug: string) {
   const id = idFromSlug(slug);
   if (!id) notFound();
-  // Only active vacancies with salary exist publicly; filled or closed ones are gone (404).
+  // Only active vacancies exist publicly; filled or closed ones are gone (404).
   const job = await getPublicJob(id).catch((e) => {
     console.error("job lookup failed", e);
     return null;

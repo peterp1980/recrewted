@@ -57,6 +57,7 @@ describe("missingForSubmit", () => {
 
   it("requires salary (pay transparency) and a valid range", () => {
     expect(missingForSubmit({ ...complete, salaryMax: null })).toContain("salary");
+    expect(missingForSubmit({ ...complete, salaryMin: null, salaryMax: null })).toEqual([]);
     expect(missingForSubmit({ ...complete, salaryMin: 60000 })).toContain("salaryRange");
   });
 
@@ -67,7 +68,7 @@ describe("missingForSubmit", () => {
   });
 
   it("lists everything missing on an empty briefing", () => {
-    expect(missingForSubmit(emptyBriefing())).toEqual(["title", "employmentType", "category", "location", "postalCode", "tasks", "mustHave", "salary", "contactName", "contactEmail"]);
+    expect(missingForSubmit(emptyBriefing())).toEqual(["title", "employmentType", "category", "location", "postalCode", "tasks", "mustHave", "contactName", "contactEmail"]);
   });
 });
 

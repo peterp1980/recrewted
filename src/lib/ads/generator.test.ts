@@ -21,8 +21,18 @@ describe("job ad generator", () => {
   });
 
   it("finds missing tag, salary, location and AGG wording", () => {
-    const issues = checkAd({ title: "Elektroniker", body: "Junges Team sucht Verstärkung." }, "portal", { ...b, salaryMax: null });
+    const issues = checkAd({ title: "Elektroniker", body: "Junges Team sucht Verstärkung." }, "portal", b);
     expect(issues.map((i) => i.kind)).toEqual(["gender_tag", "salary", "location", "agg"]);
+  });
+
+  it("does not ask for a salary the briefing does not have, and leaves no empty salary lines", () => {
+    const noPay = { ...b, salaryMin: null, salaryMax: null };
+    expect(checkAd({ title: "Elektroniker (m/w/d)", body: "In München gesucht." }, "portal", noPay)).toEqual([]);
+    for (const key of Object.keys(TEMPLATES) as TemplateKey[]) {
+      const ad = generateAd(key, { briefing: noPay, employer: "Muster GmbH" });
+      expect(ad.body).not.toMatch(/Gehalt: *$|💶|, \.|· *$/m);
+      expect(checkAd(ad, TEMPLATES[key].channel, noPay)).toEqual([]);
+    }
   });
 
   it("limits social texts", () => {

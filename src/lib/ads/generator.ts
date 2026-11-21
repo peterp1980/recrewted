@@ -36,7 +36,7 @@ export function generateAd(key: TemplateKey, { briefing: b, employer }: AdContex
           b.mustHave.length ? `Das bringen Sie mit\n${list(b.mustHave)}` : "",
           b.niceToHave.length ? `Von Vorteil\n${list(b.niceToHave)}` : "",
           b.benefits.length ? `Das bieten wir\n${list(b.benefits)}` : "",
-          `Gehalt: ${pay(b)}`,
+          pay(b) ? `Gehalt: ${pay(b)}` : "",
           "Bewerben geht in zwei Minuten – ohne Anschreiben.",
         ].filter(Boolean).join("\n\n"),
       };
@@ -44,7 +44,7 @@ export function generateAd(key: TemplateKey, { briefing: b, employer }: AdContex
       return {
         title,
         body: [
-          `${title} in ${where(b)} · ${pay(b)}`,
+          [`${title} in ${where(b)}`, pay(b)].filter(Boolean).join(" · "),
           b.tasks.length ? `Was Sie tun: ${b.tasks.slice(0, 3).join(", ")}.` : "",
           b.mustHave.length ? `Was Sie mitbringen: ${b.mustHave.slice(0, 3).join(", ")}.` : "",
           b.benefits.length ? `Was Sie bekommen: ${b.benefits.slice(0, 3).join(", ")}.` : "",
@@ -54,12 +54,12 @@ export function generateAd(key: TemplateKey, { briefing: b, employer }: AdContex
     case "social_question":
       return {
         title,
-        body: `${b.mustHave[0] ? `${b.mustHave[0]}? ` : ""}Dann passt das vielleicht: ${title} in ${where(b)}, ${pay(b)}. ${b.benefits[0] ? `${b.benefits[0]}. ` : ""}Bewerbung in 2 Minuten, ohne Anschreiben.`,
+        body: `${b.mustHave[0] ? `${b.mustHave[0]}? ` : ""}Dann passt das vielleicht: ${title} in ${where(b)}${pay(b) ? `, ${pay(b)}` : ""}. ${b.benefits[0] ? `${b.benefits[0]}. ` : ""}Bewerbung in 2 Minuten, ohne Anschreiben.`,
       };
     case "social_facts":
       return {
         title,
-        body: [`${title}`, `📍 ${where(b)}`, `💶 ${pay(b)}`, ...b.benefits.slice(0, 2).map((x) => `✓ ${x}`), "Jetzt in 2 Minuten bewerben."].join("\n"),
+        body: [`${title}`, `📍 ${where(b)}`, ...(pay(b) ? [`💶 ${pay(b)}`] : []), ...b.benefits.slice(0, 2).map((x) => `✓ ${x}`), "Jetzt in 2 Minuten bewerben."].join("\n"),
       };
   }
 }
@@ -67,12 +67,12 @@ export function generateAd(key: TemplateKey, { briefing: b, employer }: AdContex
 export type AdIssue = { kind: "gender_tag" | "salary" | "location" | "agg" | "too_long" | "empty"; detail?: AggCategory[] };
 export const SOCIAL_MAX = 500;
 
-/** Checks before approval: gender tag, salary, location, AGG wording, length. */
+/** Checks before approval: gender tag, salary (if the briefing has one), location, AGG wording, length. */
 export function checkAd(ad: AdDraft, channel: Channel, b: Briefing): AdIssue[] {
   const issues: AdIssue[] = [];
   if (!ad.title.trim() || !ad.body.trim()) issues.push({ kind: "empty" });
   if (!GENDER.test(ad.title)) issues.push({ kind: "gender_tag" });
-  if (b.salaryMin === null || b.salaryMax === null || !/€/.test(ad.body)) issues.push({ kind: "salary" });
+  if (b.salaryMin !== null && b.salaryMax !== null && !/€/.test(ad.body)) issues.push({ kind: "salary" });
   if (b.remote !== "remote" && (!b.location || !ad.body.includes(b.location))) issues.push({ kind: "location" });
   const agg = findAggIssues(`${ad.title}\n${ad.body}`);
   if (agg.length) issues.push({ kind: "agg", detail: agg });

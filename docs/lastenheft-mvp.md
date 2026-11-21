@@ -58,7 +58,7 @@ Status einer Vakanz: `draft → contract_pending → active → paused → fille
 
 **F1 Jobbörse recrewted + Google for Jobs**
 - Liste aktiver Stellen mit Filter (Ort, Umkreis, Berufsfeld, Anstellungsart) und Detailseite.
-- Jede Detailseite enthält gültiges `JobPosting`-Schema inkl. Gehalt; besetzte Stellen werden aus Sitemap und Schema entfernt.
+- Jede Detailseite enthält gültiges `JobPosting`-Schema (Gehalt, wenn angegeben); besetzte Stellen werden aus Sitemap und Schema entfernt.
 - Mobil zuerst: Lighthouse Performance ≥ 90 auf Mobilgeräten.
 
 **F2 Kurzbewerbung mobil**
@@ -96,7 +96,7 @@ Status einer Vakanz: `draft → contract_pending → active → paused → fille
 
 **F8 Job-Ad-Generator**
 - Erzeugt aus dem Suchprofil Anzeigentexte je Kanal (Portal-Langtext, Social-Kurztext) mit mehreren Vorlagen.
-- Prüft AGG-Formulierungen und Pflichtfelder (m/w/d, Gehalt, Ort) vor Freigabe.
+- Prüft AGG-Formulierungen und Pflichtfelder (m/w/d, Ort; Gehalt, wenn im Briefing angegeben) vor Freigabe.
 - Recruiter bearbeitet und gibt frei; jede Version wird gespeichert.
 
 **F9 Ausspielung an Portale**
@@ -105,7 +105,7 @@ Status einer Vakanz: `draft → contract_pending → active → paused → fille
 - Status je Portal sichtbar (online, Fehler, offline).
 
 **F10 Gehaltsfeld**
-- Gehaltsspanne ist Pflicht für die Veröffentlichung.
+- Gehaltsspanne ist optional (Entscheidung Peter, 21.11.2026). Wenn angegeben, erscheint sie in Anzeige und Schema. Spätestens vor dem Vorstellungsgespräch muss der Bewerber das Gehalt erfahren (EU-Entgelttransparenz).
 
 **F11 Stelle besetzt → überall offline**
 - Bei `filled`/`closed` wird die Stelle innerhalb von 1 Stunde aus Jobbörse, Feeds, Schema und Kampagnen entfernt bzw. pausiert.

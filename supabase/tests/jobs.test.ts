@@ -62,3 +62,14 @@ describe("job board data", () => {
       await expect(c.query("insert into postal_codes values ('10115', 'Berlin', 52.5, 13.4)")).rejects.toThrow(/row-level security/);
     }, "anon"));
 });
+
+describe("salary (optional since 0016)", () => {
+  it("allows publishing without a salary but still rejects an inverted range", () =>
+    tx(async () => {
+      const r = await db.query("insert into vacancies (organization_id, title, status) values ($1, 'Ohne Gehalt', 'active') returning published_at", [ORG]);
+      expect(r.rows[0].published_at).not.toBeNull();
+      await db.query("savepoint s");
+      await expect(db.query("insert into vacancies (organization_id, title, status, salary_min, salary_max) values ($1, 'Falsch', 'active', 5, 2)", [ORG])).rejects.toThrow(/salary_range_valid/);
+      await db.query("rollback to savepoint s");
+    }));
+});

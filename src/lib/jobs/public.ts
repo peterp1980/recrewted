@@ -44,14 +44,12 @@ function toPublic(r: Row): PublicJob {
   };
 }
 
-/** Active vacancies with salary (required for publication, F10). */
+/** Active vacancies. A salary is optional (decision 21.11.2026). */
 async function activeRows(): Promise<Row[]> {
   const { data, error } = await createAdminClient()
     .from("vacancies")
     .select(COLUMNS)
     .eq("status", "active")
-    .not("salary_min", "is", null)
-    .not("salary_max", "is", null)
     .order("published_at", { ascending: false });
   if (error) throw new Error(`job board query failed: ${error.message}`);
   return (data ?? []) as unknown as Row[];
@@ -59,7 +57,7 @@ async function activeRows(): Promise<Row[]> {
 
 export async function getPublicJob(id: string): Promise<PublicJob | null> {
   const { data } = await createAdminClient().from("vacancies").select(COLUMNS).eq("id", id).eq("status", "active").maybeSingle();
-  if (!data || data.salary_min === null || data.salary_max === null) return null;
+  if (!data) return null;
   return toPublic(data as unknown as Row);
 }
 
@@ -124,8 +122,6 @@ export async function jobsOfOrganization(organizationId: string): Promise<Public
     .eq("organization_id", organizationId)
     .eq("status", "active")
     .eq("employer_visible", true)
-    .not("salary_min", "is", null)
-    .not("salary_max", "is", null)
     .order("published_at", { ascending: false });
   if (error) throw new Error(`career jobs query failed: ${error.message}`);
   return ((data ?? []) as unknown as Row[]).map(toPublic);
