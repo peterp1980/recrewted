@@ -50,9 +50,9 @@ export type Database = {
         Relationships: Rel[]
       }
       applications: {
-        Row: { candidate_id: string; closed_at: string | null; cv_storage_path: string | null; duplicate_of: string | null; hired_at: string | null; id: string; score: number | null; shortlisted_at: string | null; status: E["application_status"]; submitted_at: string; vacancy_id: string }
-        Insert: { candidate_id: string; closed_at?: string | null; cv_storage_path?: string | null; duplicate_of?: string | null; hired_at?: string | null; id?: string; score?: number | null; shortlisted_at?: string | null; status?: E["application_status"]; submitted_at?: string; vacancy_id: string }
-        Update: { candidate_id?: string; closed_at?: string | null; cv_storage_path?: string | null; duplicate_of?: string | null; hired_at?: string | null; id?: string; score?: number | null; shortlisted_at?: string | null; status?: E["application_status"]; submitted_at?: string; vacancy_id?: string }
+        Row: { consent_version: string | null; knockout_reasons: Json; processing_consent_at: string | null; candidate_id: string; closed_at: string | null; cv_storage_path: string | null; duplicate_of: string | null; hired_at: string | null; id: string; score: number | null; shortlisted_at: string | null; status: E["application_status"]; submitted_at: string; vacancy_id: string }
+        Insert: { consent_version?: string | null; knockout_reasons?: Json; processing_consent_at?: string | null; candidate_id: string; closed_at?: string | null; cv_storage_path?: string | null; duplicate_of?: string | null; hired_at?: string | null; id?: string; score?: number | null; shortlisted_at?: string | null; status?: E["application_status"]; submitted_at?: string; vacancy_id: string }
+        Update: { consent_version?: string | null; knockout_reasons?: Json; processing_consent_at?: string | null; candidate_id?: string; closed_at?: string | null; cv_storage_path?: string | null; duplicate_of?: string | null; hired_at?: string | null; id?: string; score?: number | null; shortlisted_at?: string | null; status?: E["application_status"]; submitted_at?: string; vacancy_id?: string }
         Relationships: Rel[]
       }
       audit_log: {
@@ -111,6 +111,12 @@ export type Database = {
         Insert: { approved_at?: string | null; approved_by?: string | null; body: string; channel: string; created_at?: string; id?: string; status?: E["ad_status"]; template_key?: string | null; title: string; vacancy_id: string; version?: number }
         Update: { approved_at?: string | null; approved_by?: string | null; body?: string; channel?: string; created_at?: string; id?: string; status?: E["ad_status"]; template_key?: string | null; title?: string; vacancy_id?: string; version?: number }
         Relationships: Rel[]
+      }
+      mail_outbox: {
+        Row: { application_id: string | null; attempts: number; cancelled_at: string | null; created_at: string; data: Json; id: string; last_error: string | null; send_after: string; sent_at: string | null; template: string; to_email: string }
+        Insert: { application_id?: string | null; attempts?: number; cancelled_at?: string | null; created_at?: string; data?: Json; id?: string; last_error?: string | null; send_after?: string; sent_at?: string | null; template: string; to_email: string }
+        Update: { application_id?: string | null; attempts?: number; cancelled_at?: string | null; created_at?: string; data?: Json; id?: string; last_error?: string | null; send_after?: string; sent_at?: string | null; template?: string; to_email?: string }
+        Relationships: []
       }
       organizations: {
         Row: { created_at: string; id: string; name: string; pipedrive_org_id: number | null; website: string | null }
@@ -174,7 +180,10 @@ export type Database = {
       }
     }
     Views: { [_ in never]: never }
-    Functions: { [_ in never]: never }
+    Functions: {
+      claim_due_mails: { Args: { max_count: number }; Returns: Database["public"]["Tables"]["mail_outbox"]["Row"][] }
+      submit_application: { Args: { p: Json }; Returns: Json }
+    }
     Enums: {
       account_owner: "recrewted" | "customer"
       ad_status: "draft" | "approved" | "published" | "archived"

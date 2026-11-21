@@ -26,7 +26,7 @@ language sql stable as $$
 $$;
 
 create schema if not exists storage;
-create table if not exists storage.buckets (id text primary key, name text not null, public boolean default false);
+create table if not exists storage.buckets (id text primary key, name text not null, public boolean default false, file_size_limit bigint);
 
 grant usage on schema public, auth to anon, authenticated, service_role;
 grant execute on function auth.uid() to anon, authenticated, service_role;

@@ -6,6 +6,8 @@ import { getSession } from "@/lib/auth/session";
 import { isStaff } from "@/lib/auth/roles";
 import { fromStored, missingForSubmit, parseBriefingForm } from "@/lib/briefing/schema";
 import { suggestCriteria, suggestQuestions } from "@/lib/briefing/suggestions";
+import { findAggIssues } from "@/lib/agg";
+import { parseQuestionForm } from "@/lib/screening/rules";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid, vacancyBase, vacancyPath } from "@/lib/vacancies/paths";
 
@@ -96,4 +98,41 @@ export async function applySuggestions(formData: FormData) {
   ]);
   revalidatePath(path);
   redirect(`${path}?status=${qRes.error || cRes.error ? "error" : "applied"}`);
+}
+
+/** Staff only: adds a knockout question (F3). RLS also restricts writes to staff. */
+export async function addQuestion(formData: FormData) {
+  const session = await signedIn();
+  if (!isStaff(session.role)) redirect("/");
+  const vacancyId = String(formData.get("vacancyId") ?? "");
+  if (!isUuid(vacancyId)) redirect("/admin");
+  const path = vacancyPath(session.role, vacancyId);
+  const q = parseQuestionForm(formData);
+  if (!q) redirect(`${path}?q=invalid#fragen`);
+  if (findAggIssues([q.question, ...(q.options ?? [])].join(" ")).length) redirect(`${path}?q=agg#fragen`);
+
+  const supabase = await createClient();
+  const { data: last } = await supabase.from("screening_questions").select("position").eq("vacancy_id", vacancyId).order("position", { ascending: false }).limit(1);
+  const { error } = await supabase.from("screening_questions").insert({
+    vacancy_id: vacancyId, position: (last?.[0]?.position ?? 0) + 1, question: q.question, kind: q.kind, options: q.options, knockout_rule: q.knockoutRule,
+  });
+  revalidatePath(path);
+  redirect(`${path}?q=${error ? "error" : "saved"}#fragen`);
+}
+
+export async function removeQuestion(formData: FormData) {
+  const session = await signedIn();
+  if (!isStaff(session.role)) redirect("/");
+  const vacancyId = String(formData.get("vacancyId") ?? "");
+  const questionId = String(formData.get("questionId") ?? "");
+  if (!isUuid(vacancyId) || !isUuid(questionId)) redirect("/admin");
+  const path = vacancyPath(session.role, vacancyId);
+  // Deleting is admin-only in RLS; recruiters get an error message.
+  const supabase = await createClient();
+  // Answered questions stay: deleting would also delete applicants' answers.
+  const { count: answered } = await supabase.from("screening_answers").select("question_id", { count: "exact", head: true }).eq("question_id", questionId);
+  if ((answered ?? 0) > 0) redirect(`${path}?q=answered#fragen`);
+  const { count } = await supabase.from("screening_questions").delete({ count: "exact" }).eq("id", questionId).eq("vacancy_id", vacancyId);
+  revalidatePath(path);
+  redirect(`${path}?q=${count ? "removed" : "error"}#fragen`);
 }

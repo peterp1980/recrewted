@@ -40,9 +40,9 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | 5 | F16 PandaDoc (Vorlagen, Versand, Webhook, PDF in Storage) | 4 |
 | 6 | F15 Pipedrive (Deal ↔ Vakanz, Stages spiegeln) | 2 |
 | 7 | F1 Jobbörse + Google for Jobs, F10 Gehaltsfeld | gebaut (Branch `mvp`); Umkreissuche braucht PLZ-Import |
-| 8 | F2 Kurzbewerbung mobil + Eingangsmail | 4 |
+| 8 | F2 Kurzbewerbung mobil + Eingangsmail | gebaut (Branch `mvp`); Mailversand wartet auf SMTP-Anbieter |
 | 9 | F20 Consent-Banner, Einwilligungen, Löschjobs | 4 |
-| 10 | F3 Ausschlussfragen + zeitversetzte Absage | 2 |
+| 10 | F3 Ausschlussfragen + zeitversetzte Absage | gebaut (Branch `mvp`) |
 | 11 | F4 Bewertungsbogen inkl. PDF und KI-Vorschlag | 5 |
 | 12 | F5 Pipeline (Kanban) + Mail-Vorlagen | 5 |
 | 13 | F14 Kundenportal + F6 Rückmeldung Einstellung | 6 |

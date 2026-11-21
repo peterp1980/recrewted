@@ -8,6 +8,7 @@ import { isUuid } from "@/lib/vacancies/paths";
 import { applySuggestions } from "@/app/vacancy-actions";
 import { BriefingForm } from "./BriefingForm";
 import { Notice } from "./Notice";
+import { QuestionEditor } from "./QuestionEditor";
 
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
 const EDITABLE_FOR_CUSTOMER = ["draft", "contract_pending"];
@@ -16,7 +17,7 @@ type Props = {
   id: string;
   base: "/admin" | "/portal";
   staff: boolean;
-  search: { status?: string; missing?: string };
+  search: { status?: string; missing?: string; q?: string };
 };
 
 /** Vacancy page with briefing (F13). Staff additionally see suggestions and can apply them. */
@@ -86,6 +87,7 @@ export async function VacancyDetail({ id, base, staff, search }: Props) {
       </section>
 
       {staff && <Suggestions vacancyId={vacancy.id} briefing={briefing} />}
+      {staff && <QuestionEditor vacancyId={vacancy.id} status={search.q} />}
     </main>
   );
 }
