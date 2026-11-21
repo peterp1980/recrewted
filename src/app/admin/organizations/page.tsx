@@ -14,7 +14,7 @@ export default async function OrganizationsPage({ searchParams }: Props) {
   const errorText = error && error in getMessages().organizations.errors ? getMessages().organizations.errors[error as keyof ReturnType<typeof getMessages>["organizations"]["errors"]] : null;
   const t = getMessages().organizations;
   const supabase = await createClient();
-  const { data: orgs } = await supabase.from("organizations").select("id, name, slug, career_enabled, vacancies(count)").order("name");
+  const { data: orgs } = await supabase.from("organizations").select("id, name, slug, career_enabled, vacancies(count), career_pages(status)").order("name");
 
   return (
     <main className="flex flex-col gap-6">
@@ -48,6 +48,9 @@ export default async function OrganizationsPage({ searchParams }: Props) {
                 <span className={`self-start rounded-full px-2.5 py-0.5 text-xs font-semibold ${o.career_enabled ? "bg-brand-50 text-brand-800" : "bg-neutral-100 text-muted"}`}>
                   {o.career_enabled ? `${t.careerOn} · /karriere/${o.slug}` : t.careerOff}
                 </span>
+                {(o.career_pages as unknown as { status: string } | null)?.status === "in_review" && (
+                  <span className="self-start rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800">{getMessages().editor.status.in_review}</span>
+                )}
               </Link>
             </li>
           );

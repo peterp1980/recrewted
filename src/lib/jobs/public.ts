@@ -3,7 +3,7 @@ import { fromStored } from "@/lib/briefing/schema";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { distanceKm, type PublicJob } from "./format";
 import { matchesText, type JobFilters } from "./filters";
-import { benefitsFromStored, factsFromStored, imageUrl, testimonialsFromStored, type Benefit, type Fact, type Testimonial } from "@/lib/careers/profile";
+import { sanitizeDocument, type CareerDocument } from "@/lib/careers/document";
 
 // The job board is public, but vacancies are not: this module reads active
 // vacancies with the service role and returns only public fields. Pricing,
@@ -106,62 +106,50 @@ export async function searchJobs(f: JobFilters): Promise<SearchResult> {
 }
 
 export type CareerPage = {
+  organizationId: string;
   name: string;
   slug: string;
   website: string | null;
-  headline: string | null;
-  intro: string | null;
-  benefits: Benefit[];
-  office: string | null;
-  contact: string | null;
   brandColor: string | null;
-  logoUrl: string | null;
-  heroUrl: string | null;
-  facts: Fact[];
-  testimonials: Testimonial[];
   tone: "sie" | "du";
+  doc: CareerDocument;
   jobs: PublicJob[];
 };
 
-/**
- * Public career page of one customer: profile plus its active, non-confidential
- * vacancies. Confidential searches never appear here, they would name the employer.
- */
-export async function getCareerPage(slug: string): Promise<CareerPage | null> {
-  const admin = createAdminClient();
-  const { data: org } = await admin
-    .from("organizations")
-    .select("id, name, slug, website, career_enabled, career_headline, career_intro, career_benefits, career_office, career_contact, brand_color, career_logo_url, career_hero_url, career_facts, career_testimonials, candidate_tone")
-    .eq("slug", slug)
-    .eq("career_enabled", true)
-    .maybeSingle();
-  if (!org || !org.slug) return null;
-  const { data, error } = await admin
+/** Active, non-confidential vacancies of one customer. Confidential searches never name the employer. */
+export async function jobsOfOrganization(organizationId: string): Promise<PublicJob[]> {
+  const { data, error } = await createAdminClient()
     .from("vacancies")
     .select(COLUMNS)
-    .eq("organization_id", org.id)
+    .eq("organization_id", organizationId)
     .eq("status", "active")
     .eq("employer_visible", true)
     .not("salary_min", "is", null)
     .not("salary_max", "is", null)
     .order("published_at", { ascending: false });
-  if (error) throw new Error(`career page query failed: ${error.message}`);
+  if (error) throw new Error(`career jobs query failed: ${error.message}`);
+  return ((data ?? []) as unknown as Row[]).map(toPublic);
+}
+
+/** Public career page: the published document only, never the draft. */
+export async function getCareerPage(slug: string): Promise<CareerPage | null> {
+  const { data: org } = await createAdminClient()
+    .from("organizations")
+    .select("id, name, slug, website, brand_color, candidate_tone, career_pages(published)")
+    .eq("slug", slug)
+    .eq("career_enabled", true)
+    .maybeSingle();
+  const published = (org?.career_pages as unknown as { published: unknown } | null)?.published;
+  if (!org || !org.slug || !published) return null;
   return {
+    organizationId: org.id,
     name: org.name,
     slug: org.slug,
     website: org.website,
-    headline: org.career_headline,
-    intro: org.career_intro,
-    benefits: benefitsFromStored(org.career_benefits),
-    office: org.career_office,
-    contact: org.career_contact,
     brandColor: org.brand_color,
-    logoUrl: imageUrl(org.career_logo_url),
-    heroUrl: imageUrl(org.career_hero_url),
-    facts: factsFromStored(org.career_facts),
-    testimonials: testimonialsFromStored(org.career_testimonials),
     tone: org.candidate_tone === "du" ? "du" : "sie",
-    jobs: ((data ?? []) as unknown as Row[]).map(toPublic),
+    doc: sanitizeDocument(published),
+    jobs: await jobsOfOrganization(org.id),
   };
 }
 

@@ -84,9 +84,9 @@ Gesamt ≈ 77 Tage, mit Puffer rund 4–5 Monate bei einer Person. Der Pilot kan
 ## Stand 21.11.2026 (Branch `mvp`)
 
 Gebaut: alle Features außer F15 Pipedrive und F16 PandaDoc (warten auf API-Zugänge).
-Migrationen 0001–0013 sind auf Prod eingespielt.
+Migrationen 0001–0014 sind auf Prod eingespielt.
 
-Zusätzlich (Freigabe Peter, 21.11.2026): Karriereseite je Kunde unter `/karriere/<kurzname>` und Stellen-Widget zum Einbetten (`/widget/<kurzname>`), gepflegt unter Admin → Unternehmen. Feste Vorlage, kein Baukasten (der bleibt in Release 3). Bewerbungen darüber zählen als Herkunft `career_page` bzw. `widget`.
+Zusätzlich (Freigabe Peter, 21.11.2026): Karriereseite je Kunde unter `/karriere/<kurzname>` und Stellen-Widget zum Einbetten (`/widget/<kurzname>`), gepflegt unter Admin → Unternehmen. Seit 21.11.2026 (Freigabe Peter) als Baukasten aus Abschnitten mit Live-Vorschau; Kunden bearbeiten im Portal, recrewted veröffentlicht. Damit ist der Karriereseiten-Baukasten aus Release 3 vorgezogen. Bewerbungen darüber zählen als Herkunft `career_page` bzw. `widget`.
 
 Offen bis zum Livegang:
 

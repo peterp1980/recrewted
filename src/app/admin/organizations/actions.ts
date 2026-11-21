@@ -3,48 +3,32 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireAccess } from "@/lib/auth/session";
-import { CAREER_BUCKET, parseProfileForm } from "@/lib/careers/profile";
-import { randomUUID } from "node:crypto";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { parseSettingsForm } from "@/lib/careers/profile";
 import { createClient } from "@/lib/supabase/server";
 import { audit } from "@/lib/audit";
 
-/** Saves a customer's career page profile. RLS allows this for admins only. */
-export async function saveCareerProfile(form: FormData) {
+/** Admin only: settings of the career page (address, published flag, colour, form of address). Content lives in the editor. */
+export async function saveCareerSettings(form: FormData) {
   const id = String(form.get("organizationId") ?? "");
   const path = `/admin/organizations/${id}`;
   const session = await requireAccess(path);
   if (session.role !== "admin") redirect(`${path}?error=forbidden`);
 
-  const parsed = parseProfileForm(form);
+  const parsed = parseSettingsForm(form);
   if (!parsed.ok) redirect(`${path}?error=${parsed.error}`);
   const p = parsed.value;
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("organizations")
-    .update({
-      slug: p.slug,
-      career_enabled: p.enabled,
-      career_headline: p.headline || null,
-      career_intro: p.intro || null,
-      career_benefits: p.benefits,
-      career_office: p.office || null,
-      career_contact: p.contact || null,
-      brand_color: p.brandColor,
-      candidate_tone: p.tone,
-      career_logo_url: p.logoUrl,
-      career_hero_url: p.heroUrl,
-      career_facts: p.facts,
-      career_testimonials: p.testimonials,
-    })
+    .update({ slug: p.slug, career_enabled: p.enabled, brand_color: p.brandColor, candidate_tone: p.tone })
     .eq("id", id)
     .select("slug")
     .maybeSingle();
   if (error?.code === "23505") redirect(`${path}?error=slug`);
   if (error || !data) redirect(`${path}?error=error`);
 
-  await audit(session.userId, "career_profile_saved", "organizations", id, { slug: p.slug, enabled: p.enabled });
+  await audit(session.userId, "career_settings_saved", "organizations", id, { slug: p.slug, enabled: p.enabled, tone: p.tone });
   revalidatePath(path);
   if (data.slug) {
     revalidatePath(`/karriere/${data.slug}`);
@@ -67,27 +51,4 @@ export async function createOrganization(form: FormData) {
   await audit(session.userId, "organization_created", "organizations", data.id, { name });
   revalidatePath("/admin/organizations");
   redirect(`/admin/organizations/${data.id}?status=created`);
-}
-
-const IMAGE_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
-
-
-/**
- * Admin only: uploads a picture for a career page (logo, header, team photo)
- * to the public bucket, in a folder per customer. Never for applicant files.
- */
-export async function uploadCareerImage(form: FormData) {
-  const id = String(form.get("organizationId") ?? "");
-  const path = `/admin/organizations/${id}`;
-  const session = await requireAccess(path);
-  if (session.role !== "admin") redirect(`${path}?error=forbidden`);
-  if (!/^[0-9a-f-]{36}$/.test(id)) redirect("/admin/organizations");
-  const file = form.get("file");
-  if (!(file instanceof File) || file.size === 0 || file.size > 4 * 1024 * 1024 || !IMAGE_TYPES[file.type]) redirect(`${path}?error=upload#bilder`);
-  const key = `${id}/${randomUUID()}.${IMAGE_TYPES[file.type]}`;
-  const admin = createAdminClient();
-  const { error } = await admin.storage.from(CAREER_BUCKET).upload(key, file, { contentType: file.type, cacheControl: "31536000" });
-  if (error) redirect(`${path}?error=upload#bilder`);
-  await audit(session.userId, "career_image_uploaded", "organizations", id, { key });
-  redirect(`${path}?status=uploaded#bilder`);
 }

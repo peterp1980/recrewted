@@ -79,6 +79,12 @@ export type Database = {
           { foreignKeyName: "campaigns_vacancy_id_fkey"; columns: ["vacancy_id"]; isOneToOne: false; referencedRelation: "vacancies"; referencedColumns: ["id"] },
         ]
       }
+      career_pages: {
+        Row: { organization_id: string; draft: Json; published: Json | null; status: "draft" | "in_review" | "published"; submitted_at: string | null; submitted_by: string | null; published_at: string | null; published_by: string | null; updated_at: string; updated_by: string | null }
+        Insert: { organization_id: string; draft?: Json; published?: Json | null; status?: "draft" | "in_review" | "published"; submitted_at?: string | null; submitted_by?: string | null; published_at?: string | null; published_by?: string | null; updated_at?: string; updated_by?: string | null }
+        Update: { organization_id?: string; draft?: Json; published?: Json | null; status?: "draft" | "in_review" | "published"; submitted_at?: string | null; submitted_by?: string | null; published_at?: string | null; published_by?: string | null; updated_at?: string; updated_by?: string | null }
+        Relationships: [{ foreignKeyName: "career_pages_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: true; referencedRelation: "organizations"; referencedColumns: ["id"] }]
+      }
       candidates: {
         Row: { created_at: string; email: string | null; first_name: string; id: string; last_name: string; phone: string | null; talent_pool_consent_at: string | null }
         Insert: { created_at?: string; email?: string | null; first_name: string; id?: string; last_name: string; phone?: string | null; talent_pool_consent_at?: string | null }
@@ -146,9 +152,9 @@ export type Database = {
         Relationships: [{ foreignKeyName: "mail_outbox_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] }]
       }
       organizations: {
-        Row: { created_at: string; id: string; name: string; pipedrive_org_id: number | null; website: string | null; slug: string | null; career_enabled: boolean; career_headline: string | null; career_intro: string | null; career_benefits: Json; career_office: string | null; career_contact: string | null; brand_color: string | null; candidate_tone: string; career_logo_url: string | null; career_hero_url: string | null; career_facts: Json; career_testimonials: Json }
-        Insert: { created_at?: string; id?: string; name: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; career_headline?: string | null; career_intro?: string | null; career_benefits?: Json; career_office?: string | null; career_contact?: string | null; brand_color?: string | null; candidate_tone?: string; career_logo_url?: string | null; career_hero_url?: string | null; career_facts?: Json; career_testimonials?: Json }
-        Update: { created_at?: string; id?: string; name?: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; career_headline?: string | null; career_intro?: string | null; career_benefits?: Json; career_office?: string | null; career_contact?: string | null; brand_color?: string | null; candidate_tone?: string; career_logo_url?: string | null; career_hero_url?: string | null; career_facts?: Json; career_testimonials?: Json }
+        Row: { created_at: string; id: string; name: string; pipedrive_org_id: number | null; website: string | null; slug: string | null; career_enabled: boolean; brand_color: string | null; candidate_tone: string }
+        Insert: { created_at?: string; id?: string; name: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string }
+        Update: { created_at?: string; id?: string; name?: string; pipedrive_org_id?: number | null; website?: string | null; slug?: string | null; career_enabled?: boolean; brand_color?: string | null; candidate_tone?: string }
         Relationships: []
       }
       postal_codes: {
