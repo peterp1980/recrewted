@@ -43,6 +43,15 @@ npm run lint && npm run typecheck && npm test && npm run test:db && npm run buil
 docker run -d --name recrewted-pg -e POSTGRES_HOST_AUTH_METHOD=trust -p 54329:5432 postgres:16
 ```
 
+## Umgebungen
+
+| Umgebung | Supabase | Vercel |
+| --- | --- | --- |
+| dev/staging | `recrewted-dev` (Ref `emiuwcczcuxfqodqseew`, Frankfurt) | Projekt `recrewted`, Region `fra1`, https://recrewted-chi.vercel.app |
+| prod | noch nicht angelegt | noch nicht angelegt |
+
+`SUPABASE_SERVICE_ROLE_KEY` wird erst mit den ersten Server-Schreibzugriffen gebraucht und direkt in Vercel hinterlegt (nie im Repo).
+
 ## Einstellungen in Supabase (beim Anlegen des Projekts)
 
 - Region `eu-central-1` (Frankfurt)

@@ -217,7 +217,7 @@ describe("anonymous", () => {
 
   it("cannot call the RLS helper functions", () =>
     as(async (c) => {
-      expect(await errorOf(c, () => c.query("select public.customer_can_see_application($1)", [APP_SHORTLISTED]))).toMatch(/permission denied/);
+      expect(await errorOf(c, () => c.query("select private.customer_can_see_application($1)", [APP_SHORTLISTED]))).toMatch(/permission denied/);
     }));
 });
 
