@@ -60,7 +60,7 @@ export default async function CareerPage({ params }: Props) {
         {page.heroUrl ? (
           <>
             <img src={page.heroUrl} alt="" fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover" />
-            <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-black/80 via-black/55 to-black/10" />
+            <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/65 to-black/40 md:bg-gradient-to-r md:from-black/80 md:via-black/55 md:to-black/10" />
           </>
         ) : (
           <div aria-hidden="true" className="absolute inset-0 -z-10" style={{ background: `linear-gradient(135deg, ${color}, color-mix(in srgb, ${color} 55%, black))` }} />
@@ -81,15 +81,19 @@ export default async function CareerPage({ params }: Props) {
           </nav>
         </div>
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pt-16 pb-28 md:pt-24 md:pb-36">
-          <p className="inline-flex items-center gap-2 self-start rounded-full bg-white/15 px-3 py-1 text-sm font-semibold backdrop-blur">
-            <span className="h-2 w-2 rounded-full bg-[var(--c)]" /> {t.jobsCount(page.jobs.length)}
-          </p>
+          {page.jobs.length > 0 && (
+            <p className="inline-flex items-center gap-2 self-start rounded-full bg-white/15 px-3 py-1 text-sm font-semibold backdrop-blur">
+              <span className="h-2 w-2 rounded-full bg-[var(--c)]" /> {t.jobsCount(page.jobs.length)}
+            </p>
+          )}
           <h1 className="max-w-3xl text-4xl font-extrabold leading-[1.05] sm:text-6xl">{page.headline || t.defaultHeadline(page.name)}</h1>
           {intro[0] && <p className="max-w-2xl text-lg text-white/85 sm:text-xl">{intro[0]}</p>}
           <div className="flex flex-wrap gap-3">
-            <a href="#stellen" className="inline-flex items-center gap-2 rounded-xl bg-[var(--c)] px-6 py-3.5 font-semibold text-[var(--c-fg)] shadow-lg transition hover:brightness-110">
-              {t.toJobs} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </a>
+            {page.jobs.length > 0 && (
+              <a href="#stellen" className="inline-flex items-center gap-2 rounded-xl bg-[var(--c)] px-6 py-3.5 font-semibold text-[var(--c-fg)] shadow-lg transition hover:brightness-110">
+                {t.toJobs} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </a>
+            )}
             {intro.length > 1 && (
               <a href="#ueber-uns" className="inline-flex items-center gap-2 rounded-xl border border-white/40 px-6 py-3.5 font-semibold text-white backdrop-blur transition hover:bg-white/10">
                 {t.about(page.name)}
