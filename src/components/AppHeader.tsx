@@ -11,6 +11,7 @@ export function AppHeader({ session }: { session: Session }) {
       : [
           { href: "/admin", label: t.admin },
           { href: "/admin/ad-accounts", label: t.adAccounts },
+          { href: "/admin/kpis", label: t.kpis },
           ...(session.role === "admin" ? [{ href: "/admin/users", label: t.users }] : []),
         ];
   return (

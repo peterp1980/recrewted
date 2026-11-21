@@ -46,9 +46,9 @@ export type Database = {
         Relationships: Rel[]
       }
       application_attribution: {
-        Row: { ad_account_owner: E["account_owner"] | null; application_id: string; campaign_id: string | null; channel: string | null; click_id: string | null; click_id_expires_at: string | null; click_id_type: string | null; entry_point: E["entry_point"]; utm_campaign: string | null; utm_content: string | null; utm_medium: string | null; utm_source: string | null }
-        Insert: { ad_account_owner?: E["account_owner"] | null; application_id: string; campaign_id?: string | null; channel?: string | null; click_id?: string | null; click_id_expires_at?: string | null; click_id_type?: string | null; entry_point: E["entry_point"]; utm_campaign?: string | null; utm_content?: string | null; utm_medium?: string | null; utm_source?: string | null }
-        Update: { ad_account_owner?: E["account_owner"] | null; application_id?: string; campaign_id?: string | null; channel?: string | null; click_id?: string | null; click_id_expires_at?: string | null; click_id_type?: string | null; entry_point?: E["entry_point"]; utm_campaign?: string | null; utm_content?: string | null; utm_medium?: string | null; utm_source?: string | null }
+        Row: { marketing_consent: boolean; ad_account_owner: E["account_owner"] | null; application_id: string; campaign_id: string | null; channel: string | null; click_id: string | null; click_id_expires_at: string | null; click_id_type: string | null; entry_point: E["entry_point"]; utm_campaign: string | null; utm_content: string | null; utm_medium: string | null; utm_source: string | null }
+        Insert: { marketing_consent?: boolean; ad_account_owner?: E["account_owner"] | null; application_id: string; campaign_id?: string | null; channel?: string | null; click_id?: string | null; click_id_expires_at?: string | null; click_id_type?: string | null; entry_point: E["entry_point"]; utm_campaign?: string | null; utm_content?: string | null; utm_medium?: string | null; utm_source?: string | null }
+        Update: { marketing_consent?: boolean; ad_account_owner?: E["account_owner"] | null; application_id?: string; campaign_id?: string | null; channel?: string | null; click_id?: string | null; click_id_expires_at?: string | null; click_id_type?: string | null; entry_point?: E["entry_point"]; utm_campaign?: string | null; utm_content?: string | null; utm_medium?: string | null; utm_source?: string | null }
         Relationships: [
           { foreignKeyName: "application_attribution_application_id_fkey"; columns: ["application_id"]; isOneToOne: true; referencedRelation: "applications"; referencedColumns: ["id"] },
           { foreignKeyName: "application_attribution_campaign_id_fkey"; columns: ["campaign_id"]; isOneToOne: false; referencedRelation: "campaigns"; referencedColumns: ["id"] },
@@ -83,6 +83,12 @@ export type Database = {
         Row: { created_at: string; email: string | null; first_name: string; id: string; last_name: string; phone: string | null; talent_pool_consent_at: string | null }
         Insert: { created_at?: string; email?: string | null; first_name: string; id?: string; last_name: string; phone?: string | null; talent_pool_consent_at?: string | null }
         Update: { created_at?: string; email?: string | null; first_name?: string; id?: string; last_name?: string; phone?: string | null; talent_pool_consent_at?: string | null }
+        Relationships: []
+      }
+      conversion_log: {
+        Row: { created_at: string; detail: string | null; event_id: number; id: number; platform: string; status: string }
+        Insert: { created_at?: string; detail?: string | null; event_id: number; id?: never; platform: string; status: string }
+        Update: { created_at?: string; detail?: string | null; event_id?: number; id?: never; platform?: string; status?: string }
         Relationships: []
       }
       consents: {
@@ -128,9 +134,9 @@ export type Database = {
         Relationships: Rel[]
       }
       mail_outbox: {
-        Row: { application_id: string | null; attempts: number; cancelled_at: string | null; created_at: string; data: Json; id: string; last_error: string | null; send_after: string; sent_at: string | null; template: string; to_email: string }
-        Insert: { application_id?: string | null; attempts?: number; cancelled_at?: string | null; created_at?: string; data?: Json; id?: string; last_error?: string | null; send_after?: string; sent_at?: string | null; template: string; to_email: string }
-        Update: { application_id?: string | null; attempts?: number; cancelled_at?: string | null; created_at?: string; data?: Json; id?: string; last_error?: string | null; send_after?: string; sent_at?: string | null; template?: string; to_email?: string }
+        Row: { candidate_id: string | null; application_id: string | null; attempts: number; cancelled_at: string | null; created_at: string; data: Json; id: string; last_error: string | null; send_after: string; sent_at: string | null; template: string; to_email: string }
+        Insert: { candidate_id?: string | null; application_id?: string | null; attempts?: number; cancelled_at?: string | null; created_at?: string; data?: Json; id?: string; last_error?: string | null; send_after?: string; sent_at?: string | null; template: string; to_email: string }
+        Update: { candidate_id?: string | null; application_id?: string | null; attempts?: number; cancelled_at?: string | null; created_at?: string; data?: Json; id?: string; last_error?: string | null; send_after?: string; sent_at?: string | null; template?: string; to_email?: string }
         Relationships: [{ foreignKeyName: "mail_outbox_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] }]
       }
       organizations: {
@@ -209,6 +215,8 @@ export type Database = {
     Functions: {
       claim_due_mails: { Args: { max_count: number }; Returns: Database["public"]["Tables"]["mail_outbox"]["Row"][] }
       submit_application: { Args: { p: Json }; Returns: Json }
+      run_retention: { Args: { application_months?: number; click_id_days?: number; event_months?: number; mail_days?: number }; Returns: Json }
+      candidate_export: { Args: { cand: string }; Returns: Json }
     }
     Enums: {
       account_owner: "recrewted" | "customer"

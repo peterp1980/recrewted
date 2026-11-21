@@ -41,7 +41,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | 6 | F15 Pipedrive (Deal ↔ Vakanz, Stages spiegeln) | 2 |
 | 7 | F1 Jobbörse + Google for Jobs, F10 Gehaltsfeld | gebaut (Branch `mvp`); Umkreissuche braucht PLZ-Import |
 | 8 | F2 Kurzbewerbung mobil + Eingangsmail | gebaut (Branch `mvp`); Mailversand wartet auf SMTP-Anbieter |
-| 9 | F20 Consent-Banner, Einwilligungen, Löschjobs | 4 |
+| 9 | F20 Consent-Banner, Einwilligungen, Löschjobs | gebaut (Branch `mvp`); Fristen mit DSB abstimmen |
 | 10 | F3 Ausschlussfragen + zeitversetzte Absage | gebaut (Branch `mvp`) |
 | 11 | F4 Bewertungsbogen inkl. PDF und KI-Vorschlag | gebaut (Branch `mvp`); KI-Vorschlag wartet auf Anbieter-Entscheidung |
 | 12 | F5 Pipeline (Kanban) + Mail-Vorlagen | gebaut (Branch `mvp`) |
@@ -53,7 +53,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 
 | # | Feature | Tage |
 | --- | --- | --- |
-| 15 | F12 Herkunft bis Einstellung + Server-Conversions (4 Plattformen) | 8 |
+| 15 | F12 Herkunft bis Einstellung + Server-Conversions (4 Plattformen) | gebaut (Branch `mvp`); Conversions senden erst mit Zugangsdaten |
 | 16 | F8 Job-Ad-Generator mit AGG-Prüfung | gebaut (Branch `mvp`) |
 | 17 | F9 Portale (Indeed-Feed, BA; StepStone je Vertrag) | Indeed-Feed + Status gebaut (Branch `mvp`); BA und StepStone warten auf Verträge |
 | 18 | F11 Stelle besetzt → überall offline (≤ 1 h) | gebaut (Branch `mvp`); Pausieren auf den Werbeplattformen braucht API-Zugang |

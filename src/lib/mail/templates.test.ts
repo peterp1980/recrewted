@@ -17,4 +17,8 @@ describe("renderMail", () => {
     const m = renderMail("application_received", { firstName: "Eva", jobTitle: "Job\r\nBcc: x@evil.example" });
     expect(m.subject).not.toMatch(/[\r\n]/);
   });
+
+  it("puts the link into the data request mail", () => {
+    expect(renderMail("data_request", { firstName: "Eva", jobTitle: "", link: "https://recrewted.de/datenschutz/anfrage/abc" }).text).toContain("https://recrewted.de/datenschutz/anfrage/abc");
+  });
 });

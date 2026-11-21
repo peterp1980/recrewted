@@ -2,6 +2,9 @@
 
 import { randomUUID } from "node:crypto";
 import { after } from "next/server";
+import { cookies } from "next/headers";
+import { ATTR_COOKIE, parseAttribution } from "@/lib/tracking/attribution";
+import { CONSENT_COOKIE, parseConsent } from "@/lib/tracking/consent";
 import { redirect } from "next/navigation";
 import { checkCv, CONSENT_VERSION, parseApplication, type ApplicationError } from "@/lib/apply/parse";
 import { idFromSlug, jobPath } from "@/lib/jobs/format";
@@ -74,6 +77,12 @@ export async function submitApplication(_prev: ApplyState, form: FormData): Prom
   }
   if (all.length) return fail(all, ev.missing);
 
+  // Origin (F12): UTM from the link the visitor came with; click IDs only with marketing consent.
+  const jar = await cookies();
+  const consent = parseConsent(jar.get(CONSENT_COOKIE)?.value);
+  const stored = consent?.marketing ? parseAttribution(jar.get(ATTR_COOKIE)?.value) : null;
+  const utm = (k: "utm_source" | "utm_medium" | "utm_campaign" | "utm_content") => values[k] || stored?.[k] || null;
+
   const knockedOut = ev.knockouts.length > 0;
   const mailData = { firstName: value.firstName, jobTitle: job.title, employer: job.employerName };
   const { data, error } = await admin.rpc("submit_application", {
@@ -89,10 +98,13 @@ export async function submitApplication(_prev: ApplyState, form: FormData): Prom
       knockout_reasons: ev.knockouts,
       answers: [...ev.answers].map(([question_id, answer]) => ({ question_id, answer })),
       entry_point: "jobboard",
-      utm_source: values.utm_source || null,
-      utm_medium: values.utm_medium || null,
-      utm_campaign: values.utm_campaign || null,
-      utm_content: values.utm_content || null,
+      utm_source: utm("utm_source"),
+      utm_medium: utm("utm_medium"),
+      utm_campaign: utm("utm_campaign"),
+      utm_content: utm("utm_content"),
+      marketing_consent: Boolean(consent?.marketing),
+      click_id_type: stored?.click_id_type ?? null,
+      click_id: stored?.click_id ?? null,
       mails: [
         { template: "application_received", data: mailData },
         ...(knockedOut
