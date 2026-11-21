@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { processAtsTransfers } from "@/lib/ats/process";
 import { processConversions } from "@/lib/conversions/process";
 import { processDueMails } from "@/lib/mail/outbox";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -51,6 +52,8 @@ export async function GET(request: NextRequest) {
   if (stale.length) await admin.storage.from("cvs").remove(stale);
   result.cvFilesRemoved = cvPaths.length + stale.length;
 
+  // Handovers to customers' ATS that failed temporarily or were queued without a live request (0022).
+  result.ats = await processAtsTransfers(50).catch((e) => ({ error: String(e) }));
   result.conversions = await processConversions().catch((e) => ({ error: String(e) }));
   result.mails = await processDueMails(200).catch((e) => ({ error: String(e) }));
   return NextResponse.json(result);

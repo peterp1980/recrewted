@@ -1,7 +1,9 @@
 "use server";
 
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { processAtsTransfers } from "@/lib/ats/process";
 import { getSession } from "@/lib/auth/session";
 import { isStaff } from "@/lib/auth/roles";
 import { fromStored, missingForSubmit, parseBriefingForm } from "@/lib/briefing/schema";
@@ -201,6 +203,8 @@ export async function giveFeedback(formData: FormData) {
     reason,
     created_by: session.userId,
   });
+  // A status change may queue a handover to the customer's ATS (0022).
+  after(() => processAtsTransfers(5).catch((e) => console.error("ats transfer failed", e)));
   revalidatePath(path);
   redirect(`${path}?f=${error ? (error.message.includes("reason_required") ? "reason" : "error") : "saved"}`);
 }

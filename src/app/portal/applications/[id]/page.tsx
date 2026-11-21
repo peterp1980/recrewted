@@ -1,3 +1,4 @@
+import { AtsTransferBox } from "@/components/AtsTransferBox";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMessages } from "@/i18n";
@@ -13,13 +14,13 @@ import { giveFeedback } from "@/app/vacancy-actions";
 
 export const metadata = { title: "Kandidat – recrewted" };
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ f?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ f?: string; ats?: string }> };
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
 const VERDICTS = ["fit", "no_fit", "interview", "hired", "rejected"] as const;
 
 /** Customer view of a shortlisted candidate (F14) with one-click feedback (F6). */
 export default async function PortalApplicationPage({ params, searchParams }: Props) {
-  const [{ id }, { f }] = await Promise.all([params, searchParams]);
+  const [{ id }, { f, ats }] = await Promise.all([params, searchParams]);
   if (!isUuid(id)) notFound();
   const session = await requireAccess("/portal");
   const m = getMessages();
@@ -110,6 +111,7 @@ export default async function PortalApplicationPage({ params, searchParams }: Pr
           </ul>
         </section>
       )}
+      <AtsTransferBox applicationId={id} vacancyId={app.vacancy_id} status={ats} />
     </main>
   );
 }

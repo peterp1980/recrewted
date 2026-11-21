@@ -3,6 +3,7 @@
 import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { processAtsTransfers } from "@/lib/ats/process";
 import { findAggIssues } from "@/lib/agg";
 import { getSession } from "@/lib/auth/session";
 import { isStaff } from "@/lib/auth/roles";
@@ -122,6 +123,8 @@ export async function setApplicationStatus(form: FormData) {
   // The scorecard is the product: nobody reaches the customer without a complete one.
   if (status === "shortlisted" && !(await scorecardComplete(applicationId))) redirect(applicationPage(applicationId, "incomplete"));
   const { error } = await supabase.from("applications").update({ status }).eq("id", applicationId);
+  // A status change may queue a handover to the customer's ATS (0022).
+  after(() => processAtsTransfers(5).catch((e) => console.error("ats transfer failed", e)));
   revalidatePath(`/admin/applications/${applicationId}`);
   redirect(applicationPage(applicationId, error ? "statusError" : "status"));
 }
@@ -133,6 +136,8 @@ export async function moveApplication(applicationId: string, status: string): Pr
   const supabase = await createClient();
   if (status === "shortlisted" && !(await scorecardComplete(applicationId))) return { ok: false, error: "incomplete" };
   const { error, count } = await supabase.from("applications").update({ status: status as Status }, { count: "exact" }).eq("id", applicationId);
+  // A status change may queue a handover to the customer's ATS (0022).
+  after(() => processAtsTransfers(5).catch((e) => console.error("ats transfer failed", e)));
   return error || count !== 1 ? { ok: false, error: "error" } : { ok: true };
 }
 

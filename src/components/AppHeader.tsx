@@ -8,7 +8,7 @@ export function AppHeader({ session }: { session: Session }) {
   const t = getMessages().nav;
   const links =
     session.role === "customer"
-      ? [{ href: "/portal", label: t.portal }, { href: "/portal/karriereseite", label: t.career }, { href: "/portal/empfehlungen", label: t.referrals }]
+      ? [{ href: "/portal", label: t.portal }, { href: "/portal/karriereseite", label: t.career }, { href: "/portal/empfehlungen", label: t.referrals }, { href: "/portal/integrationen", label: t.integrations }]
       : [
           { href: "/admin", label: t.admin },
           { href: "/admin/kpis", label: t.kpis },
