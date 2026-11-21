@@ -21,7 +21,10 @@ export async function ApplicationsList({ vacancyId, viewerId }: { vacancyId: str
 
   return (
     <section id="bewerbungen" aria-labelledby="bewerbungen-h" className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4">
-      <h2 id="bewerbungen-h" className="text-xl font-semibold">{t.title} ({apps.length})</h2>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 id="bewerbungen-h" className="text-xl font-semibold">{t.title} ({apps.length})</h2>
+        <Link href={`/admin/vacancies/${vacancyId}/pipeline`} className="text-sm underline">{getMessages().pipeline.open}</Link>
+      </div>
       {apps.length === 0 ? (
         <p className="text-neutral-600">{t.none}</p>
       ) : (

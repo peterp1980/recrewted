@@ -44,7 +44,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | 9 | F20 Consent-Banner, Einwilligungen, Löschjobs | 4 |
 | 10 | F3 Ausschlussfragen + zeitversetzte Absage | gebaut (Branch `mvp`) |
 | 11 | F4 Bewertungsbogen inkl. PDF und KI-Vorschlag | gebaut (Branch `mvp`); KI-Vorschlag wartet auf Anbieter-Entscheidung |
-| 12 | F5 Pipeline (Kanban) + Mail-Vorlagen | 5 |
+| 12 | F5 Pipeline (Kanban) + Mail-Vorlagen | gebaut (Branch `mvp`) |
 | 13 | F14 Kundenportal + F6 Rückmeldung Einstellung | 6 |
 | 14 | F7 Managed-Kampagnen (Erfassung, UTM-Links) | 3 |
 | | **Summe M1** | **≈ 48** |

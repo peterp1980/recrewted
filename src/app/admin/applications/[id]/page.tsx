@@ -10,6 +10,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/vacancies/paths";
 import { Notice } from "@/components/Notice";
+import { CandidateMail } from "@/components/CandidateMail";
 import { saveRatings, setApplicationStatus } from "@/app/application-actions";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ s?: string; m?: string }> };
@@ -60,6 +61,11 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
     : s === "missing" ? <Notice kind="error">{st.missingReason} {scorecard?.criteria.filter((x) => missing.includes(x.id)).map((x) => x.name).join(", ")}</Notice>
     : s === "status" ? <Notice kind="ok">{t.statusSaved}</Notice>
     : s === "incomplete" ? <Notice kind="error">{t.shortlistIncomplete}</Notice>
+    : s === "mailQueued" ? <Notice kind="ok">{msg.mail.sent}</Notice>
+    : s === "mailSentNow" ? <Notice kind="ok">{msg.mail.sentNow}</Notice>
+    : s === "mailCancelled" ? <Notice kind="ok">{msg.mail.cancelledOk}</Notice>
+    : s === "mailNoEmail" ? <Notice kind="error">{msg.mail.noEmail}</Notice>
+    : s === "mailNeedsMessage" ? <Notice kind="error">{msg.mail.needsMessage}</Notice>
     : s === "statusError" || s === "error" ? <Notice kind="error">{t.statusError}</Notice>
     : null;
 
@@ -149,6 +155,8 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
           <button type="submit" className="rounded-md border border-neutral-400 px-4 py-2 hover:bg-neutral-100">{msg.criteria.save}</button>
         </form>
       </section>
+
+      <CandidateMail applicationId={id} hasEmail={Boolean(c?.email)} />
     </main>
   );
 }

@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { findAggIssues } from "@/lib/agg";
@@ -10,6 +11,9 @@ import { parseRatings } from "@/lib/scorecard/ratings";
 import { criteriaTemplate } from "@/lib/scorecard/templates";
 import { MANUAL_STATUSES, type ApplicationStatus } from "@/lib/applications/status";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { processDueMails } from "@/lib/mail/outbox";
+import { mailConfigured } from "@/lib/mail/send";
 import { isUuid } from "@/lib/vacancies/paths";
 
 async function staffOnly() {
@@ -115,16 +119,83 @@ export async function setApplicationStatus(form: FormData) {
   if (!isUuid(applicationId) || !MANUAL_STATUSES.includes(status)) redirect("/admin");
   const supabase = await createClient();
 
-  if (status === "shortlisted") {
-    // The scorecard is the product: nobody reaches the customer without a complete one.
-    const { data: app } = await supabase.from("applications").select("vacancy_id").eq("id", applicationId).single();
-    const [{ count: all }, { count: rated }] = await Promise.all([
-      supabase.from("scorecard_criteria").select("id", { count: "exact", head: true }).eq("vacancy_id", app?.vacancy_id ?? ""),
-      supabase.from("scorecard_ratings").select("criterion_id", { count: "exact", head: true }).eq("application_id", applicationId),
-    ]);
-    if (!all || (rated ?? 0) < all) redirect(applicationPage(applicationId, "incomplete"));
-  }
+  // The scorecard is the product: nobody reaches the customer without a complete one.
+  if (status === "shortlisted" && !(await scorecardComplete(applicationId))) redirect(applicationPage(applicationId, "incomplete"));
   const { error } = await supabase.from("applications").update({ status }).eq("id", applicationId);
   revalidatePath(`/admin/applications/${applicationId}`);
   redirect(applicationPage(applicationId, error ? "statusError" : "status"));
+}
+
+/** For drag-and-drop in the pipeline (F5): returns a result instead of redirecting. */
+export async function moveApplication(applicationId: string, status: string): Promise<{ ok: boolean; error?: "incomplete" | "error" }> {
+  await staffOnly();
+  if (!isUuid(applicationId) || !MANUAL_STATUSES.includes(status as Status)) return { ok: false, error: "error" };
+  const supabase = await createClient();
+  if (status === "shortlisted" && !(await scorecardComplete(applicationId))) return { ok: false, error: "incomplete" };
+  const { error, count } = await supabase.from("applications").update({ status: status as Status }, { count: "exact" }).eq("id", applicationId);
+  return error || count !== 1 ? { ok: false, error: "error" } : { ok: true };
+}
+
+async function scorecardComplete(applicationId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data: app } = await supabase.from("applications").select("vacancy_id").eq("id", applicationId).single();
+  if (!app) return false;
+  const [{ count: all }, { count: rated }] = await Promise.all([
+    supabase.from("scorecard_criteria").select("id", { count: "exact", head: true }).eq("vacancy_id", app.vacancy_id),
+    supabase.from("scorecard_ratings").select("criterion_id", { count: "exact", head: true }).eq("application_id", applicationId),
+  ]);
+  return Boolean(all) && (rated ?? 0) >= (all ?? 0);
+}
+
+// ---------- Mails from the pipeline (F5) ----------
+
+const STAFF_TEMPLATES = ["invite_interview", "rejection", "question"] as const;
+
+export async function sendCandidateMail(form: FormData) {
+  const session = await staffOnly();
+  const applicationId = String(form.get("applicationId") ?? "");
+  const template = String(form.get("template") ?? "") as (typeof STAFF_TEMPLATES)[number];
+  const message = String(form.get("message") ?? "").trim().slice(0, 3000);
+  if (!isUuid(applicationId) || !STAFF_TEMPLATES.includes(template)) redirect("/admin");
+  if (template !== "rejection" && message.length < 3) redirect(applicationPage(applicationId, "mailNeedsMessage"));
+
+  // Read through the staff session (RLS), write the queue with the service role.
+  const supabase = await createClient();
+  const { data: app } = await supabase
+    .from("applications")
+    .select("id, candidates(first_name, email), vacancies(title, employer_visible, organizations(name))")
+    .eq("id", applicationId)
+    .single();
+  if (!app) redirect("/admin");
+  if (!app.candidates?.email) redirect(applicationPage(applicationId, "mailNoEmail"));
+
+  const { error } = await createAdminClient().from("mail_outbox").insert({
+    application_id: applicationId,
+    to_email: app.candidates.email,
+    template,
+    data: {
+      firstName: app.candidates.first_name,
+      jobTitle: app.vacancies?.title ?? "",
+      employer: app.vacancies?.employer_visible ? (app.vacancies?.organizations?.name ?? null) : null,
+      message: message || null,
+      senderName: session.fullName,
+    },
+  });
+  if (error) redirect(applicationPage(applicationId, "error"));
+  after(() => processDueMails(5).catch((e) => console.error("mail processing failed", e)));
+  redirect(applicationPage(applicationId, mailConfigured() ? "mailSentNow" : "mailQueued"));
+}
+
+export async function cancelMail(form: FormData) {
+  await staffOnly();
+  const applicationId = String(form.get("applicationId") ?? "");
+  const mailId = String(form.get("mailId") ?? "");
+  if (!isUuid(applicationId) || !isUuid(mailId)) redirect("/admin");
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("mail_outbox")
+    .update({ cancelled_at: new Date().toISOString() }, { count: "exact" })
+    .eq("id", mailId)
+    .is("sent_at", null);
+  redirect(applicationPage(applicationId, count ? "mailCancelled" : "error"));
 }
