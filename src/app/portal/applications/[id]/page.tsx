@@ -34,6 +34,8 @@ export default async function PortalApplicationPage({ params, searchParams }: Pr
     .maybeSingle();
   if (!app) notFound();
 
+  // Test results of shortlisted candidates (RLS hides everything else).
+  const { data: tests } = await supabase.from("assessment_attempts").select("status, auto_points, manual_points, max_points, assessments(title)").eq("application_id", id).eq("status", "submitted");
   const [scorecard, { data: history }] = await Promise.all([
     loadScorecard(id),
     supabase.from("customer_feedback").select("id, verdict, reason, created_at").eq("application_id", id).order("created_at", { ascending: false }),
@@ -95,6 +97,19 @@ export default async function PortalApplicationPage({ params, searchParams }: Pr
       </section>
 
       {scorecard && <ScorecardView data={scorecard} pdfHref={`/api/scorecards/${id}/pdf`} />}
+      {(tests ?? []).length > 0 && (
+        <section aria-labelledby="test-h" className="flex flex-col gap-2 rounded-2xl border border-neutral-200 bg-white p-4">
+          <h2 id="test-h" className="text-xl font-semibold">{getMessages().assessment.results}</h2>
+          <ul className="flex flex-col gap-1">
+            {(tests ?? []).map((r, i) => (
+              <li key={i}>
+                {(r.assessments as unknown as { title: string } | null)?.title}:{" "}
+                <span className="font-semibold">{getMessages().assessment.pointsOf(String(Number(r.auto_points ?? 0) + Number(r.manual_points ?? 0)).replace(".", ","), String(Number(r.max_points ?? 0)).replace(".", ","))}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </main>
   );
 }

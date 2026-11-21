@@ -64,6 +64,36 @@ export type Database = {
           { foreignKeyName: "applications_duplicate_of_fkey"; columns: ["duplicate_of"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] },
         ]
       }
+      assessments: {
+        Row: { id: string; vacancy_id: string; title: string; intro: string; stage: "apply" | "invite"; time_limit_minutes: number | null; active: boolean; created_by: string | null; created_at: string }
+        Insert: { id?: string; vacancy_id: string; title: string; intro?: string; stage?: "apply" | "invite"; time_limit_minutes?: number | null; active?: boolean; created_by?: string | null; created_at?: string }
+        Update: { id?: string; vacancy_id?: string; title?: string; intro?: string; stage?: "apply" | "invite"; time_limit_minutes?: number | null; active?: boolean; created_by?: string | null; created_at?: string }
+        Relationships: [{ foreignKeyName: "assessments_vacancy_id_fkey"; columns: ["vacancy_id"]; isOneToOne: false; referencedRelation: "vacancies"; referencedColumns: ["id"] }]
+      }
+      assessment_questions: {
+        Row: { id: string; assessment_id: string; position: number; kind: string; prompt: string; case_text: string; options: Json | null; correct: Json | null; points: number }
+        Insert: { id?: string; assessment_id: string; position: number; kind: string; prompt: string; case_text?: string; options?: Json | null; correct?: Json | null; points?: number }
+        Update: { id?: string; assessment_id?: string; position?: number; kind?: string; prompt?: string; case_text?: string; options?: Json | null; correct?: Json | null; points?: number }
+        Relationships: [{ foreignKeyName: "assessment_questions_assessment_id_fkey"; columns: ["assessment_id"]; isOneToOne: false; referencedRelation: "assessments"; referencedColumns: ["id"] }]
+      }
+      assessment_attempts: {
+        Row: { id: string; assessment_id: string; application_id: string; token_hash: string; status: "sent" | "started" | "submitted"; sent_at: string; started_at: string | null; deadline_at: string | null; submitted_at: string | null; late: boolean; auto_points: number | null; manual_points: number | null; max_points: number | null; reviewed_at: string | null; reviewed_by: string | null; created_by: string | null }
+        Insert: { id?: string; assessment_id: string; application_id: string; token_hash: string; status?: "sent" | "started" | "submitted"; sent_at?: string; started_at?: string | null; deadline_at?: string | null; submitted_at?: string | null; late?: boolean; auto_points?: number | null; manual_points?: number | null; max_points?: number | null; reviewed_at?: string | null; reviewed_by?: string | null; created_by?: string | null }
+        Update: { id?: string; assessment_id?: string; application_id?: string; token_hash?: string; status?: "sent" | "started" | "submitted"; sent_at?: string; started_at?: string | null; deadline_at?: string | null; submitted_at?: string | null; late?: boolean; auto_points?: number | null; manual_points?: number | null; max_points?: number | null; reviewed_at?: string | null; reviewed_by?: string | null; created_by?: string | null }
+        Relationships: [{ foreignKeyName: "assessment_attempts_assessment_id_fkey"; columns: ["assessment_id"]; isOneToOne: false; referencedRelation: "assessments"; referencedColumns: ["id"] }, { foreignKeyName: "assessment_attempts_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] }]
+      }
+      assessment_answers: {
+        Row: { id: string; attempt_id: string; question_id: string; answer: Json | null; file_path: string | null; file_name: string | null; auto_points: number | null; manual_points: number | null; reviewer_note: string | null; updated_at: string }
+        Insert: { id?: string; attempt_id: string; question_id: string; answer?: Json | null; file_path?: string | null; file_name?: string | null; auto_points?: number | null; manual_points?: number | null; reviewer_note?: string | null; updated_at?: string }
+        Update: { id?: string; attempt_id?: string; question_id?: string; answer?: Json | null; file_path?: string | null; file_name?: string | null; auto_points?: number | null; manual_points?: number | null; reviewer_note?: string | null; updated_at?: string }
+        Relationships: [{ foreignKeyName: "assessment_answers_attempt_id_fkey"; columns: ["attempt_id"]; isOneToOne: false; referencedRelation: "assessment_attempts"; referencedColumns: ["id"] }, { foreignKeyName: "assessment_answers_question_id_fkey"; columns: ["question_id"]; isOneToOne: false; referencedRelation: "assessment_questions"; referencedColumns: ["id"] }]
+      }
+      assessment_events: {
+        Row: { id: number; attempt_id: string; type: string; question_id: string | null; occurred_at: string }
+        Insert: { id?: number; attempt_id: string; type: string; question_id?: string | null; occurred_at?: string }
+        Update: { id?: number; attempt_id?: string; type?: string; question_id?: string | null; occurred_at?: string }
+        Relationships: [{ foreignKeyName: "assessment_events_attempt_id_fkey"; columns: ["attempt_id"]; isOneToOne: false; referencedRelation: "assessment_attempts"; referencedColumns: ["id"] }]
+      }
       audit_log: {
         Row: { action: string; actor: string | null; details: Json; id: number; occurred_at: string; record_id: string | null; table_name: string }
         Insert: { action: string; actor?: string | null; details?: Json; id?: never; occurred_at?: string; record_id?: string | null; table_name: string }

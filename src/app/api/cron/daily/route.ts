@@ -19,6 +19,9 @@ export async function GET(request: NextRequest) {
   result.retention = error ? { error: error.message } : retention;
   const cvPaths = ((retention as { cv_paths?: string[] } | null)?.cv_paths ?? []).filter(Boolean);
   if (cvPaths.length) await admin.storage.from("cvs").remove(cvPaths);
+  // Uploaded work samples of deleted applications (assessment, migration 0015).
+  const uploadPaths = ((retention as { assessment_paths?: string[] } | null)?.assessment_paths ?? []).filter(Boolean);
+  if (uploadPaths.length) await admin.storage.from("assessment-uploads").remove(uploadPaths);
 
   // CV uploads that never became part of an application (older than a day).
   const { data: incoming } = await admin.storage.from("cvs").list("incoming", { limit: 1000 });

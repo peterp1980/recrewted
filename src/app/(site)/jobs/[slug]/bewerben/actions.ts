@@ -1,6 +1,7 @@
 "use server";
 
 import { ENTRY_PARAM, entryParam } from "@/lib/careers/profile";
+import { createAttempt, queueInvite } from "@/lib/assessments/server";
 import { randomUUID } from "node:crypto";
 import { after } from "next/server";
 import { cookies } from "next/headers";
@@ -132,8 +133,21 @@ export async function submitApplication(_prev: ApplyState, form: FormData): Prom
     await admin.storage.from("cvs").remove([cvPath]);
   }
 
+  // Test right after applying (assessment stage "apply"), only for applications that passed the knockout questions.
+  let testToken: string | null = null;
+  if (!knockedOut) {
+    const { data: test } = await admin.from("assessments").select("id").eq("vacancy_id", vacancyId).eq("stage", "apply").eq("active", true).maybeSingle();
+    if (test) {
+      const created = await createAttempt(test.id, applicationId, null);
+      if ("token" in created) {
+        testToken = created.token;
+        if (value.email) await queueInvite(applicationId, created.token);
+      }
+    }
+  }
+
   // Send the confirmation right away, after the response is on its way.
   after(() => processDueMails(5).catch((e) => console.error("mail processing failed", e)));
-  const q = new URLSearchParams({ ...(value.email ? {} : { tel: "1" }), ...(job.tone === "du" ? { du: "1" } : {}) }).toString();
+  const q = new URLSearchParams({ ...(value.email ? {} : { tel: "1" }), ...(job.tone === "du" ? { du: "1" } : {}), ...(testToken ? { test: testToken } : {}) }).toString();
   redirect(`${jobPath(job)}/bewerben/danke${q ? `?${q}` : ""}`);
 }

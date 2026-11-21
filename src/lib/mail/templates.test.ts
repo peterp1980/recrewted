@@ -35,3 +35,14 @@ describe("form of address", () => {
     expect(renderMail("data_request", { ...d, link: "https://x", tone: "du" }).subject).toBe("Ihre Daten bei recrewted");
   });
 });
+
+describe("assessment invitation", () => {
+  it("contains the link and the time limit, in the employer's form of address", () => {
+    const d = { firstName: "Mia", jobTitle: "Busfahrer:in", employer: "Hafermann Reisen", link: "https://recrewted.de/test/abc", minutes: 30 };
+    const sie = renderMail("assessment_invite", d);
+    expect(sie.text).toContain("https://recrewted.de/test/abc");
+    expect(sie.text).toContain("30 Minuten");
+    expect(renderMail("assessment_invite", { ...d, tone: "du" }).text).toContain("kannst du ihn machen");
+    expect(renderMail("assessment_invite", { ...d, minutes: null }).text).toContain("kein Zeitlimit");
+  });
+});

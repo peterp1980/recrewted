@@ -1,7 +1,7 @@
 // E-mail texts to candidates. Written plainly, like a person would write them.
 // Variables are inserted as plain text; mails are sent as text/plain.
 
-export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request";
+export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite";
 
 export type MailData = {
   firstName: string;
@@ -10,12 +10,17 @@ export type MailData = {
   message?: string | null;
   senderName?: string | null;
   link?: string | null;
+  /** assessment_invite: time limit in minutes, if any. */
+  minutes?: number | null;
   /** The employer's form of address; missing means formal (mails queued before 0012). */
   tone?: "sie" | "du";
 };
 
 const sign = (d: MailData) => `Viele Grüße\n${d.senderName ? `${d.senderName}\n` : ""}recrewted`;
 const at = (d: MailData) => (d.employer ? ` bei ${d.employer}` : "");
+
+const limitSie = (d: MailData) => (d.minutes ? `Für den Test haben Sie ${d.minutes} Minuten Zeit, sobald Sie ihn starten. Planen Sie sich also eine ruhige Zeit ein.` : "Für den Test gibt es kein Zeitlimit.");
+const limitDu = (d: MailData) => (d.minutes ? `Für den Test hast du ${d.minutes} Minuten Zeit, sobald du ihn startest. Plan dir also eine ruhige Zeit ein.` : "Für den Test gibt es kein Zeitlimit.");
 
 const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: string }> = {
   application_received: (d) => ({
@@ -37,6 +42,10 @@ const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: 
   data_request: (d) => ({
     subject: "Ihre Daten bei recrewted",
     text: `Hallo ${d.firstName},\n\nSie haben gefragt, welche Daten wir über Sie gespeichert haben. Über diesen Link können Sie sie ansehen, herunterladen oder löschen lassen:\n\n${d.link ?? ""}\n\nDer Link gilt 24 Stunden. Wenn Sie das nicht angefordert haben, können Sie diese E-Mail einfach ignorieren.\n\n${sign(d)}`,
+  }),
+  assessment_invite: (d) => ({
+    subject: `Ihr nächster Schritt: kurzer Test – ${d.jobTitle}`,
+    text: `Hallo ${d.firstName},\n\nzu Ihrer Bewerbung als ${d.jobTitle}${at(d)} gehört ein kurzer Test. Über diesen Link können Sie ihn machen:\n\n${d.link ?? ""}\n\n${limitSie(d)} Der Link gilt 14 Tage.\n\n${sign(d)}`,
   }),
   question: (d) => ({
     subject: `Rückfrage zu Ihrer Bewerbung als ${d.jobTitle}`,
@@ -62,6 +71,10 @@ const TEMPLATES_DU: Partial<Record<MailTemplate, (d: MailData) => { subject: str
   rejection: (d) => ({
     subject: `Deine Bewerbung als ${d.jobTitle}`,
     text: `Hallo ${d.firstName},\n\ndanke für deine Bewerbung als ${d.jobTitle}${at(d)} und deine Geduld.\n\nWir haben uns für andere Bewerberinnen und Bewerber entschieden, deren Profil näher an den Anforderungen liegt. Das ist uns nicht leichtgefallen.\n\n${d.message ? `${d.message}\n\n` : ""}Alles Gute für deinen weiteren Weg!\n\n${sign(d)}`,
+  }),
+  assessment_invite: (d) => ({
+    subject: `Dein nächster Schritt: kurzer Test – ${d.jobTitle}`,
+    text: `Hallo ${d.firstName},\n\nzu deiner Bewerbung als ${d.jobTitle}${at(d)} gehört ein kurzer Test. Über diesen Link kannst du ihn machen:\n\n${d.link ?? ""}\n\n${limitDu(d)} Der Link gilt 14 Tage.\n\n${sign(d)}`,
   }),
   question: (d) => ({
     subject: `Rückfrage zu deiner Bewerbung als ${d.jobTitle}`,

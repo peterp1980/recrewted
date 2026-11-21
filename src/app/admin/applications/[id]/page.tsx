@@ -11,16 +11,17 @@ import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/vacancies/paths";
 import { Notice } from "@/components/Notice";
 import { CandidateMail } from "@/components/CandidateMail";
+import { AssessmentResults } from "@/components/AssessmentResults";
 import { saveRatings, setApplicationStatus } from "@/app/application-actions";
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ s?: string; m?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ s?: string; m?: string; x?: string; link?: string }> };
 
 export const metadata = { title: "Bewerbung – recrewted" };
 
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
 
 export default async function ApplicationPage({ params, searchParams }: Props) {
-  const [{ id }, { s, m }] = await Promise.all([params, searchParams]);
+  const [{ id }, { s, m, x, link }] = await Promise.all([params, searchParams]);
   if (!isUuid(id)) notFound();
   const session = await requireAccess("/admin");
   const msg = getMessages();
@@ -108,6 +109,8 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
           </dl>
         ) : <p className="text-muted">{t.noAnswers}</p>}
       </section>
+
+      <AssessmentResults applicationId={id} vacancyId={app.vacancy_id} status={x} link={link} />
 
       <section aria-labelledby="sc-h" className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-white p-4">
         <h2 id="sc-h" className="text-xl font-semibold">{st.title}</h2>

@@ -37,11 +37,19 @@ export async function deleteMyData(form: FormData) {
   const id = secret ? verifyToken(token, secret) : null;
   if (!id) redirect("/datenschutz/anfrage?s=invalid");
   const admin = createAdminClient();
-  const { data: apps } = await admin.from("applications").select("cv_storage_path").eq("candidate_id", id);
+  const { data: apps } = await admin
+    .from("applications")
+    .select("cv_storage_path, assessment_attempts(assessment_answers(file_path))")
+    .eq("candidate_id", id);
   const paths = (apps ?? []).map((a) => a.cv_storage_path).filter((p): p is string => Boolean(p));
+  // Uploaded work samples from tests (0015) go too.
+  const uploads = (apps ?? [])
+    .flatMap((a) => (a.assessment_attempts ?? []).flatMap((t) => (t.assessment_answers ?? []).map((x) => x.file_path)))
+    .filter((p): p is string => Boolean(p));
   const { error } = await admin.from("candidates").delete().eq("id", id);
   if (error) redirect("/datenschutz/anfrage?s=unavailable");
   if (paths.length) await admin.storage.from("cvs").remove(paths);
+  if (uploads.length) await admin.storage.from("assessment-uploads").remove(uploads);
   await admin.from("audit_log").insert({ action: "gdpr_delete", table_name: "candidates", record_id: id, details: { by: "data_subject" } });
   redirect("/datenschutz/anfrage?s=deleted");
 }

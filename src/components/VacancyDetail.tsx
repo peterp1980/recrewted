@@ -10,6 +10,7 @@ import { BriefingForm } from "./BriefingForm";
 import { Notice } from "./Notice";
 import { QuestionEditor } from "./QuestionEditor";
 import { CriteriaEditor } from "./CriteriaEditor";
+import { AssessmentEditor } from "./AssessmentEditor";
 import { VacancySettings } from "./VacancySettings";
 import { CampaignsSection } from "./CampaignsSection";
 import { AdsSection } from "./AdsSection";
@@ -25,7 +26,7 @@ type Props = {
   id: string;
   base: "/admin" | "/portal";
   staff: boolean;
-  search: { status?: string; missing?: string; q?: string; c?: string; k?: string; a?: string };
+  search: { status?: string; missing?: string; q?: string; c?: string; k?: string; a?: string; t?: string };
 };
 
 /** Vacancy page with briefing (F13). Staff additionally see suggestions and can apply them. */
@@ -169,6 +170,7 @@ async function StaffSections({ vacancyId, briefing, search }: { vacancyId: strin
       <Suggestions vacancyId={vacancyId} briefing={briefing} />
       <QuestionEditor vacancyId={vacancyId} status={search.q} />
       <CriteriaEditor vacancyId={vacancyId} status={search.c} />
+      <AssessmentEditor vacancyId={vacancyId} status={search.t} />
       <AdsSection vacancyId={vacancyId} status={search.a} />
       <CampaignsSection vacancyId={vacancyId} status={search.k} />
     </>
