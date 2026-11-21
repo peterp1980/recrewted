@@ -13,6 +13,7 @@ import { CriteriaEditor } from "./CriteriaEditor";
 import { VacancySettings } from "./VacancySettings";
 import { CampaignsSection } from "./CampaignsSection";
 import { AdsSection } from "./AdsSection";
+import { DistributionSection } from "./DistributionSection";
 import { PortalVacancySections } from "./PortalVacancySections";
 import { ApplicationsList } from "./ApplicationsList";
 import { getSession } from "@/lib/auth/session";
@@ -163,6 +164,7 @@ async function StaffSections({ vacancyId, briefing, search }: { vacancyId: strin
   return (
     <>
       <VacancySettings vacancyId={vacancyId} />
+      <DistributionSection vacancyId={vacancyId} />
       <ApplicationsList vacancyId={vacancyId} viewerId={session.userId} />
       <Suggestions vacancyId={vacancyId} briefing={briefing} />
       <QuestionEditor vacancyId={vacancyId} status={search.q} />

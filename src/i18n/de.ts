@@ -520,6 +520,16 @@ export const de = {
     error: "Das hat nicht geklappt.",
     approvedBy: "freigegeben am",
   },
+  distribution: {
+    title: "Ausspielung",
+    channels: { jobboard: "recrewted-Jobbörse", google: "Google for Jobs", indeed: "Indeed (XML-Feed)", ba: "BA-Jobbörse", stepstone: "StepStone" },
+    online: "online",
+    offline: "offline",
+    error: "Fehler",
+    contract: "Vertrag/Schnittstelle fehlt",
+    reasons: { notActive: "Vakanz ist nicht aktiv", noSalary: "Gehaltsspanne fehlt" },
+    feedUrl: "Feed-Adresse für Indeed",
+  },
 } as const;
 
 export type Messages = typeof de;
