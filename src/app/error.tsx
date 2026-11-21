@@ -5,8 +5,8 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
   return (
     <main className="mx-auto flex min-h-[60vh] max-w-xl flex-col justify-center gap-4 px-4">
       <h1 className="text-2xl font-semibold">Da ist etwas schiefgegangen.</h1>
-      <p className="text-neutral-700">Bitte versuchen Sie es noch einmal. Wenn es wieder passiert, schreiben Sie uns und nennen diese Kennung: <code>{error.digest ?? "–"}</code></p>
-      <button type="button" onClick={reset} className="self-start rounded-md bg-neutral-900 px-4 py-2 font-medium text-white hover:bg-neutral-700">Noch einmal versuchen</button>
+      <p className="text-ink/80">Bitte versuchen Sie es noch einmal. Wenn es wieder passiert, schreiben Sie uns und nennen diese Kennung: <code>{error.digest ?? "–"}</code></p>
+      <button type="button" onClick={reset} className="self-start rounded-lg bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-800">Noch einmal versuchen</button>
     </main>
   );
 }

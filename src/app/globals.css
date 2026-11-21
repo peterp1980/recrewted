@@ -1,26 +1,86 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter";
+
+/*
+ * recrewted design tokens (derived from the existing brand on recrewted.de):
+ * turquoise for actions, pink for headings/accents, warm off-white background.
+ * Darker shades are used where text sits on or in the colour (WCAG AA contrast).
+ */
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
+
+  --color-brand-50: #effafb;
+  --color-brand-100: #d5f3f6;
+  --color-brand-300: #7fdbe5;
+  --color-brand-500: #1dc0d1; /* brand turquoise – accents, icons, large elements */
+  --color-brand-700: #0a7f8c; /* buttons with white text (AA) */
+  --color-brand-800: #086b76;
+
+  --color-accent-50: #fff0f4;
+  --color-accent-100: #ffd9e4;
+  --color-accent-500: #ff437b; /* brand pink – large headings, highlights */
+  --color-accent-700: #c8144b; /* pink for small text (AA) */
+
+  --color-ink: #1f2328;
+  --color-muted: #5c6166;
+  --color-canvas: #f6f5f3;
+}
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, monospace;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Every interactive element gets a clearly visible focus ring (WCAG 2.2). */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+@layer base {
+  h1, h2, h3 {
+    letter-spacing: -0.01em;
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+  select,
+  textarea {
+    background-color: #fff;
+    border-color: #cfd4da;
+    border-radius: 0.6rem;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--color-brand-500);
+  }
+  input[type="checkbox"], input[type="radio"] {
+    accent-color: var(--color-brand-700);
+  }
+  [aria-invalid="true"] {
+    border-color: var(--color-accent-700) !important;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-700 px-5 py-2.5 font-semibold text-white shadow-sm transition-colors hover:bg-brand-800 disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-brand-700 bg-white px-5 py-2.5 font-semibold text-brand-800 transition-colors hover:bg-brand-50 disabled:opacity-50;
+  }
+  .card {
+    @apply rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-sm;
+  }
+  .eyebrow {
+    @apply text-sm font-semibold uppercase tracking-wide text-accent-700;
+  }
+  .brand-gradient {
+    background: linear-gradient(180deg, #9bdee6 0%, #d9c0d6 55%, #fba3c0 100%);
+  }
 }

@@ -20,13 +20,13 @@ export async function ApplicationsList({ vacancyId, viewerId }: { vacancyId: str
   if (apps.length) await logRead(viewerId, "applications", apps.map((a) => a.id), "vacancy_applications");
 
   return (
-    <section id="bewerbungen" aria-labelledby="bewerbungen-h" className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4">
+    <section id="bewerbungen" aria-labelledby="bewerbungen-h" className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-white p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 id="bewerbungen-h" className="text-xl font-semibold">{t.title} ({apps.length})</h2>
         <Link href={`/admin/vacancies/${vacancyId}/pipeline`} className="text-sm underline">{getMessages().pipeline.open}</Link>
       </div>
       {apps.length === 0 ? (
-        <p className="text-neutral-600">{t.none}</p>
+        <p className="text-muted">{t.none}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[32rem] text-left text-sm">

@@ -54,8 +54,8 @@ export default async function JobPage({ params }: Props) {
     <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jobPostingJsonLd(job, siteUrl())) }} />
       <Link href="/jobs" className="text-sm underline">{t.back}</Link>
-      <h1 className="text-3xl font-semibold">{job.title}</h1>
-      <dl className="grid gap-x-6 gap-y-2 rounded-md bg-neutral-50 p-4 sm:grid-cols-[auto_1fr]">
+      <h1 className="text-3xl font-bold sm:text-4xl">{job.title}</h1>
+      <dl className="card grid gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
         {facts.filter(([, v]) => v).map(([k, v]) => (
           <div key={k} className="contents">
             <dt className="font-medium">{k}</dt>
@@ -70,12 +70,12 @@ export default async function JobPage({ params }: Props) {
         </section>
       ) : descriptionSections(job.briefing).map((s) => (
         <section key={s.title} className="flex flex-col gap-2">
-          <h2 className="text-xl font-semibold">{s.title}</h2>
+          <h2 className="text-xl font-semibold text-accent-700">{s.title}</h2>
           <ul className="ml-5 list-disc">{s.items.map((i) => <li key={i}>{i}</li>)}</ul>
         </section>
       ))}
       <ApplyBox href={`${canonical}/bewerben`} />
-      <p className="text-sm text-neutral-600">{t.posted} {dateFmt.format(new Date(job.publishedAt))}</p>
+      <p className="text-sm text-muted">{t.posted} {dateFmt.format(new Date(job.publishedAt))}</p>
     </main>
   );
 }
@@ -83,9 +83,9 @@ export default async function JobPage({ params }: Props) {
 function ApplyBox({ href }: { href: string }) {
   const t = getMessages().jobs;
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-neutral-200 p-4">
-      <Link href={href} className="self-start rounded-md bg-neutral-900 px-5 py-3 text-lg font-medium text-white hover:bg-neutral-700">{t.apply}</Link>
-      <p className="text-sm text-neutral-600">{t.applyHint}</p>
+    <div className="card flex flex-col gap-2 border-brand-100 bg-brand-50">
+      <Link href={href} className="btn-primary self-start px-6 py-3 text-lg">{t.apply}</Link>
+      <p className="text-sm text-muted">{t.applyHint}</p>
     </div>
   );
 }

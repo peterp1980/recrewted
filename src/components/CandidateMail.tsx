@@ -12,26 +12,26 @@ export async function CandidateMail({ applicationId, hasEmail }: { applicationId
   const label = (tpl: string) => (tpl in t.templates ? t.templates[tpl as keyof typeof t.templates] : tpl === "application_received" ? "Eingangsbestätigung" : tpl === "knockout_rejection" ? "Absage (Ausschlussfrage)" : tpl);
 
   return (
-    <section aria-labelledby="mail-h" className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4">
+    <section aria-labelledby="mail-h" className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-white p-4">
       <h2 id="mail-h" className="text-xl font-semibold">{t.title}</h2>
       {hasEmail ? (
         <form action={sendCandidateMail} className="grid gap-3">
           <input type="hidden" name="applicationId" value={applicationId} />
           <label className="grid gap-1">
             <span>{t.template}</span>
-            <select name="template" className="rounded-md border border-neutral-400 px-3 py-2">
+            <select name="template" className="rounded-lg border border-neutral-300 px-3 py-2">
               {(Object.keys(t.templates) as (keyof typeof t.templates)[]).map((k) => <option key={k} value={k}>{t.templates[k]}</option>)}
             </select>
           </label>
           <label className="grid gap-1">
             <span>{t.message}</span>
-            <span className="text-sm text-neutral-600">{t.messageHint}</span>
-            <textarea name="message" rows={4} maxLength={3000} className="rounded-md border border-neutral-400 px-3 py-2" />
+            <span className="text-sm text-muted">{t.messageHint}</span>
+            <textarea name="message" rows={4} maxLength={3000} className="rounded-lg border border-neutral-300 px-3 py-2" />
           </label>
-          <button type="submit" className="justify-self-start rounded-md bg-neutral-900 px-4 py-2 font-medium text-white hover:bg-neutral-700">{t.send}</button>
+          <button type="submit" className="justify-self-start rounded-lg bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-800">{t.send}</button>
         </form>
       ) : (
-        <p className="text-neutral-700">{t.noEmail}</p>
+        <p className="text-ink/80">{t.noEmail}</p>
       )}
       {mails && mails.length > 0 && (
         <div>
@@ -40,7 +40,7 @@ export async function CandidateMail({ applicationId, hasEmail }: { applicationId
             {mails.map((mm) => (
               <li key={mm.id} className="flex flex-wrap items-center gap-2">
                 <span>{label(mm.template)}</span>
-                <span className="text-neutral-600">
+                <span className="text-muted">
                   {mm.cancelled_at ? t.cancelled : mm.sent_at ? `${t.sentAt} ${fmt.format(new Date(mm.sent_at))}` : `${t.queued} ${fmt.format(new Date(mm.send_after))}`}
                   {mm.last_error && !mm.sent_at ? ` · ${t.failed}` : ""}
                 </span>
@@ -48,7 +48,7 @@ export async function CandidateMail({ applicationId, hasEmail }: { applicationId
                   <form action={cancelMail}>
                     <input type="hidden" name="applicationId" value={applicationId} />
                     <input type="hidden" name="mailId" value={mm.id} />
-                    <button type="submit" className="rounded border border-neutral-400 px-2 py-0.5 hover:bg-neutral-100">{t.cancel}</button>
+                    <button type="submit" className="rounded border border-neutral-300 px-2 py-0.5 hover:bg-brand-50">{t.cancel}</button>
                   </form>
                 )}
               </li>

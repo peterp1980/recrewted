@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { addQuestion, removeQuestion } from "@/app/vacancy-actions";
 import { Notice } from "./Notice";
 
-const input = "w-full rounded-md border border-neutral-400 px-3 py-2";
+const input = "w-full rounded-lg border border-neutral-300 px-3 py-2";
 
 /** Staff editor for knockout questions (F3). */
 export async function QuestionEditor({ vacancyId, status }: { vacancyId: string; status?: string }) {
@@ -30,17 +30,17 @@ export async function QuestionEditor({ vacancyId, status }: { vacancyId: string;
     : null;
 
   return (
-    <section id="fragen" aria-labelledby="fragen-h" className="flex flex-col gap-4 rounded-md border border-neutral-200 p-4">
+    <section id="fragen" aria-labelledby="fragen-h" className="flex flex-col gap-4 rounded-2xl border border-neutral-200 bg-white p-4">
       <h2 id="fragen-h" className="text-xl font-semibold">{t.title}</h2>
-      <p className="text-neutral-700">{t.lead}</p>
+      <p className="text-ink/80">{t.lead}</p>
       {notice}
       {questions?.length ? (
         <ol className="flex flex-col gap-2">
           {questions.map((q, i) => (
-            <li key={q.id} className="flex flex-wrap items-start justify-between gap-2 rounded-md bg-neutral-50 p-3">
+            <li key={q.id} className="flex flex-wrap items-start justify-between gap-2 rounded-2xl bg-white p-3">
               <div>
                 <p><span className="mr-2 text-neutral-500">{i + 1}.</span>{q.question}</p>
-                <p className="text-sm text-neutral-600">
+                <p className="text-sm text-muted">
                   {t.kinds[q.kind as QuestionKind]}
                   {Array.isArray(q.options) ? `: ${(q.options as string[]).join(" / ")}` : ""} · {ruleText(q.kind as QuestionKind, q.knockout_rule)}
                 </p>
@@ -48,16 +48,16 @@ export async function QuestionEditor({ vacancyId, status }: { vacancyId: string;
               <form action={removeQuestion}>
                 <input type="hidden" name="vacancyId" value={vacancyId} />
                 <input type="hidden" name="questionId" value={q.id} />
-                <button type="submit" className="rounded-md border border-neutral-400 px-3 py-1 text-sm hover:bg-neutral-100">{t.remove}</button>
+                <button type="submit" className="rounded-lg border border-neutral-300 px-3 py-1 text-sm hover:bg-brand-50">{t.remove}</button>
               </form>
             </li>
           ))}
         </ol>
       ) : (
-        <p className="text-neutral-600">{t.none}</p>
+        <p className="text-muted">{t.none}</p>
       )}
 
-      <details className="rounded-md border border-neutral-200 p-3">
+      <details className="rounded-2xl border border-neutral-200 bg-white p-3">
         <summary className="cursor-pointer font-medium">{t.add}</summary>
         <form action={addQuestion} className="mt-3 grid gap-3">
           <input type="hidden" name="vacancyId" value={vacancyId} />
@@ -68,7 +68,7 @@ export async function QuestionEditor({ vacancyId, status }: { vacancyId: string;
               {(["yes_no", "choice", "number"] as const).map((k) => <option key={k} value={k}>{t.kinds[k]}</option>)}
             </select>
           </label>
-          <fieldset className="grid gap-2 rounded-md bg-neutral-50 p-3">
+          <fieldset className="grid gap-2 rounded-2xl bg-white p-3">
             <legend className="text-sm font-medium">{t.kinds.yes_no}</legend>
             <label className="grid gap-1">
               <span>{t.excludeAnswer}</span>
@@ -77,17 +77,17 @@ export async function QuestionEditor({ vacancyId, status }: { vacancyId: string;
               </select>
             </label>
           </fieldset>
-          <fieldset className="grid gap-2 rounded-md bg-neutral-50 p-3">
+          <fieldset className="grid gap-2 rounded-2xl bg-white p-3">
             <legend className="text-sm font-medium">{t.kinds.choice}</legend>
             <label className="grid gap-1"><span>{t.options}</span><textarea name="options" rows={3} className={input} /></label>
             <label className="grid gap-1"><span>{t.excludeOptions}</span><textarea name="excludeOptions" rows={2} className={input} /></label>
           </fieldset>
-          <fieldset className="grid gap-2 rounded-md bg-neutral-50 p-3 sm:grid-cols-2">
+          <fieldset className="grid gap-2 rounded-2xl bg-white p-3 sm:grid-cols-2">
             <legend className="text-sm font-medium">{t.kinds.number}</legend>
             <label className="grid gap-1"><span>{t.min}</span><input name="min" inputMode="decimal" className={input} /></label>
             <label className="grid gap-1"><span>{t.max}</span><input name="max" inputMode="decimal" className={input} /></label>
           </fieldset>
-          <button type="submit" className="justify-self-start rounded-md bg-neutral-900 px-4 py-2 font-medium text-white hover:bg-neutral-700">{t.add}</button>
+          <button type="submit" className="justify-self-start rounded-lg bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-800">{t.add}</button>
         </form>
       </details>
     </section>

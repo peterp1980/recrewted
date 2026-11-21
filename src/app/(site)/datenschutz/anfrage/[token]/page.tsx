@@ -24,21 +24,21 @@ export default async function DataRequestTokenPage({ params }: { params: Promise
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-10">
       <h1 className="text-2xl font-semibold">{t.yourData}</h1>
-      <dl className="grid gap-1 rounded-md bg-neutral-50 p-4 sm:grid-cols-[auto_1fr] sm:gap-x-6">
+      <dl className="grid gap-1 rounded-2xl bg-white p-4 sm:grid-cols-[auto_1fr] sm:gap-x-6">
         {(["first_name", "last_name", "email", "phone", "talent_pool_consent_at", "created_at"] as const).map((k) => (
           <div key={k} className="contents"><dt className="font-medium">{k}</dt><dd>{String(c[k] ?? "–")}</dd></div>
         ))}
       </dl>
       <ul className="flex flex-col gap-2">
         {ex.applications.map((a, i) => (
-          <li key={i} className="rounded-md border border-neutral-200 p-3">{a.job} · {fmt.format(new Date(a.submitted_at))} · {a.status}{a.cv_uploaded ? " · Lebenslauf" : ""}</li>
+          <li key={i} className="rounded-2xl border border-neutral-200 bg-white p-3">{a.job} · {fmt.format(new Date(a.submitted_at))} · {a.status}{a.cv_uploaded ? " · Lebenslauf" : ""}</li>
         ))}
       </ul>
-      <a href={`/api/data-request/${token}`} className="self-start rounded-md border border-neutral-400 px-4 py-2 hover:bg-neutral-100">{t.download}</a>
-      <form action={deleteMyData} className="flex flex-col gap-2 rounded-md border border-red-200 p-4">
+      <a href={`/api/data-request/${token}`} className="self-start rounded-lg border border-neutral-300 px-4 py-2 hover:bg-brand-50">{t.download}</a>
+      <form action={deleteMyData} className="flex flex-col gap-2 rounded-lg border border-red-200 p-4">
         <input type="hidden" name="token" value={token} />
-        <p className="text-neutral-700">{t.deleteHint}</p>
-        <button type="submit" className="self-start rounded-md bg-red-700 px-4 py-2 font-medium text-white hover:bg-red-800">{t.delete}</button>
+        <p className="text-ink/80">{t.deleteHint}</p>
+        <button type="submit" className="self-start rounded-lg bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-800">{t.delete}</button>
       </form>
     </main>
   );

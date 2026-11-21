@@ -53,32 +53,32 @@ export default async function PortalApplicationPage({ params, searchParams }: Pr
       <Link href={`/portal/vacancies/${app.vacancy_id}`} className="text-sm underline">{t.back}: {app.vacancies?.title}</Link>
       <div className="flex flex-wrap items-baseline gap-3">
         <h1 className="text-2xl font-semibold">{c?.first_name} {c?.last_name}</h1>
-        <span className="rounded bg-neutral-100 px-2 py-0.5 text-sm">{m.applications.status[app.status]}</span>
+        <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-brand-800 text-sm">{m.applications.status[app.status]}</span>
       </div>
       {f === "saved" && <Notice kind="ok">{t.saved}</Notice>}
       {f === "reason" && <Notice kind="error">{t.reasonRequired}</Notice>}
       {f === "error" && <Notice kind="error">{t.error}</Notice>}
 
-      <section className="flex flex-wrap gap-6 rounded-md bg-neutral-50 p-4">
+      <section className="flex flex-wrap gap-6 rounded-2xl bg-white p-4">
         <div>
           {c?.email && <p><a href={`mailto:${c.email}`} className="underline">{c.email}</a></p>}
           {c?.phone && <p><a href={`tel:${c.phone}`} className="underline">{c.phone}</a></p>}
         </div>
-        {cvUrl && <p><a href={cvUrl} target="_blank" rel="noopener noreferrer" className="underline">{t.cv}</a> <span className="text-sm text-neutral-600">({m.application.cvHint})</span></p>}
+        {cvUrl && <p><a href={cvUrl} target="_blank" rel="noopener noreferrer" className="underline">{t.cv}</a> <span className="text-sm text-muted">({m.application.cvHint})</span></p>}
       </section>
 
-      <section aria-labelledby="fb-h" className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4">
+      <section aria-labelledby="fb-h" className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-white p-4">
         <h2 id="fb-h" className="text-xl font-semibold">{t.title}</h2>
-        <p className="text-neutral-700">{t.lead}</p>
+        <p className="text-ink/80">{t.lead}</p>
         <form action={giveFeedback} className="flex flex-col gap-3">
           <input type="hidden" name="applicationId" value={id} />
           <label className="grid gap-1">
             <span>{t.reason}</span>
-            <input name="reason" maxLength={500} className="rounded-md border border-neutral-400 px-3 py-2" />
+            <input name="reason" maxLength={500} className="rounded-lg border border-neutral-300 px-3 py-2" />
           </label>
           <div className="flex flex-wrap gap-2">
             {VERDICTS.map((v) => (
-              <button key={v} type="submit" name="verdict" value={v} className={`rounded-md px-4 py-2 font-medium ${v === "hired" ? "bg-emerald-700 text-white hover:bg-emerald-800" : "border border-neutral-400 hover:bg-neutral-100"}`}>
+              <button key={v} type="submit" name="verdict" value={v} className={`rounded-lg px-4 py-2 font-medium ${v === "hired" ? "bg-emerald-700 text-white hover:bg-emerald-800" : "border border-neutral-300 hover:bg-brand-50"}`}>
                 {t.verdicts[v]}
               </button>
             ))}

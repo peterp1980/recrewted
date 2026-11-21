@@ -74,23 +74,23 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
       <Link href={`/admin/vacancies/${app.vacancy_id}#bewerbungen`} className="text-sm underline">{t.back}: {app.vacancies?.title}</Link>
       <div className="flex flex-wrap items-baseline gap-3">
         <h1 className="text-2xl font-semibold">{c?.first_name} {c?.last_name}</h1>
-        <span className="rounded bg-neutral-100 px-2 py-0.5 text-sm">{msg.applications.status[app.status]}</span>
-        <span className="text-neutral-700">{st.total}: <strong>{scoreText(scorecard?.score ?? null)}</strong></span>
+        <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-brand-800 text-sm">{msg.applications.status[app.status]}</span>
+        <span className="text-ink/80">{st.total}: <strong>{scoreText(scorecard?.score ?? null)}</strong></span>
       </div>
       {notice}
 
-      <section className="grid gap-4 rounded-md bg-neutral-50 p-4 sm:grid-cols-2">
+      <section className="grid gap-4 rounded-2xl bg-white p-4 sm:grid-cols-2">
         <div>
           <h2 className="font-semibold">{t.contact}</h2>
           {c?.email && <p><a href={`mailto:${c.email}`} className="underline">{c.email}</a></p>}
           {c?.phone && <p><a href={`tel:${c.phone}`} className="underline">{c.phone}</a></p>}
-          {c?.talent_pool_consent_at && <p className="text-sm text-neutral-600">{t.talentPool}</p>}
+          {c?.talent_pool_consent_at && <p className="text-sm text-muted">{t.talentPool}</p>}
         </div>
         <div>
           <p>{t.received} {fmt.format(new Date(app.submitted_at))}</p>
-          {att && <p className="text-sm text-neutral-600">{t.source}: {[att.entry_point, att.channel, att.utm_source, att.utm_medium, att.utm_campaign].filter(Boolean).join(" · ")}</p>}
+          {att && <p className="text-sm text-muted">{t.source}: {[att.entry_point, att.channel, att.utm_source, att.utm_medium, att.utm_campaign].filter(Boolean).join(" · ")}</p>}
           <p className="mt-2">
-            {cvUrl ? <><a href={cvUrl} target="_blank" rel="noopener noreferrer" className="underline">{t.cv}</a> <span className="text-sm text-neutral-600">({t.cvHint})</span></> : <span className="text-neutral-600">{t.noCv}</span>}
+            {cvUrl ? <><a href={cvUrl} target="_blank" rel="noopener noreferrer" className="underline">{t.cv}</a> <span className="text-sm text-muted">({t.cvHint})</span></> : <span className="text-muted">{t.noCv}</span>}
           </p>
         </div>
       </section>
@@ -100,30 +100,30 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
         {sortedAnswers.length ? (
           <dl className="grid gap-2">
             {sortedAnswers.map((a) => (
-              <div key={a.screening_questions?.id} className={`rounded-md p-3 ${knockouts.includes(a.screening_questions?.id ?? "") ? "bg-red-50" : "bg-neutral-50"}`}>
+              <div key={a.screening_questions?.id} className={`rounded-lg p-3 ${knockouts.includes(a.screening_questions?.id ?? "") ? "bg-red-50" : "bg-white"}`}>
                 <dt>{a.screening_questions?.question}</dt>
                 <dd className="font-medium">{answerText(a.answer)}{knockouts.includes(a.screening_questions?.id ?? "") && <span className="ml-2 text-sm text-red-800">– {t.knockout}</span>}</dd>
               </div>
             ))}
           </dl>
-        ) : <p className="text-neutral-600">{t.noAnswers}</p>}
+        ) : <p className="text-muted">{t.noAnswers}</p>}
       </section>
 
-      <section aria-labelledby="sc-h" className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4">
+      <section aria-labelledby="sc-h" className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-white p-4">
         <h2 id="sc-h" className="text-xl font-semibold">{st.title}</h2>
-        {!scorecard?.criteria.length ? <p className="text-neutral-600">{st.noCriteria}</p> : (
+        {!scorecard?.criteria.length ? <p className="text-muted">{st.noCriteria}</p> : (
           <>
-            <p className="text-neutral-700">{st.lead}</p>
-            <p className="text-sm text-neutral-600">{st.progress(rated, scorecard.criteria.length)}</p>
+            <p className="text-ink/80">{st.lead}</p>
+            <p className="text-sm text-muted">{st.progress(rated, scorecard.criteria.length)}</p>
             <form action={saveRatings} className="flex flex-col gap-4">
               <input type="hidden" name="applicationId" value={id} />
               {scorecard.criteria.map((cr) => (
-                <fieldset key={cr.id} className={`grid gap-2 rounded-md p-3 ${missing.includes(cr.id) ? "bg-red-50" : "bg-neutral-50"}`}>
+                <fieldset key={cr.id} className={`grid gap-2 rounded-lg p-3 ${missing.includes(cr.id) ? "bg-red-50" : "bg-white"}`}>
                   <legend className="font-medium">{cr.name} <span className="text-sm font-normal text-neutral-500">({st.weight} {cr.weight})</span></legend>
-                  {cr.description && <p className="text-sm text-neutral-600">{cr.description}</p>}
+                  {cr.description && <p className="text-sm text-muted">{cr.description}</p>}
                   <div className="flex flex-wrap gap-2">
                     {[1, 2, 3, 4, 5].map((n) => (
-                      <label key={n} className="flex items-center gap-1 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm">
+                      <label key={n} className="flex items-center gap-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm">
                         <input type="radio" name={`r_${cr.id}`} value={n} defaultChecked={cr.rating === n} />
                         {n} <span className="text-neutral-500">{RATING_LABELS[n]}</span>
                       </label>
@@ -131,28 +131,28 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
                   </div>
                   <label className="grid gap-1">
                     <span className="text-sm">{st.reason}</span>
-                    <textarea name={`why_${cr.id}`} rows={2} maxLength={500} defaultValue={cr.reason ?? ""} className="rounded-md border border-neutral-400 px-3 py-2" />
+                    <textarea name={`why_${cr.id}`} rows={2} maxLength={500} defaultValue={cr.reason ?? ""} className="rounded-lg border border-neutral-300 px-3 py-2" />
                   </label>
                 </fieldset>
               ))}
-              <button type="submit" className="self-start rounded-md bg-neutral-900 px-4 py-2 font-medium text-white hover:bg-neutral-700">{st.save}</button>
+              <button type="submit" className="self-start rounded-lg bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-800">{st.save}</button>
             </form>
             <a href={`/api/scorecards/${id}/pdf`} className="self-start text-sm underline">{st.pdf}</a>
           </>
         )}
       </section>
 
-      <section aria-labelledby="status-h" className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4">
+      <section aria-labelledby="status-h" className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-white p-4">
         <h2 id="status-h" className="text-xl font-semibold">{t.statusTitle}</h2>
         <form action={setApplicationStatus} className="flex flex-wrap items-end gap-3">
           <input type="hidden" name="applicationId" value={id} />
           <label className="grid gap-1">
             <span>{t.setStatus}</span>
-            <select name="status" defaultValue={MANUAL_STATUSES.includes(app.status) ? app.status : "screening"} className="rounded-md border border-neutral-400 px-3 py-2">
+            <select name="status" defaultValue={MANUAL_STATUSES.includes(app.status) ? app.status : "screening"} className="rounded-lg border border-neutral-300 px-3 py-2">
               {MANUAL_STATUSES.map((x) => <option key={x} value={x}>{msg.applications.status[x]}</option>)}
             </select>
           </label>
-          <button type="submit" className="rounded-md border border-neutral-400 px-4 py-2 hover:bg-neutral-100">{msg.criteria.save}</button>
+          <button type="submit" className="rounded-lg border border-neutral-300 px-4 py-2 hover:bg-brand-50">{msg.criteria.save}</button>
         </form>
       </section>
 

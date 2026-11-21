@@ -47,7 +47,7 @@ export default async function KpiPage() {
           [t.costPerQualified, fmt(all.avgCostPerQualified, eur.format)],
           [t.fillRate, fmt(all.fillRate, (x) => `${n1.format(x)} %`)],
           [t.portalMinutes, fmt(all.avgPortalMinutes, (x) => `${n1.format(x)} ${t.minutes}`)],
-        ] as const).map(([k, v]) => <div key={k} className="rounded-md bg-neutral-50 p-3"><dt className="text-sm text-neutral-600">{k}</dt><dd className="text-2xl font-semibold">{v}</dd></div>)}
+        ] as const).map(([k, v]) => <div key={k} className="rounded-2xl bg-white p-3"><dt className="text-sm text-muted">{k}</dt><dd className="text-2xl font-semibold">{v}</dd></div>)}
       </dl>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[40rem] text-left text-sm">
@@ -68,7 +68,7 @@ export default async function KpiPage() {
           </tbody>
         </table>
       </div>
-      <p className="text-sm text-neutral-600">{t.note}</p>
+      <p className="text-sm text-muted">{t.note}</p>
     </main>
   );
 }

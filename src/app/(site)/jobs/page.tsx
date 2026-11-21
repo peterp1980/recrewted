@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-const field = "w-full rounded-md border border-neutral-400 px-3 py-2";
+const field = "w-full rounded-lg border border-neutral-300 px-3 py-2";
 
 export default async function JobsPage({ searchParams }: Props) {
   const f = parseJobFilters(await searchParams);
@@ -28,9 +28,9 @@ export default async function JobsPage({ searchParams }: Props) {
   } catch (e) {
     console.error("job search failed", e);
     return (
-      <main className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">
+      <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8">
         <h1 className="text-3xl font-semibold">{t.title}</h1>
-        <p role="alert" className="rounded-md bg-amber-50 p-4 text-amber-900">{t.unavailable}</p>
+        <p role="alert" className="rounded-lg bg-amber-50 p-4 text-amber-900">{t.unavailable}</p>
       </main>
     );
   }
@@ -48,10 +48,13 @@ export default async function JobsPage({ searchParams }: Props) {
   };
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">
-      <h1 className="text-3xl font-semibold">{t.title}</h1>
+    <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8">
+      <div className="flex flex-col gap-2">
+        <p className="eyebrow">Offene Stellen</p>
+        <h1 className="text-4xl font-bold">{t.title}</h1>
+      </div>
 
-      <form method="get" role="search" aria-label={t.searchLabel} className="grid gap-3 sm:grid-cols-6">
+      <form method="get" role="search" aria-label={t.searchLabel} className="card grid gap-3 sm:grid-cols-6">
         <label className="grid gap-1 sm:col-span-2">
           <span className="text-sm font-medium">{t.q}</span>
           <input name="q" defaultValue={f.q} placeholder={t.qPlaceholder} className={field} />
@@ -81,27 +84,27 @@ export default async function JobsPage({ searchParams }: Props) {
           </select>
         </label>
         <div className="flex flex-wrap items-center gap-4 sm:col-span-6">
-          <button type="submit" className="rounded-md bg-neutral-900 px-5 py-2 font-medium text-white hover:bg-neutral-700">{t.search}</button>
+          <button type="submit" className="rounded-lg bg-brand-700 px-5 py-2 font-semibold text-white hover:bg-brand-800">{t.search}</button>
           <Link href="/jobs" className="text-sm underline">{t.reset}</Link>
         </div>
       </form>
 
-      <p aria-live="polite" className="text-neutral-700">
+      <p aria-live="polite" className="text-ink/80">
         {t.results(result.total)}
         {result.radiusApplied && result.origin ? ` ${t.near(result.origin, f.radius)}` : ""}
       </p>
 
       {result.jobs.length === 0 ? (
-        <p className="rounded-md bg-neutral-50 p-4 text-neutral-700">{t.noResults}</p>
+        <p className="rounded-2xl bg-white p-4 text-ink/80">{t.noResults}</p>
       ) : (
         <ul className="flex flex-col gap-3">
           {result.jobs.map((j) => (
-            <li key={j.id} className="rounded-md border border-neutral-200 p-4 hover:border-neutral-400">
+            <li key={j.id} className="rounded-2xl border border-neutral-200 bg-white p-4 hover:border-neutral-300">
               <h2 className="text-lg font-semibold">
                 <Link href={jobPath(j)} className="hover:underline">{j.title}</Link>
               </h2>
-              <p className="text-neutral-700">{j.employerName ?? t.confidential}</p>
-              <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-700">
+              <p className="text-ink/80">{j.employerName ?? t.confidential}</p>
+              <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink/80">
                 <span>{j.remote ? t.remote : j.location}</span>
                 {j.employmentType && <span>{b.employmentType[j.employmentType]}</span>}
                 <span>{salaryText(j.salaryMin, j.salaryMax, j.salaryPeriod)}</span>
@@ -115,7 +118,7 @@ export default async function JobsPage({ searchParams }: Props) {
       {pages > 1 && (
         <nav aria-label="Seiten" className="flex gap-4">
           {f.page > 1 && <Link href={pageLink(f.page - 1)} className="underline">{t.prev}</Link>}
-          <span className="text-neutral-600">{f.page} / {pages}</span>
+          <span className="text-muted">{f.page} / {pages}</span>
           {f.page < pages && <Link href={pageLink(f.page + 1)} className="underline">{t.next}</Link>}
         </nav>
       )}

@@ -10,7 +10,7 @@ export const metadata = { title: "Nutzer – recrewted" };
 type Props = { searchParams: Promise<{ status?: string; error?: string }> };
 
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
-const input = "rounded-md border border-neutral-400 px-3 py-2";
+const input = "rounded-lg border border-neutral-300 px-3 py-2";
 
 export default async function UsersPage({ searchParams }: Props) {
   const session = await requireAccess("/admin/users");
@@ -44,7 +44,7 @@ export default async function UsersPage({ searchParams }: Props) {
       <h1 className="text-2xl font-semibold">{t.title}</h1>
 
       {(statusText || errorText || missingKey) && (
-        <p role={ok ? "status" : "alert"} className={`rounded-md p-4 ${ok ? "bg-emerald-50 text-emerald-900" : "bg-red-50 text-red-900"}`}>
+        <p role={ok ? "status" : "alert"} className={`rounded-lg p-4 ${ok ? "bg-emerald-50 text-emerald-900" : "bg-red-50 text-red-900"}`}>
           {errorText ?? statusText ?? t.status.missingServiceKey}
         </p>
       )}
@@ -53,7 +53,7 @@ export default async function UsersPage({ searchParams }: Props) {
         <h2 id="invite" className="text-xl font-semibold">
           {t.inviteTitle}
         </h2>
-        <p className="text-neutral-700">{t.inviteLead}</p>
+        <p className="text-ink/80">{t.inviteLead}</p>
         <form action={inviteUser} className="grid max-w-xl gap-3">
           <label className="grid gap-1">
             <span className="font-medium">{t.email}</span>
@@ -73,9 +73,9 @@ export default async function UsersPage({ searchParams }: Props) {
               ))}
             </select>
           </label>
-          <fieldset className="grid gap-2 rounded-md border border-neutral-300 p-3">
+          <fieldset className="grid gap-2 rounded-lg border border-neutral-300 p-3">
             <legend className="px-1 font-medium">{t.organization}</legend>
-            <p className="text-sm text-neutral-600">{t.organizationHint}</p>
+            <p className="text-sm text-muted">{t.organizationHint}</p>
             <label className="grid gap-1">
               <span>{t.chooseOrganization}</span>
               <select name="organizationId" defaultValue="" className={input}>
@@ -92,7 +92,7 @@ export default async function UsersPage({ searchParams }: Props) {
               <input name="newOrganizationName" maxLength={200} className={input} />
             </label>
           </fieldset>
-          <button type="submit" disabled={missingKey} className="justify-self-start rounded-md bg-neutral-900 px-4 py-2 font-medium text-white hover:bg-neutral-700 disabled:opacity-50">
+          <button type="submit" disabled={missingKey} className="justify-self-start rounded-lg bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-800 disabled:opacity-50">
             {t.invite}
           </button>
         </form>
@@ -129,14 +129,14 @@ export default async function UsersPage({ searchParams }: Props) {
                     <td className="py-2">
                       <form action={changeRole} className="flex gap-2">
                         <input type="hidden" name="userId" value={p.id} />
-                        <select name="role" defaultValue={p.role} aria-label={`${t.role}: ${p.full_name ?? a?.email ?? p.id}`} className="rounded-md border border-neutral-400 px-2 py-1">
+                        <select name="role" defaultValue={p.role} aria-label={`${t.role}: ${p.full_name ?? a?.email ?? p.id}`} className="rounded-lg border border-neutral-300 px-2 py-1">
                           {USER_ROLES.map((r) => (
                             <option key={r} value={r}>
                               {t.roles[r]}
                             </option>
                           ))}
                         </select>
-                        <button type="submit" className="rounded-md border border-neutral-400 px-3 py-1 hover:bg-neutral-100">
+                        <button type="submit" className="rounded-lg border border-neutral-300 px-3 py-1 hover:bg-brand-50">
                           {t.save}
                         </button>
                       </form>

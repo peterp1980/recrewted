@@ -27,7 +27,7 @@ export default async function ApplyPage({ params, searchParams }: Props) {
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-8">
       <Link href={jobPath(job)} className="text-sm underline">{job.title}</Link>
       <h1 className="text-2xl font-semibold">{t.title(job.title)}</h1>
-      <p className="text-neutral-700">{t.lead}</p>
+      <p className="text-ink/80">{t.lead}</p>
       <ApplyForm slug={slug} questions={questions} utm={utm} />
     </main>
   );

@@ -2,7 +2,7 @@ import { getMessages } from "@/i18n";
 import { CATEGORIES, EMPLOYMENT_TYPES, REMOTE_OPTIONS, SALARY_PERIODS, type Briefing, type BriefingField } from "@/lib/briefing/schema";
 import { saveBriefing } from "@/app/vacancy-actions";
 
-const input = "w-full rounded-md border border-neutral-400 px-3 py-2";
+const input = "w-full rounded-lg border border-neutral-300 px-3 py-2";
 const errorRing = "border-red-600 ring-1 ring-red-600";
 
 type Props = { vacancyId: string; briefing: Briefing; missing: BriefingField[] };
@@ -18,14 +18,14 @@ export function BriefingForm({ vacancyId, briefing: b, missing }: Props) {
   const Text = ({ name, label, value, field, hint, type = "text", ...rest }: { name: string; label: string; value: string; field?: BriefingField; hint?: string; type?: string } & React.InputHTMLAttributes<HTMLInputElement>) => (
     <label className="grid gap-1">
       <span className="font-medium">{label}</span>
-      {hint && <span className="text-sm text-neutral-600">{hint}</span>}
+      {hint && <span className="text-sm text-muted">{hint}</span>}
       <input name={name} type={type} defaultValue={value} className={field ? cls(field) : input} {...(field ? aria(field) : {})} {...rest} />
     </label>
   );
   const List = ({ name, label, value, field, hint }: { name: string; label: string; value: string[]; field?: BriefingField; hint?: string }) => (
     <label className="grid gap-1">
       <span className="font-medium">{label}</span>
-      <span className="text-sm text-neutral-600">{hint ? `${hint} ` : ""}{f.listHint}</span>
+      <span className="text-sm text-muted">{hint ? `${hint} ` : ""}{f.listHint}</span>
       <textarea name={name} rows={Math.max(3, value.length + 1)} defaultValue={value.join("\n")} className={field ? cls(field) : input} {...(field ? aria(field) : {})} />
     </label>
   );
@@ -82,7 +82,7 @@ export function BriefingForm({ vacancyId, briefing: b, missing }: Props) {
 
       <fieldset className="grid gap-4">
         <legend className="mb-2 text-lg font-semibold">{t.sections.conditions}</legend>
-        <p className="text-sm text-neutral-600">{f.salaryHint}</p>
+        <p className="text-sm text-muted">{f.salaryHint}</p>
         <div className="grid gap-4 sm:grid-cols-3">
           <Text name="salaryMin" label={f.salaryMin} value={b.salaryMin?.toString() ?? ""} field={bad("salaryRange") ? "salaryRange" : "salary"} inputMode="decimal" />
           <Text name="salaryMax" label={f.salaryMax} value={b.salaryMax?.toString() ?? ""} field={bad("salaryRange") ? "salaryRange" : "salary"} inputMode="decimal" />
@@ -113,10 +113,10 @@ export function BriefingForm({ vacancyId, briefing: b, missing }: Props) {
       </fieldset>
 
       <div className="flex flex-wrap gap-3">
-        <button type="submit" name="intent" value="draft" className="rounded-md border border-neutral-400 px-4 py-2 font-medium hover:bg-neutral-100">
+        <button type="submit" name="intent" value="draft" className="rounded-lg border border-neutral-300 px-4 py-2 font-medium hover:bg-brand-50">
           {t.saveDraft}
         </button>
-        <button type="submit" name="intent" value="submit" className="rounded-md bg-neutral-900 px-4 py-2 font-medium text-white hover:bg-neutral-700">
+        <button type="submit" name="intent" value="submit" className="rounded-lg bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-800">
           {t.submit}
         </button>
       </div>

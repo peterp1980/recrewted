@@ -12,7 +12,7 @@ export default async function ThanksPage({ searchParams }: Props) {
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-12">
       <h1 className="text-2xl font-semibold">{t.thanksTitle}</h1>
-      <p className="text-neutral-700">{tel ? t.thanksPhone : t.thanksMail}</p>
+      <p className="text-ink/80">{tel ? t.thanksPhone : t.thanksMail}</p>
       <Link href="/jobs" className="self-start underline">{t.moreJobs}</Link>
     </main>
   );

@@ -43,8 +43,8 @@ export async function PortalVacancySections({ vacancyId, viewerId }: { vacancyId
         <h2 id="kpi-h" className="text-xl font-semibold">{t.kpis}</h2>
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           {tiles.map(([k, v]) => (
-            <div key={k} className="rounded-md bg-neutral-50 p-3">
-              <dt className="text-sm text-neutral-600">{k}</dt>
+            <div key={k} className="rounded-2xl bg-white p-3">
+              <dt className="text-sm text-muted">{k}</dt>
               <dd className="text-2xl font-semibold">{v}</dd>
             </div>
           ))}
@@ -56,16 +56,16 @@ export async function PortalVacancySections({ vacancyId, viewerId }: { vacancyId
         {shortlist?.length ? (
           <ul className="flex flex-col gap-2">
             {shortlist.map((a) => (
-              <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-200 p-3">
+              <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-neutral-200 bg-white p-3">
                 <div>
                   <Link href={`/portal/applications/${a.id}`} className="font-medium hover:underline">{a.candidates?.first_name} {a.candidates?.last_name}</Link>
-                  <p className="text-sm text-neutral-600">{m.applications.status[a.status]} · {m.scorecard.total} {scoreText(a.score === null ? null : Number(a.score))}</p>
+                  <p className="text-sm text-muted">{m.applications.status[a.status]} · {m.scorecard.total} {scoreText(a.score === null ? null : Number(a.score))}</p>
                 </div>
-                <Link href={`/portal/applications/${a.id}`} className="rounded-md border border-neutral-400 px-3 py-1 text-sm hover:bg-neutral-100">{t.open}</Link>
+                <Link href={`/portal/applications/${a.id}`} className="rounded-lg border border-neutral-300 px-3 py-1 text-sm hover:bg-brand-50">{t.open}</Link>
               </li>
             ))}
           </ul>
-        ) : <p className="text-neutral-600">{t.shortlistEmpty}</p>}
+        ) : <p className="text-muted">{t.shortlistEmpty}</p>}
       </section>
 
       <section aria-labelledby="ct-h" className="flex flex-col gap-2">
@@ -75,12 +75,12 @@ export async function PortalVacancySections({ vacancyId, viewerId }: { vacancyId
             {links.map((c) => (
               <li key={c.id}>
                 {t.contractKinds[c.kind as keyof typeof t.contractKinds] ?? c.kind}
-                {c.signed_at && <span className="text-sm text-neutral-600"> · {fmt.format(new Date(c.signed_at))}</span>}
+                {c.signed_at && <span className="text-sm text-muted"> · {fmt.format(new Date(c.signed_at))}</span>}
                 {c.url && <> · <a href={c.url} className="underline">{t.download}</a></>}
               </li>
             ))}
           </ul>
-        ) : <p className="text-neutral-600">{t.noContracts}</p>}
+        ) : <p className="text-muted">{t.noContracts}</p>}
       </section>
     </>
   );

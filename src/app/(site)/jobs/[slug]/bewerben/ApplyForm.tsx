@@ -9,7 +9,7 @@ import { prepareCvUpload, submitApplication, type ApplyState } from "./actions";
 type Props = { slug: string; questions: ScreeningQuestion[]; utm: Record<string, string> };
 type Upload = { state: "idle" | "uploading" | "done" | "error"; path: string; name: string };
 
-const input = "w-full rounded-md border border-neutral-400 px-3 py-3 text-base";
+const input = "w-full rounded-lg border border-neutral-300 px-3 py-3 text-base";
 const initial: ApplyState = { errors: [], missingQuestions: [], values: {} };
 
 /** Mobile-first short application. Keeps typed values when the server reports an error. */
@@ -40,7 +40,7 @@ export function ApplyForm({ slug, questions, utm }: Props) {
     // key forces fresh defaultValues after an error round-trip (React resets forms after actions)
     <form key={JSON.stringify(state)} action={action} className="flex flex-col gap-5" noValidate={false}>
       {generalErrors.length > 0 && (
-        <div role="alert" className="rounded-md bg-red-50 p-4 text-red-900">{generalErrors.map((e) => <p key={e}>{t.errors[e]}</p>)}</div>
+        <div role="alert" className="rounded-lg bg-red-50 p-4 text-red-900">{generalErrors.map((e) => <p key={e}>{t.errors[e]}</p>)}</div>
       )}
       <input type="hidden" name="slug" value={slug} />
       {Object.entries(utm).map(([k, val]) => <input key={k} type="hidden" name={k} value={val} />)}
@@ -86,13 +86,13 @@ export function ApplyForm({ slug, questions, utm }: Props) {
             const name = `q_${q.id}`;
             const missing = state.missingQuestions.includes(q.id);
             return (
-              <div key={q.id} className={`grid gap-2 rounded-md p-3 ${missing ? "bg-red-50" : "bg-neutral-50"}`}>
+              <div key={q.id} className={`grid gap-2 rounded-lg p-3 ${missing ? "bg-red-50" : "bg-white"}`}>
                 {q.kind === "yes_no" ? (
                   <fieldset>
                     <legend className="mb-2">{q.question}</legend>
                     <div className="flex gap-3">
                       {(["yes", "no"] as const).map((a) => (
-                        <label key={a} className="flex min-w-24 items-center gap-2 rounded-md border border-neutral-400 bg-white px-4 py-3">
+                        <label key={a} className="flex min-w-24 items-center gap-2 rounded-lg border border-neutral-300 bg-white px-4 py-3">
                           <input type="radio" name={name} value={a} required defaultChecked={v[name] === a} />
                           {a === "yes" ? t.yes : t.no}
                         </label>
@@ -121,11 +121,11 @@ export function ApplyForm({ slug, questions, utm }: Props) {
 
       <label className="grid gap-1">
         <span className="font-medium">{t.cv}</span>
-        <span className="text-sm text-neutral-600">{t.cvHint}</span>
+        <span className="text-sm text-muted">{t.cvHint}</span>
         {/* no name: the file goes straight to storage, only its path is submitted */}
         <input type="file" accept=".pdf,.docx,image/jpeg,image/png,image/webp,image/heic" className="text-base" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
         <input type="hidden" name="cvPath" value={cvPath} />
-        <p aria-live="polite" className="text-sm text-neutral-700">
+        <p aria-live="polite" className="text-sm text-ink/80">
           {upload.state === "uploading" ? t.cvUploading : upload.state === "done" ? t.cvDone(upload.name) : ""}
         </p>
         {upload.state === "error" && <p className="text-sm text-red-700">{t.errors.cvSize}</p>}
@@ -141,11 +141,11 @@ export function ApplyForm({ slug, questions, utm }: Props) {
         {err("consent", "e-cn")}
         <label className="flex items-start gap-3">
           <input type="checkbox" name="talentPoolConsent" defaultChecked={v.talentPoolConsent === "on"} className="mt-1 h-5 w-5 shrink-0" />
-          <span className="text-neutral-700">{t.talentPool}</span>
+          <span className="text-ink/80">{t.talentPool}</span>
         </label>
       </div>
 
-      <button type="submit" disabled={pending || upload.state === "uploading"} className="rounded-md bg-neutral-900 px-5 py-4 text-lg font-medium text-white hover:bg-neutral-700 disabled:opacity-60">
+      <button type="submit" disabled={pending || upload.state === "uploading"} className="rounded-lg bg-brand-700 px-5 py-4 text-lg font-semibold text-white hover:bg-brand-800 disabled:opacity-60">
         {pending ? t.sending : t.submit}
       </button>
     </form>

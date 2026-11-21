@@ -9,21 +9,21 @@ export function NewVacancyForm({ organizations }: { organizations: { id: string;
     <form action={createVacancy} className="grid max-w-xl gap-3">
       <label className="grid gap-1">
         <span className="font-medium">{t.title}</span>
-        <input name="title" required minLength={3} maxLength={150} className="rounded-md border border-neutral-400 px-3 py-2" />
+        <input name="title" required minLength={3} maxLength={150} className="rounded-lg border border-neutral-300 px-3 py-2" />
       </label>
       {organizations.length === 1 ? (
         <input type="hidden" name="organizationId" value={organizations[0].id} />
       ) : (
         <label className="grid gap-1">
           <span className="font-medium">{t.organization}</span>
-          <select name="organizationId" required className="rounded-md border border-neutral-400 px-3 py-2">
+          <select name="organizationId" required className="rounded-lg border border-neutral-300 px-3 py-2">
             {organizations.map((o) => (
               <option key={o.id} value={o.id}>{o.name}</option>
             ))}
           </select>
         </label>
       )}
-      <button type="submit" className="justify-self-start rounded-md bg-neutral-900 px-4 py-2 font-medium text-white hover:bg-neutral-700">
+      <button type="submit" className="justify-self-start rounded-lg bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-800">
         {t.create}
       </button>
     </form>

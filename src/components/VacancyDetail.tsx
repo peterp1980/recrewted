@@ -72,10 +72,10 @@ export async function VacancyDetail({ id, base, staff, search }: Props) {
       <Link href={base} className="text-sm underline">{m.vacancy.back}</Link>
       <div className="flex flex-wrap items-baseline gap-3">
         <h1 className="text-2xl font-semibold">{vacancy.title}</h1>
-        <span className="rounded bg-neutral-100 px-2 py-0.5 text-sm">{m.vacancy.status[vacancy.status]}</span>
-        {staff && vacancy.organizations?.name && <span className="text-neutral-600">{vacancy.organizations.name}</span>}
+        <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-brand-800 text-sm">{m.vacancy.status[vacancy.status]}</span>
+        {staff && vacancy.organizations?.name && <span className="text-muted">{vacancy.organizations.name}</span>}
       </div>
-      {submittedAt && <p className="text-sm text-neutral-600">{t.submittedAt} {fmt.format(new Date(submittedAt))}</p>}
+      {submittedAt && <p className="text-sm text-muted">{t.submittedAt} {fmt.format(new Date(submittedAt))}</p>}
       {notice}
       {flagged.length > 0 && (
         <Notice kind="info">
@@ -90,7 +90,7 @@ export async function VacancyDetail({ id, base, staff, search }: Props) {
         <h2 id="briefing" className="text-xl font-semibold">{t.title}</h2>
         {editable ? (
           <>
-            <p className="text-neutral-700">{t.lead}</p>
+            <p className="text-ink/80">{t.lead}</p>
             <BriefingForm vacancyId={vacancy.id} briefing={briefing} missing={missing} />
           </>
         ) : (
@@ -115,7 +115,7 @@ async function Suggestions({ vacancyId, briefing }: { vacancyId: string; briefin
   const sc = suggestCriteria(briefing);
 
   return (
-    <section aria-labelledby="suggestions" className="flex flex-col gap-4 rounded-md border border-neutral-200 p-4">
+    <section aria-labelledby="suggestions" className="flex flex-col gap-4 rounded-2xl border border-neutral-200 bg-white p-4">
       <h2 id="suggestions" className="text-xl font-semibold">{t.title}</h2>
       {hasExisting ? (
         <>
@@ -134,14 +134,14 @@ async function Suggestions({ vacancyId, briefing }: { vacancyId: string; briefin
           </div>
         </>
       ) : sq.length === 0 && briefing.mustHave.length === 0 ? (
-        <p className="text-neutral-600">{t.none}</p>
+        <p className="text-muted">{t.none}</p>
       ) : (
         <>
-          <p className="text-neutral-700">{t.lead}</p>
+          <p className="text-ink/80">{t.lead}</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <h3 className="font-medium">{t.questions}</h3>
-              <ul className="ml-5 list-disc">{sq.map((q) => <li key={q.question}>{q.question} <span className="text-sm text-neutral-600">– {t.knockoutNo}</span></li>)}</ul>
+              <ul className="ml-5 list-disc">{sq.map((q) => <li key={q.question}>{q.question} <span className="text-sm text-muted">– {t.knockoutNo}</span></li>)}</ul>
             </div>
             <div>
               <h3 className="font-medium">{t.criteria}</h3>
@@ -150,7 +150,7 @@ async function Suggestions({ vacancyId, briefing }: { vacancyId: string; briefin
           </div>
           <form action={applySuggestions}>
             <input type="hidden" name="vacancyId" value={vacancyId} />
-            <button type="submit" className="rounded-md bg-neutral-900 px-4 py-2 font-medium text-white hover:bg-neutral-700">{t.apply}</button>
+            <button type="submit" className="rounded-lg bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-800">{t.apply}</button>
           </form>
         </>
       )}

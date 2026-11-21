@@ -8,7 +8,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <>
       <AppHeader session={session} />
-      <div className="mx-auto max-w-5xl px-4 py-8">{children}</div>
+      <div className="mx-auto max-w-6xl px-4 py-8">{children}</div>
     </>
   );
 }

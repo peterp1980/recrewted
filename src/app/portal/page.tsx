@@ -19,7 +19,7 @@ export default async function PortalHome({ searchParams }: Props) {
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold">{m.portal.title}</h1>
         {orgs && orgs.length > 0 ? (
-          <p className="text-neutral-700">
+          <p className="text-ink/80">
             {m.portal.organization}: <strong>{orgs.map((o) => o.name).join(", ")}</strong>
           </p>
         ) : (
@@ -34,7 +34,7 @@ export default async function PortalHome({ searchParams }: Props) {
       {orgs && orgs.length > 0 && (
         <section aria-labelledby="new" className="flex flex-col gap-3">
           <h2 id="new" className="text-xl font-semibold">{m.vacancy.newTitle}</h2>
-          <p className="text-neutral-700">{m.vacancy.newLead}</p>
+          <p className="text-ink/80">{m.vacancy.newLead}</p>
           <NewVacancyForm organizations={orgs} />
         </section>
       )}
