@@ -9,6 +9,9 @@ import { applySuggestions } from "@/app/vacancy-actions";
 import { BriefingForm } from "./BriefingForm";
 import { Notice } from "./Notice";
 import { QuestionEditor } from "./QuestionEditor";
+import { CriteriaEditor } from "./CriteriaEditor";
+import { ApplicationsList } from "./ApplicationsList";
+import { getSession } from "@/lib/auth/session";
 
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" });
 const EDITABLE_FOR_CUSTOMER = ["draft", "contract_pending"];
@@ -17,7 +20,7 @@ type Props = {
   id: string;
   base: "/admin" | "/portal";
   staff: boolean;
-  search: { status?: string; missing?: string; q?: string };
+  search: { status?: string; missing?: string; q?: string; c?: string };
 };
 
 /** Vacancy page with briefing (F13). Staff additionally see suggestions and can apply them. */
@@ -86,8 +89,7 @@ export async function VacancyDetail({ id, base, staff, search }: Props) {
         )}
       </section>
 
-      {staff && <Suggestions vacancyId={vacancy.id} briefing={briefing} />}
-      {staff && <QuestionEditor vacancyId={vacancy.id} status={search.q} />}
+      {staff && <StaffSections vacancyId={vacancy.id} briefing={briefing} search={search} />}
     </main>
   );
 }
@@ -144,5 +146,18 @@ async function Suggestions({ vacancyId, briefing }: { vacancyId: string; briefin
         </>
       )}
     </section>
+  );
+}
+
+async function StaffSections({ vacancyId, briefing, search }: { vacancyId: string; briefing: ReturnType<typeof fromStored>; search: Props["search"] }) {
+  const session = await getSession();
+  if (!session) return null;
+  return (
+    <>
+      <ApplicationsList vacancyId={vacancyId} viewerId={session.userId} />
+      <Suggestions vacancyId={vacancyId} briefing={briefing} />
+      <QuestionEditor vacancyId={vacancyId} status={search.q} />
+      <CriteriaEditor vacancyId={vacancyId} status={search.c} />
+    </>
   );
 }

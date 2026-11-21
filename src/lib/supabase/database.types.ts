@@ -47,13 +47,20 @@ export type Database = {
         Row: { ad_account_owner: E["account_owner"] | null; application_id: string; campaign_id: string | null; channel: string | null; click_id: string | null; click_id_expires_at: string | null; click_id_type: string | null; entry_point: E["entry_point"]; utm_campaign: string | null; utm_content: string | null; utm_medium: string | null; utm_source: string | null }
         Insert: { ad_account_owner?: E["account_owner"] | null; application_id: string; campaign_id?: string | null; channel?: string | null; click_id?: string | null; click_id_expires_at?: string | null; click_id_type?: string | null; entry_point: E["entry_point"]; utm_campaign?: string | null; utm_content?: string | null; utm_medium?: string | null; utm_source?: string | null }
         Update: { ad_account_owner?: E["account_owner"] | null; application_id?: string; campaign_id?: string | null; channel?: string | null; click_id?: string | null; click_id_expires_at?: string | null; click_id_type?: string | null; entry_point?: E["entry_point"]; utm_campaign?: string | null; utm_content?: string | null; utm_medium?: string | null; utm_source?: string | null }
-        Relationships: Rel[]
+        Relationships: [
+          { foreignKeyName: "application_attribution_application_id_fkey"; columns: ["application_id"]; isOneToOne: true; referencedRelation: "applications"; referencedColumns: ["id"] },
+          { foreignKeyName: "application_attribution_campaign_id_fkey"; columns: ["campaign_id"]; isOneToOne: false; referencedRelation: "campaigns"; referencedColumns: ["id"] },
+        ]
       }
       applications: {
         Row: { consent_version: string | null; knockout_reasons: Json; processing_consent_at: string | null; candidate_id: string; closed_at: string | null; cv_storage_path: string | null; duplicate_of: string | null; hired_at: string | null; id: string; score: number | null; shortlisted_at: string | null; status: E["application_status"]; submitted_at: string; vacancy_id: string }
         Insert: { consent_version?: string | null; knockout_reasons?: Json; processing_consent_at?: string | null; candidate_id: string; closed_at?: string | null; cv_storage_path?: string | null; duplicate_of?: string | null; hired_at?: string | null; id?: string; score?: number | null; shortlisted_at?: string | null; status?: E["application_status"]; submitted_at?: string; vacancy_id: string }
         Update: { consent_version?: string | null; knockout_reasons?: Json; processing_consent_at?: string | null; candidate_id?: string; closed_at?: string | null; cv_storage_path?: string | null; duplicate_of?: string | null; hired_at?: string | null; id?: string; score?: number | null; shortlisted_at?: string | null; status?: E["application_status"]; submitted_at?: string; vacancy_id?: string }
-        Relationships: Rel[]
+        Relationships: [
+          { foreignKeyName: "applications_candidate_id_fkey"; columns: ["candidate_id"]; isOneToOne: false; referencedRelation: "candidates"; referencedColumns: ["id"] },
+          { foreignKeyName: "applications_vacancy_id_fkey"; columns: ["vacancy_id"]; isOneToOne: false; referencedRelation: "vacancies"; referencedColumns: ["id"] },
+          { foreignKeyName: "applications_duplicate_of_fkey"; columns: ["duplicate_of"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] },
+        ]
       }
       audit_log: {
         Row: { action: string; actor: string | null; details: Json; id: number; occurred_at: string; record_id: string | null; table_name: string }
@@ -89,7 +96,10 @@ export type Database = {
         Row: { application_id: string; created_at: string; created_by: string; id: string; reason: string | null; verdict: E["feedback_verdict"] }
         Insert: { application_id: string; created_at?: string; created_by: string; id?: string; reason?: string | null; verdict: E["feedback_verdict"] }
         Update: { application_id?: string; created_at?: string; created_by?: string; id?: string; reason?: string | null; verdict?: E["feedback_verdict"] }
-        Relationships: Rel[]
+        Relationships: [
+          { foreignKeyName: "customer_feedback_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] },
+          { foreignKeyName: "customer_feedback_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
+        ]
       }
       customer_members: {
         Row: { organization_id: string; profile_id: string }
@@ -140,25 +150,36 @@ export type Database = {
         Row: { description: string | null; id: string; name: string; position: number; vacancy_id: string; weight: number }
         Insert: { description?: string | null; id?: string; name: string; position: number; vacancy_id: string; weight?: number }
         Update: { description?: string | null; id?: string; name?: string; position?: number; vacancy_id?: string; weight?: number }
-        Relationships: Rel[]
+        Relationships: [
+          { foreignKeyName: "scorecard_criteria_vacancy_id_fkey"; columns: ["vacancy_id"]; isOneToOne: false; referencedRelation: "vacancies"; referencedColumns: ["id"] },
+        ]
       }
       scorecard_ratings: {
         Row: { ai_suggested: boolean; application_id: string; criterion_id: string; rated_at: string; rated_by: string | null; rating: number; reason: string | null }
         Insert: { ai_suggested?: boolean; application_id: string; criterion_id: string; rated_at?: string; rated_by?: string | null; rating: number; reason?: string | null }
         Update: { ai_suggested?: boolean; application_id?: string; criterion_id?: string; rated_at?: string; rated_by?: string | null; rating?: number; reason?: string | null }
-        Relationships: Rel[]
+        Relationships: [
+          { foreignKeyName: "scorecard_ratings_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] },
+          { foreignKeyName: "scorecard_ratings_criterion_id_fkey"; columns: ["criterion_id"]; isOneToOne: false; referencedRelation: "scorecard_criteria"; referencedColumns: ["id"] },
+          { foreignKeyName: "scorecard_ratings_rated_by_fkey"; columns: ["rated_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
+        ]
       }
       screening_answers: {
         Row: { answer: Json; application_id: string; question_id: string }
         Insert: { answer: Json; application_id: string; question_id: string }
         Update: { answer?: Json; application_id?: string; question_id?: string }
-        Relationships: Rel[]
+        Relationships: [
+          { foreignKeyName: "screening_answers_application_id_fkey"; columns: ["application_id"]; isOneToOne: false; referencedRelation: "applications"; referencedColumns: ["id"] },
+          { foreignKeyName: "screening_answers_question_id_fkey"; columns: ["question_id"]; isOneToOne: false; referencedRelation: "screening_questions"; referencedColumns: ["id"] },
+        ]
       }
       screening_questions: {
         Row: { id: string; kind: string; knockout_rule: Json | null; options: Json | null; position: number; question: string; vacancy_id: string }
         Insert: { id?: string; kind: string; knockout_rule?: Json | null; options?: Json | null; position: number; question: string; vacancy_id: string }
         Update: { id?: string; kind?: string; knockout_rule?: Json | null; options?: Json | null; position?: number; question?: string; vacancy_id?: string }
-        Relationships: Rel[]
+        Relationships: [
+          { foreignKeyName: "screening_questions_vacancy_id_fkey"; columns: ["vacancy_id"]; isOneToOne: false; referencedRelation: "vacancies"; referencedColumns: ["id"] },
+        ]
       }
       vacancies: {
         Row: { category: string | null; employer_visible: boolean; latitude: number | null; longitude: number | null; postal_code: string | null; created_at: string; created_by: string | null; employment_type: string | null; filled_at: string | null; id: string; location: string | null; organization_id: string; pipedrive_deal_id: number | null; pricing_model: E["pricing_model"] | null; published_at: string | null; remote: boolean; salary_max: number | null; salary_min: number | null; salary_period: string; status: E["vacancy_status"]; title: string; updated_at: string }

@@ -34,7 +34,8 @@ afterAll(async () => {
   await db?.end();
 });
 
-const lastEntry = async (c: Client) => (await c.query("select actor, action, table_name, record_id, details from audit_log order by id desc limit 1")).rows[0];
+const lastEntry = async (c: Client, table?: string) =>
+  (await c.query(`select actor, action, table_name, record_id, details from audit_log ${table ? "where table_name = $1" : ""} order by id desc limit 1`, table ? [table] : [])).rows[0];
 
 describe("audit log", () => {
   it("records status changes with actor and transition", () =>
@@ -55,7 +56,7 @@ describe("audit log", () => {
       await c.query("insert into scorecard_ratings (application_id, criterion_id, rating, reason) values ($1, $2, 4, 'sehr gut')", [APP, CRIT]);
       await c.query("update scorecard_ratings set rating = 5 where application_id = $1", [APP]);
       await c.query("reset role");
-      const e = await lastEntry(c);
+      const e = await lastEntry(c, "scorecard_ratings");
       expect(e).toMatchObject({ action: "update", table_name: "scorecard_ratings", record_id: APP });
       expect(e.details).toMatchObject({ rating: { from: 4, to: 5 }, criterion_id: CRIT });
       expect(JSON.stringify(e.details)).not.toContain("sehr gut");
