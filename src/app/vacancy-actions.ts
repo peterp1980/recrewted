@@ -115,6 +115,7 @@ export async function addQuestion(formData: FormData) {
   const { data: last } = await supabase.from("screening_questions").select("position").eq("vacancy_id", vacancyId).order("position", { ascending: false }).limit(1);
   const { error } = await supabase.from("screening_questions").insert({
     vacancy_id: vacancyId, position: (last?.[0]?.position ?? 0) + 1, question: q.question, kind: q.kind, options: q.options, knockout_rule: q.knockoutRule,
+    required: q.required, criterion_id: q.criterionId, rating_map: q.ratingMap,
   });
   revalidatePath(path);
   redirect(`${path}?q=${error ? "error" : "saved"}#fragen`);

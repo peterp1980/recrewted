@@ -89,11 +89,11 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
               <div key={q.id} className={`grid gap-2 rounded-lg p-3 ${missing ? "bg-red-50" : "bg-white"}`}>
                 {q.kind === "yes_no" ? (
                   <fieldset>
-                    <legend className="mb-2">{q.question}</legend>
+                    <legend className="mb-2">{q.question}{!q.required && <span className="ml-2 text-sm text-muted">({t.recommended})</span>}</legend>
                     <div className="flex gap-3">
                       {(["yes", "no"] as const).map((a) => (
                         <label key={a} className="flex min-w-24 items-center gap-2 rounded-lg border border-neutral-300 bg-white px-4 py-3">
-                          <input type="radio" name={name} value={a} required defaultChecked={v[name] === a} />
+                          <input type="radio" name={name} value={a} required={q.required} defaultChecked={v[name] === a} />
                           {a === "yes" ? t.yes : t.no}
                         </label>
                       ))}
@@ -101,16 +101,16 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
                   </fieldset>
                 ) : q.kind === "choice" ? (
                   <label className="grid gap-2">
-                    <span>{q.question}</span>
-                    <select name={name} required defaultValue={v[name] ?? ""} className={input}>
+                    <span>{q.question}{!q.required && <span className="ml-2 text-sm text-muted">({t.recommended})</span>}</span>
+                    <select name={name} required={q.required} defaultValue={v[name] ?? ""} className={input}>
                       <option value="" disabled>{t.choose}</option>
                       {q.options?.map((o) => <option key={o} value={o}>{o}</option>)}
                     </select>
                   </label>
                 ) : (
                   <label className="grid gap-2">
-                    <span>{q.question}</span>
-                    <input name={name} required inputMode="decimal" defaultValue={v[name]} className={`${input} max-w-40`} />
+                    <span>{q.question}{!q.required && <span className="ml-2 text-sm text-muted">({t.recommended})</span>}</span>
+                    <input name={name} required={q.required} inputMode="decimal" defaultValue={v[name]} className={`${input} max-w-40`} />
                   </label>
                 )}
               </div>

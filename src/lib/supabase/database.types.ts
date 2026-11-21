@@ -116,9 +116,9 @@ export type Database = {
         Relationships: [{ foreignKeyName: "career_pages_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: true; referencedRelation: "organizations"; referencedColumns: ["id"] }]
       }
       candidates: {
-        Row: { created_at: string; email: string | null; first_name: string; id: string; last_name: string; phone: string | null; talent_pool_consent_at: string | null }
-        Insert: { created_at?: string; email?: string | null; first_name: string; id?: string; last_name: string; phone?: string | null; talent_pool_consent_at?: string | null }
-        Update: { created_at?: string; email?: string | null; first_name?: string; id?: string; last_name?: string; phone?: string | null; talent_pool_consent_at?: string | null }
+        Row: { created_at: string; email: string | null; first_name: string; id: string; last_name: string; phone: string | null; talent_pool_consent_at: string | null; profile_opt_in_at: string | null; alert_prefs: Json; last_alert_at: string | null }
+        Insert: { created_at?: string; email?: string | null; first_name: string; id?: string; last_name: string; phone?: string | null; talent_pool_consent_at?: string | null; profile_opt_in_at?: string | null; alert_prefs?: Json; last_alert_at?: string | null }
+        Update: { created_at?: string; email?: string | null; first_name?: string; id?: string; last_name?: string; phone?: string | null; talent_pool_consent_at?: string | null; profile_opt_in_at?: string | null; alert_prefs?: Json; last_alert_at?: string | null }
         Relationships: []
       }
       contact_requests: {
@@ -227,9 +227,9 @@ export type Database = {
         ]
       }
       screening_questions: {
-        Row: { id: string; kind: string; knockout_rule: Json | null; options: Json | null; position: number; question: string; vacancy_id: string }
-        Insert: { id?: string; kind: string; knockout_rule?: Json | null; options?: Json | null; position: number; question: string; vacancy_id: string }
-        Update: { id?: string; kind?: string; knockout_rule?: Json | null; options?: Json | null; position?: number; question?: string; vacancy_id?: string }
+        Row: { id: string; kind: string; knockout_rule: Json | null; options: Json | null; position: number; question: string; vacancy_id: string; required: boolean; criterion_id: string | null; rating_map: Json | null }
+        Insert: { id?: string; kind: string; knockout_rule?: Json | null; options?: Json | null; position: number; question: string; vacancy_id: string; required?: boolean; criterion_id?: string | null; rating_map?: Json | null }
+        Update: { id?: string; kind?: string; knockout_rule?: Json | null; options?: Json | null; position?: number; question?: string; vacancy_id?: string; required?: boolean; criterion_id?: string | null; rating_map?: Json | null }
         Relationships: [
           { foreignKeyName: "screening_questions_vacancy_id_fkey"; columns: ["vacancy_id"]; isOneToOne: false; referencedRelation: "vacancies"; referencedColumns: ["id"] },
         ]
@@ -257,7 +257,7 @@ export type Database = {
     Functions: {
       claim_due_mails: { Args: { max_count: number }; Returns: Database["public"]["Tables"]["mail_outbox"]["Row"][] }
       submit_application: { Args: { p: Json }; Returns: Json }
-      run_retention: { Args: { application_months?: number; click_id_days?: number; event_months?: number; mail_days?: number }; Returns: Json }
+      run_retention: { Args: { application_months?: number; click_id_days?: number; event_months?: number; mail_days?: number; pool_months?: number }; Returns: Json }
       candidate_export: { Args: { cand: string }; Returns: Json }
     }
     Enums: {

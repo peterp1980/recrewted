@@ -81,3 +81,21 @@ describe("contact requests (F21)", () => {
       expect(Number((await c.query("select count(*) from contact_requests")).rows[0].count)).toBe(0);
     }, "anon"));
 });
+
+describe("talent pool retention (0018)", () => {
+  it("deletes pool-only candidates after 24 months, keeps recent ones", () =>
+    tx(async () => {
+      await db.query("insert into candidates (first_name, last_name, email, talent_pool_consent_at) values ('Alt', 'A', 'alt@example.org', now() - interval '25 months'), ('Neu', 'N', 'neu@example.org', now() - interval '1 month')");
+      await db.query("select public.run_retention()");
+      const left = (await db.query("select email from candidates where email in ('alt@example.org', 'neu@example.org')")).rows.map((r) => r.email);
+      expect(left).toEqual(["neu@example.org"]);
+    }));
+
+  it("stores profile opt-in and alert preferences as objects only", () =>
+    tx(async () => {
+      await db.query("insert into candidates (first_name, last_name, email, profile_opt_in_at, alert_prefs) values ('P', 'P', 'p@example.org', now(), '{\"radiusKm\": 30}')");
+      await db.query("savepoint s");
+      await expect(db.query("update candidates set alert_prefs = '[]' where email = 'p@example.org'")).rejects.toThrow(/check constraint/);
+      await db.query("rollback to savepoint s");
+    }));
+});

@@ -15,6 +15,12 @@ export type ScreeningQuestion = {
   kind: QuestionKind;
   options: string[] | null;
   knockoutRule: KnockoutRule;
+  /** Recommended questions (required = false) may stay unanswered and never exclude anyone. */
+  required: boolean;
+  /** Scorecard criterion the answer suggests a rating for (0018). */
+  criterionId: string | null;
+  /** Answer → suggested rating 1..5; keys "yes"/"no" or the choice options. */
+  ratingMap: Record<string, number> | null;
 };
 
 export type Answer = boolean | string | number;
@@ -32,21 +38,53 @@ export function parseQuestionForm(form: FormData): Omit<ScreeningQuestion, "id" 
   const question = str(form.get("question"));
   const kind = str(form.get("kind")) as QuestionKind;
   if (question.length < 5 || !["yes_no", "choice", "number"].includes(kind)) return null;
+  // "Empfohlen": optional answer, no exclusion.
+  const recommended = form.get("recommended") === "on";
+  const criterionRaw = str(form.get("criterionId"));
+  const criterionId = /^[0-9a-f-]{36}$/.test(criterionRaw) ? criterionRaw : null;
+  const rating = (v: unknown) => { const n = num(v); return n !== undefined && Number.isInteger(n) && n >= 1 && n <= 5 ? n : undefined; };
+  const extra = (ratingMap: Record<string, number> | null) => ({ required: !recommended, criterionId, ratingMap: criterionId && ratingMap && Object.keys(ratingMap).length ? ratingMap : null });
 
   if (kind === "yes_no") {
     const ex = str(form.get("excludeAnswer"));
-    return { question, kind, options: null, knockoutRule: ex === "yes" || ex === "no" ? { exclude: ex } : null };
+    const map: Record<string, number> = {};
+    const y = rating(form.get("ratingYes"));
+    const n = rating(form.get("ratingNo"));
+    if (y !== undefined) map.yes = y;
+    if (n !== undefined) map.no = n;
+    return { question, kind, options: null, knockoutRule: !recommended && (ex === "yes" || ex === "no") ? { exclude: ex } : null, ...extra(map) };
   }
   if (kind === "choice") {
     const options = [...new Set(str(form.get("options"), 2000).split(/\r?\n/).map((o) => o.trim().slice(0, 120)).filter(Boolean))].slice(0, 12);
     if (options.length < 2) return null;
     const excluded = str(form.get("excludeOptions"), 2000).split(/\r?\n/).map((o) => o.trim()).filter((o) => options.includes(o));
-    return { question, kind, options, knockoutRule: excluded.length ? { excludeOptions: excluded } : null };
+    // "Option = 4", one per line
+    const map: Record<string, number> = {};
+    for (const line of str(form.get("ratings"), 2000).split(/\r?\n/)) {
+      const m = line.match(/^(.*?)\s*=\s*(\d)\s*$/);
+      const r = m ? rating(m[2]) : undefined;
+      if (m && r !== undefined && options.includes(m[1].trim())) map[m[1].trim()] = r;
+    }
+    return { question, kind, options, knockoutRule: !recommended && excluded.length ? { excludeOptions: excluded } : null, ...extra(map) };
   }
   const min = num(form.get("min"));
   const max = num(form.get("max"));
   if (min !== undefined && max !== undefined && min > max) return null;
-  return { question, kind, options: null, knockoutRule: min !== undefined || max !== undefined ? { ...(min !== undefined && { min }), ...(max !== undefined && { max }) } : null };
+  return { question, kind, options: null, knockoutRule: !recommended && (min !== undefined || max !== undefined) ? { ...(min !== undefined && { min }), ...(max !== undefined && { max }) } : null, ...extra(null) };
+}
+
+/** Reads a stored rating map (jsonb) defensively. */
+export function toRatingMap(raw: unknown): Record<string, number> | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const out = Object.fromEntries(Object.entries(raw as Record<string, unknown>).filter(([, v]) => typeof v === "number" && Number.isInteger(v) && v >= 1 && v <= 5)) as Record<string, number>;
+  return Object.keys(out).length ? out : null;
+}
+
+/** Rating the answer suggests for the linked criterion, or null. The recruiter decides. */
+export function suggestedRating(q: Pick<ScreeningQuestion, "kind" | "ratingMap">, answer: Answer | null | undefined): number | null {
+  if (!q.ratingMap || answer === null || answer === undefined) return null;
+  const key = q.kind === "yes_no" ? (answer === true ? "yes" : answer === false ? "no" : "") : String(answer);
+  return q.ratingMap[key] ?? null;
 }
 
 /** Reads a stored rule (jsonb) defensively. */
@@ -90,7 +128,7 @@ export function isKnockout(q: ScreeningQuestion, answer: Answer): boolean {
 
 export type Evaluation = { answers: Map<string, Answer>; missing: string[]; knockouts: string[] };
 
-/** Every question must be answered; returns the IDs of failed knockout questions. */
+/** Required questions must be answered (recommended ones may stay empty); returns failed knockout questions. */
 export function evaluate(questions: ScreeningQuestion[], form: FormData): Evaluation {
   const answers = new Map<string, Answer>();
   const missing: string[] = [];
@@ -98,7 +136,7 @@ export function evaluate(questions: ScreeningQuestion[], form: FormData): Evalua
   for (const q of questions) {
     const a = readAnswer(q, form);
     if (a === null) {
-      missing.push(q.id);
+      if (q.required) missing.push(q.id);
       continue;
     }
     answers.set(q.id, a);

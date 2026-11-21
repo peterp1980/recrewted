@@ -6,6 +6,7 @@ import { logRead } from "@/lib/audit";
 import { requireAccess } from "@/lib/auth/session";
 import { loadScorecard } from "@/lib/scorecard/load";
 import { RATING_LABELS, scoreText } from "@/lib/scorecard/ratings";
+import { suggestedRating, toRatingMap, type QuestionKind } from "@/lib/screening/rules";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/vacancies/paths";
@@ -38,7 +39,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
 
   const [scorecard, { data: answers }] = await Promise.all([
     loadScorecard(id),
-    supabase.from("screening_answers").select("answer, screening_questions(id, question, position)").eq("application_id", id),
+    supabase.from("screening_answers").select("answer, screening_questions(id, question, position, kind, criterion_id, rating_map)").eq("application_id", id),
   ]);
   await logRead(session.userId, "candidates", [app.candidate_id], "application_detail");
   await logRead(session.userId, "applications", [app.id], "application_detail");
@@ -52,6 +53,15 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
   const knockouts = Array.isArray(app.knockout_reasons) ? (app.knockout_reasons as string[]) : [];
   const sortedAnswers = [...(answers ?? [])].sort((a, b) => (a.screening_questions?.position ?? 0) - (b.screening_questions?.position ?? 0));
   const answerText = (a: unknown) => (a === true ? t.yes : a === false ? t.no : String(a));
+  // Recommended questions linked to a criterion suggest a rating (0018). Shown as a hint; a person rates.
+  const suggestions = new Map<string, { question: string; answer: string; rating: number }[]>();
+  for (const a of sortedAnswers) {
+    const q = a.screening_questions;
+    if (!q?.criterion_id) continue;
+    const rating = suggestedRating({ kind: q.kind as QuestionKind, ratingMap: toRatingMap(q.rating_map) }, a.answer as boolean | string | number);
+    if (rating === null) continue;
+    suggestions.set(q.criterion_id, [...(suggestions.get(q.criterion_id) ?? []), { question: q.question, answer: answerText(a.answer), rating }]);
+  }
   const missing = (m ?? "").split(",");
   const att = app.application_attribution;
   const c = app.candidates;
@@ -124,6 +134,9 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
                 <fieldset key={cr.id} className={`grid gap-2 rounded-lg p-3 ${missing.includes(cr.id) ? "bg-red-50" : "bg-white"}`}>
                   <legend className="font-medium">{cr.name} <span className="text-sm font-normal text-neutral-500">({st.weight} {cr.weight})</span></legend>
                   {cr.description && <p className="text-sm text-muted">{cr.description}</p>}
+                  {suggestions.get(cr.id)?.map((sg) => (
+                    <p key={sg.question} className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">{st.suggestion(sg.question, sg.answer, sg.rating)}</p>
+                  ))}
                   <div className="flex flex-wrap gap-2">
                     {[1, 2, 3, 4, 5].map((n) => (
                       <label key={n} className="flex items-center gap-1 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm">
