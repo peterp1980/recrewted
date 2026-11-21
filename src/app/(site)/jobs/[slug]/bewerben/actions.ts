@@ -1,6 +1,7 @@
 "use server";
 
 import { ENTRY_PARAM, entryParam } from "@/lib/careers/profile";
+import { refParam } from "@/lib/referrals/code";
 import { createAttempt, queueInvite } from "@/lib/assessments/server";
 import { prefsFromJob } from "@/lib/profile/alerts";
 import { sendProfileLink } from "@/lib/profile/server";
@@ -126,6 +127,19 @@ export async function submitApplication(_prev: ApplyState, form: FormData): Prom
   }
 
   const { application_id: applicationId, candidate_id: candidateId } = data as { application_id: string; candidate_id: string };
+
+  // Employee referral: counts only for an active referrer of the employer behind this vacancy.
+  const ref = refParam(values.ref);
+  if (ref) {
+    const [{ data: referrer }, { data: vac }] = await Promise.all([
+      admin.from("referrers").select("id, organization_id").eq("code", ref).eq("active", true).maybeSingle(),
+      admin.from("vacancies").select("organization_id").eq("id", vacancyId).single(),
+    ]);
+    if (referrer && vac && referrer.organization_id === vac.organization_id) {
+      const { error: refError } = await admin.from("application_attribution").update({ referrer_id: referrer.id }).eq("application_id", applicationId);
+      if (refError) console.error("referral attribution failed", refError.message);
+    }
+  }
 
   // Job alerts: first guess of the preferences from this job (only if none are set yet).
   if (value.talentPoolConsent) {

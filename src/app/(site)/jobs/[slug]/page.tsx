@@ -6,6 +6,7 @@ import { descriptionSections, idFromSlug, jobPath, jobPostingJsonLd, jsonLdScrip
 import { getPublicJob } from "@/lib/jobs/public";
 import { siteUrl } from "@/lib/site";
 import { entryParam } from "@/lib/careers/profile";
+import { refParam } from "@/lib/referrals/code";
 
 type Props = { params: Promise<{ slug: string }>; searchParams?: Promise<Record<string, string | string[] | undefined>> };
 
@@ -37,7 +38,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function JobPage({ params, searchParams }: Props) {
   const { slug } = await params;
   // Visitors from a customer's career page or widget keep that origin until they apply.
-  const entry = entryParam((await searchParams)?.quelle);
+  const sp = await searchParams;
+  const entry = entryParam(sp?.quelle);
+  // Employee referral code (?ref=…) is handed on to the application as well.
+  const ref = refParam(sp?.ref);
+  const applyQuery = new URLSearchParams({ ...(entry ? { quelle: entry } : {}), ...(ref ? { ref } : {}) }).toString();
   const job = await load(slug);
   const canonical = jobPath(job);
   if (`/jobs/${slug}` !== canonical) permanentRedirect(canonical);
@@ -66,7 +71,7 @@ export default async function JobPage({ params, searchParams }: Props) {
           </div>
         ))}
       </dl>
-      <ApplyBox href={`${canonical}/bewerben${entry ? `?quelle=${entry}` : ""}`} />
+      <ApplyBox href={`${canonical}/bewerben${applyQuery ? `?${applyQuery}` : ""}`} />
       {job.adText ? (
         <section className="flex flex-col gap-3">
           {job.adText.split(/\n{2,}/).map((p, i) => <p key={i} className="whitespace-pre-line">{p}</p>)}
@@ -77,7 +82,7 @@ export default async function JobPage({ params, searchParams }: Props) {
           <ul className="ml-5 list-disc">{s.items.map((i) => <li key={i}>{i}</li>)}</ul>
         </section>
       ))}
-      <ApplyBox href={`${canonical}/bewerben${entry ? `?quelle=${entry}` : ""}`} />
+      <ApplyBox href={`${canonical}/bewerben${applyQuery ? `?${applyQuery}` : ""}`} />
       <p className="text-sm text-muted">{t.posted} {dateFmt.format(new Date(job.publishedAt))}</p>
     </main>
   );

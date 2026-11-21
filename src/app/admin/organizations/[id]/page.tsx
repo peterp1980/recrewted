@@ -1,3 +1,4 @@
+import { ReferralsSection } from "@/components/ReferralsSection";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pencil } from "lucide-react";
@@ -12,12 +13,12 @@ import { domainStatus } from "@/lib/careers/vercel";
 
 export const metadata = { title: "Unternehmen – recrewted" };
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ status?: string; error?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ status?: string; error?: string; r?: string }> };
 
 const field = "rounded-lg border border-neutral-300 px-3 py-2";
 
 export default async function OrganizationPage({ params, searchParams }: Props) {
-  const [{ id }, { status, error }] = await Promise.all([params, searchParams]);
+  const [{ id }, { status, error, r }] = await Promise.all([params, searchParams]);
   const session = await requireAccess(`/admin/organizations/${id}`);
   const t = getMessages().organizations;
   const e = getMessages().editor;
@@ -133,6 +134,8 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
           <p className="text-muted">{t.notPublished}</p>
         )}
       </section>
+
+      <ReferralsSection organizationId={org.id} from="admin" status={r} />
     </main>
   );
 }

@@ -7,6 +7,7 @@ import { getPublicJob } from "@/lib/jobs/public";
 import { questionsForVacancy } from "@/lib/screening/load";
 import { ApplyForm } from "./ApplyForm";
 import { entryParam } from "@/lib/careers/profile";
+import { refParam } from "@/lib/referrals/code";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -25,6 +26,8 @@ export default async function ApplyPage({ params, searchParams }: Props) {
   const utm: Record<string, string> = Object.fromEntries(UTM.flatMap((k) => (typeof sp[k] === "string" ? [[k, (sp[k] as string).slice(0, 100)]] : [])));
   const entry = entryParam(sp.quelle);
   if (entry) utm.quelle = entry;
+  const ref = refParam(sp.ref);
+  if (ref) utm.ref = ref;
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-8">

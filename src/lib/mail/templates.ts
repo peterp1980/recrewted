@@ -1,7 +1,7 @@
 // E-mail texts to candidates. Written plainly, like a person would write them.
 // Variables are inserted as plain text; mails are sent as text/plain.
 
-export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite" | "profile_link" | "job_alert" | "status_update" | "weekly_report";
+export type MailTemplate = "application_received" | "knockout_rejection" | "invite_interview" | "rejection" | "question" | "data_request" | "assessment_invite" | "profile_link" | "job_alert" | "status_update" | "weekly_report" | "pool_invite";
 
 export type MailData = {
   firstName: string;
@@ -55,6 +55,10 @@ const statusMail = (d: MailData, du: boolean) => {
 
 const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: string }> = {
   status_update: (d) => statusMail(d, false),
+  pool_invite: (d) => ({
+    subject: `Eine Stelle, die zu Ihnen passen könnte: ${d.jobTitle}`,
+    text: `Hallo ${d.firstName},\n\nSie haben uns erlaubt, uns bei passenden Stellen zu melden – hier ist eine: ${d.jobTitle}${at(d)}.\n\n${d.message ? `${d.message}\n\n` : ""}Alle Infos und die Bewerbung in zwei Minuten:\n${d.link ?? ""}\n\nKein Interesse? Dann müssen Sie nichts tun. In Ihrem Bewerberprofil können Sie die Benachrichtigungen jederzeit abschalten.\n\n${sign(d)}`,
+  }),
   weekly_report: (d) => ({
     subject: `Ihr Wochenbericht – ${d.organization ?? ""}`,
     text: `Hallo ${d.firstName},\n\nhier der Stand Ihrer Stellen in der letzten Woche:\n\n${(d.lines ?? []).map((l) => `${l.title}\n${l.text}`).join("\n\n")}\n\nShortlist, Bewertungsbögen und den Bericht als PDF finden Sie im Kundenportal:\n${d.link ?? ""}\n\n${sign(d)}`,
@@ -101,6 +105,10 @@ const TEMPLATES: Record<MailTemplate, (d: MailData) => { subject: string; text: 
 // they come from recrewted, not from an employer.
 const TEMPLATES_DU: Partial<Record<MailTemplate, (d: MailData) => { subject: string; text: string }>> = {
   status_update: (d) => statusMail(d, true),
+  pool_invite: (d) => ({
+    subject: `Eine Stelle, die zu dir passen könnte: ${d.jobTitle}`,
+    text: `Hallo ${d.firstName},\n\ndu hast uns erlaubt, uns bei passenden Stellen zu melden – hier ist eine: ${d.jobTitle}${at(d)}.\n\n${d.message ? `${d.message}\n\n` : ""}Alle Infos und die Bewerbung in zwei Minuten:\n${d.link ?? ""}\n\nKein Interesse? Dann musst du nichts tun. In deinem Bewerberprofil kannst du die Benachrichtigungen jederzeit abschalten.\n\n${sign(d)}`,
+  }),
   application_received: (d) => ({
     subject: `Deine Bewerbung als ${d.jobTitle}`,
     text: `Hallo ${d.firstName},\n\ndanke für deine Bewerbung als ${d.jobTitle}${at(d)}. Sie ist gut bei uns angekommen.\n\nWir schauen sie uns in den nächsten Tagen an und melden uns bei dir – egal, wie es ausgeht.\n\n${sign(d)}`,

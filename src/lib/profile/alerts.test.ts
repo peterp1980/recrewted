@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { emptyBriefing } from "@/lib/briefing/schema";
 import type { PublicJob } from "@/lib/jobs/format";
-import { matchJobs, parsePrefs, prefsFromForm, prefsFromJob } from "./alerts";
+import { comparePoolFit, matchJobs, parsePrefs, poolFit, prefsFromForm, prefsFromJob } from "./alerts";
 
 const job = (o: Partial<PublicJob>): PublicJob => ({
   id: "x", title: "Job", location: "Witten", postalCode: "58452", latitude: 51.44, longitude: 7.33, remote: false,
@@ -38,5 +38,26 @@ describe("matching", () => {
   it("treats empty preferences as 'any' and caps the list", () => {
     const jobs = Array.from({ length: 9 }, (_, i) => job({ id: String(i), category: "office" }));
     expect(matchJobs(parsePrefs({}), jobs, { since, applied: new Set(), origin: null })).toHaveLength(5);
+  });
+});
+
+describe("talent pool fit", () => {
+  const v = { category: "logistics", employmentType: "full_time", latitude: 51.44, longitude: 7.33, remote: false };
+  it("applies category, type and radius like the alert", () => {
+    expect(poolFit(parsePrefs({ categories: ["logistics"], postalCode: "58452", radiusKm: 25 }), v, { lat: 51.44, lng: 7.33 })).toEqual({ fits: true, distanceKm: 0, categoryMatch: true });
+    expect(poolFit(parsePrefs({ categories: ["office"] }), v, null).fits).toBe(false);
+    expect(poolFit(parsePrefs({ types: ["part_time"] }), v, null).fits).toBe(false);
+    expect(poolFit(parsePrefs({ postalCode: "80339", radiusKm: 25 }), v, { lat: 48.14, lng: 11.55 }).fits).toBe(false);
+    expect(poolFit(parsePrefs({ postalCode: "80339", radiusKm: 25 }), { ...v, remote: true }, { lat: 48.14, lng: 11.55 }).fits).toBe(true);
+    expect(poolFit(parsePrefs({}), v, null)).toEqual({ fits: true, distanceKm: null, categoryMatch: false });
+  });
+  it("ranks explicit category matches first, then by distance", () => {
+    const list = [
+      { id: "any", f: { fits: true, distanceKm: 1, categoryMatch: false } },
+      { id: "far", f: { fits: true, distanceKm: 40, categoryMatch: true } },
+      { id: "near", f: { fits: true, distanceKm: 5, categoryMatch: true } },
+      { id: "unknown", f: { fits: true, distanceKm: null, categoryMatch: true } },
+    ];
+    expect(list.sort((a, b) => comparePoolFit(a.f, b.f)).map((x) => x.id)).toEqual(["near", "far", "unknown", "any"]);
   });
 });

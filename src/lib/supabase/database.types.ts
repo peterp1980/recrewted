@@ -46,10 +46,10 @@ export type Database = {
         Relationships: Rel[]
       }
       application_attribution: {
-        Row: { marketing_consent: boolean; ad_account_owner: E["account_owner"] | null; application_id: string; campaign_id: string | null; channel: string | null; click_id: string | null; click_id_expires_at: string | null; click_id_type: string | null; entry_point: E["entry_point"]; utm_campaign: string | null; utm_content: string | null; utm_medium: string | null; utm_source: string | null }
-        Insert: { marketing_consent?: boolean; ad_account_owner?: E["account_owner"] | null; application_id: string; campaign_id?: string | null; channel?: string | null; click_id?: string | null; click_id_expires_at?: string | null; click_id_type?: string | null; entry_point: E["entry_point"]; utm_campaign?: string | null; utm_content?: string | null; utm_medium?: string | null; utm_source?: string | null }
-        Update: { marketing_consent?: boolean; ad_account_owner?: E["account_owner"] | null; application_id?: string; campaign_id?: string | null; channel?: string | null; click_id?: string | null; click_id_expires_at?: string | null; click_id_type?: string | null; entry_point?: E["entry_point"]; utm_campaign?: string | null; utm_content?: string | null; utm_medium?: string | null; utm_source?: string | null }
-        Relationships: [
+        Row: { referrer_id: string | null; marketing_consent: boolean; ad_account_owner: E["account_owner"] | null; application_id: string; campaign_id: string | null; channel: string | null; click_id: string | null; click_id_expires_at: string | null; click_id_type: string | null; entry_point: E["entry_point"]; utm_campaign: string | null; utm_content: string | null; utm_medium: string | null; utm_source: string | null }
+        Insert: { referrer_id?: string | null; marketing_consent?: boolean; ad_account_owner?: E["account_owner"] | null; application_id: string; campaign_id?: string | null; channel?: string | null; click_id?: string | null; click_id_expires_at?: string | null; click_id_type?: string | null; entry_point: E["entry_point"]; utm_campaign?: string | null; utm_content?: string | null; utm_medium?: string | null; utm_source?: string | null }
+        Update: { referrer_id?: string | null; marketing_consent?: boolean; ad_account_owner?: E["account_owner"] | null; application_id?: string; campaign_id?: string | null; channel?: string | null; click_id?: string | null; click_id_expires_at?: string | null; click_id_type?: string | null; entry_point?: E["entry_point"]; utm_campaign?: string | null; utm_content?: string | null; utm_medium?: string | null; utm_source?: string | null }
+        Relationships: [{ foreignKeyName: "application_attribution_referrer_id_fkey"; columns: ["referrer_id"]; isOneToOne: false; referencedRelation: "referrers"; referencedColumns: ["id"] }, 
           { foreignKeyName: "application_attribution_application_id_fkey"; columns: ["application_id"]; isOneToOne: true; referencedRelation: "applications"; referencedColumns: ["id"] },
           { foreignKeyName: "application_attribution_campaign_id_fkey"; columns: ["campaign_id"]; isOneToOne: false; referencedRelation: "campaigns"; referencedColumns: ["id"] },
         ]
@@ -226,6 +226,12 @@ export type Database = {
           { foreignKeyName: "screening_answers_question_id_fkey"; columns: ["question_id"]; isOneToOne: false; referencedRelation: "screening_questions"; referencedColumns: ["id"] },
         ]
       }
+      referrers: {
+        Row: { id: string; organization_id: string; name: string; email: string | null; code: string; active: boolean; created_by: string | null; created_at: string }
+        Insert: { id?: string; organization_id: string; name: string; email?: string | null; code: string; active?: boolean; created_by?: string | null; created_at?: string }
+        Update: { id?: string; organization_id?: string; name?: string; email?: string | null; code?: string; active?: boolean; created_by?: string | null; created_at?: string }
+        Relationships: [{ foreignKeyName: "referrers_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: false; referencedRelation: "organizations"; referencedColumns: ["id"] }]
+      }
       screening_questions: {
         Row: { id: string; kind: string; knockout_rule: Json | null; options: Json | null; position: number; question: string; vacancy_id: string; required: boolean; criterion_id: string | null; rating_map: Json | null }
         Insert: { id?: string; kind: string; knockout_rule?: Json | null; options?: Json | null; position: number; question: string; vacancy_id: string; required?: boolean; criterion_id?: string | null; rating_map?: Json | null }
@@ -257,6 +263,7 @@ export type Database = {
     Functions: {
       claim_due_mails: { Args: { max_count: number }; Returns: Database["public"]["Tables"]["mail_outbox"]["Row"][] }
       submit_application: { Args: { p: Json }; Returns: Json }
+      referral_stats: { Args: { org: string }; Returns: { referrer_id: string; applications: number; shortlisted: number; hired: number }[] }
       queue_pending_reminders: { Args: { days?: number }; Returns: number }
       run_retention: { Args: { application_months?: number; click_id_days?: number; event_months?: number; mail_days?: number; pool_months?: number }; Returns: Json }
       candidate_export: { Args: { cand: string }; Returns: Json }

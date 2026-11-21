@@ -49,3 +49,25 @@ export function matchJobs(prefs: AlertPrefs, jobs: PublicJob[], opts: { since: D
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
     .slice(0, MAX_JOBS_PER_ALERT);
 }
+
+export type PoolVacancy = { category: string | null; employmentType: string | null; latitude: number | null; longitude: number | null; remote: boolean };
+export type PoolFit = { fits: boolean; distanceKm: number | null; categoryMatch: boolean };
+
+/**
+ * Does a talent pool candidate's wish list fit a vacancy? Same rules as the job alert:
+ * empty lists mean "any", the radius counts only when both sides have coordinates.
+ */
+export function poolFit(prefs: AlertPrefs, v: PoolVacancy, origin: { lat: number; lng: number } | null): PoolFit {
+  const categoryMatch = v.category !== null && prefs.categories.includes(v.category as Category);
+  const catOk = prefs.categories.length === 0 || categoryMatch;
+  const typeOk = prefs.types.length === 0 || (v.employmentType !== null && prefs.types.includes(v.employmentType as EmploymentType));
+  const distance = origin && v.latitude !== null && v.longitude !== null ? Math.round(distanceKm(origin, { lat: v.latitude, lng: v.longitude })) : null;
+  const radiusOk = v.remote || distance === null || !prefs.radiusKm || distance <= prefs.radiusKm;
+  return { fits: catOk && typeOk && radiusOk, distanceKm: distance, categoryMatch };
+}
+
+/** Explicit category match first, then nearest, unknown distance last. */
+export function comparePoolFit(a: PoolFit, b: PoolFit): number {
+  if (a.categoryMatch !== b.categoryMatch) return a.categoryMatch ? -1 : 1;
+  return (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity);
+}

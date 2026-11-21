@@ -11,6 +11,9 @@ import { getSession } from "@/lib/auth/session";
 import { mailConfigured } from "@/lib/mail/send";
 import { processDueMails } from "@/lib/mail/outbox";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { jobPath } from "@/lib/jobs/format";
+import { siteUrl } from "@/lib/site";
 import { isUuid } from "@/lib/vacancies/paths";
 
 // Recruiter actions: build tests per vacancy, send them, score open answers.
@@ -151,4 +154,43 @@ export async function scoreAssessmentAnswer(form: FormData) {
   await supabase.from("assessment_attempts").update({ manual_points: manual, reviewed_at: new Date().toISOString(), reviewed_by: session.userId }).eq("id", ans.attempt_id);
   revalidatePath(`/admin/applications/${applicationId}`);
   redirect(applicationPage(applicationId, "scored"));
+}
+
+/** Recruiter invites a talent pool candidate to apply for a vacancy (once per vacancy). */
+export async function invitePoolCandidate(form: FormData) {
+  const session = await staff();
+  const vacancyId = String(form.get("vacancyId") ?? "");
+  const candidateId = String(form.get("candidateId") ?? "");
+  const message = String(form.get("message") ?? "").trim().slice(0, 1000) || null;
+  if (!isUuid(vacancyId) || !isUuid(candidateId)) redirect("/admin");
+  const back = (q: string) => `/admin/vacancies/${vacancyId}?p=${q}#talentpool`;
+  const supabase = await createClient();
+  const [{ data: c }, { data: v }] = await Promise.all([
+    supabase.from("candidates").select("first_name, email, talent_pool_consent_at").eq("id", candidateId).single(),
+    supabase.from("vacancies").select("id, title, location, status, employer_visible, organizations(name, candidate_tone)").eq("id", vacancyId).single(),
+  ]);
+  if (!c?.email || !c.talent_pool_consent_at || !v) redirect(back("error"));
+  if (v.status !== "active") redirect(back("inactive"));
+  const admin = createAdminClient();
+  const { count } = await admin.from("mail_outbox").select("id", { count: "exact", head: true }).eq("candidate_id", candidateId).eq("template", "pool_invite").contains("data", { vacancyId });
+  if ((count ?? 0) > 0) redirect(back("already"));
+  const { error } = await admin.from("mail_outbox").insert({
+    candidate_id: candidateId,
+    to_email: c.email,
+    template: "pool_invite",
+    data: {
+      vacancyId,
+      firstName: c.first_name,
+      jobTitle: v.title,
+      employer: v.employer_visible ? (v.organizations?.name ?? null) : null,
+      link: `${siteUrl()}${jobPath({ id: v.id, title: v.title, location: v.location })}?utm_source=recrewted&utm_medium=email&utm_campaign=talentpool`,
+      message,
+      tone: v.organizations?.candidate_tone === "du" ? "du" : "sie",
+      senderName: session.fullName,
+    },
+  });
+  if (!error) await admin.from("audit_log").insert({ actor: session.userId, action: "pool_invite", table_name: "candidates", record_id: candidateId, details: { vacancyId } });
+  after(() => processDueMails(5).catch((e) => console.error("mail processing failed", e)));
+  revalidatePath(`/admin/vacancies/${vacancyId}`);
+  redirect(back(error ? "error" : "sent"));
 }

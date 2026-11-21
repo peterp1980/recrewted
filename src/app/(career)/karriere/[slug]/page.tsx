@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CareerSections } from "@/components/career/CareerSections";
+import { RefLinks } from "@/components/career/RefLinks";
 import { getMessages } from "@/i18n";
 import { jobCards } from "@/lib/careers/cards";
 import { jsonLdScript } from "@/lib/jobs/format";
@@ -50,6 +51,7 @@ export default async function CareerPage({ params }: Props) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }} />
       <CareerSections doc={page.doc} name={page.name} website={page.website} color={page.brandColor} tone={page.tone} jobs={jobCards(page.jobs)} />
+      <RefLinks />
     </>
   );
 }
