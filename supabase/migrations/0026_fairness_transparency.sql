@@ -30,8 +30,8 @@ $$;
 revoke execute on function private.customer_can_see_identity(uuid) from public, anon;
 grant execute on function private.customer_can_see_identity(uuid) to authenticated;
 
-drop policy candidates_member_read on public.candidates;
-create policy candidates_member_read on public.candidates for select to authenticated
+-- Changed in place (same policy name and role), so there is no moment without a read rule.
+alter policy candidates_member_read on public.candidates
   using (exists (
     select 1 from public.applications ap
     where ap.candidate_id = candidates.id and private.customer_can_see_identity(ap.id)
