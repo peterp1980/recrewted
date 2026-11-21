@@ -71,7 +71,7 @@ export default async function JobPage({ params, searchParams }: Props) {
         <section className="flex flex-col gap-3">
           {job.adText.split(/\n{2,}/).map((p, i) => <p key={i} className="whitespace-pre-line">{p}</p>)}
         </section>
-      ) : descriptionSections(job.briefing).map((s) => (
+      ) : descriptionSections(job.briefing, job.tone).map((s) => (
         <section key={s.title} className="flex flex-col gap-2">
           <h2 className="text-xl font-semibold text-accent-700">{s.title}</h2>
           <ul className="ml-5 list-disc">{s.items.map((i) => <li key={i}>{i}</li>)}</ul>

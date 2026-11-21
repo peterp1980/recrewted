@@ -56,6 +56,8 @@ describe("JobPosting", () => {
 
   it("escapes HTML in the description", () => {
     expect(descriptionHtml(job.briefing)).toContain("Wartung &lt;Anlagen&gt;");
+    expect(descriptionHtml(job.briefing)).toContain("Ihre Aufgaben");
+    expect(descriptionHtml(job.briefing, null, "du")).toContain("Deine Aufgaben");
     expect(descriptionHtml(job.briefing, "Absatz <b>1</b>\nZeile\n\nAbsatz 2")).toBe("<p>Absatz &lt;b&gt;1&lt;/b&gt;<br>Zeile</p><p>Absatz 2</p>");
   });
 

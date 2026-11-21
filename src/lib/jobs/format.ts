@@ -76,18 +76,19 @@ const htmlList = (title: string, items: string[]) =>
   items.length ? `<h3>${escapeHtml(title)}</h3><ul>${items.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>` : "";
 
 /** Sections shown on the detail page and used as HTML description for Google. */
-export function descriptionSections(b: Briefing): { title: string; items: string[] }[] {
+export function descriptionSections(b: Briefing, tone: "sie" | "du" = "sie"): { title: string; items: string[] }[] {
+  const du = tone === "du";
   return [
-    { title: "Ihre Aufgaben", items: b.tasks },
-    { title: "Das bringen Sie mit", items: b.mustHave },
+    { title: du ? "Deine Aufgaben" : "Ihre Aufgaben", items: b.tasks },
+    { title: du ? "Das bringst du mit" : "Das bringen Sie mit", items: b.mustHave },
     { title: "Von Vorteil", items: b.niceToHave },
     { title: "Das bieten wir", items: b.benefits },
   ].filter((s) => s.items.length > 0);
 }
 
-export function descriptionHtml(b: Briefing, adText: string | null = null): string {
+export function descriptionHtml(b: Briefing, adText: string | null = null, tone: "sie" | "du" = "sie"): string {
   if (adText) return adText.split(/\n{2,}/).map((p) => `<p>${escapeHtml(p).replace(/\n/g, "<br>")}</p>`).join("");
-  return descriptionSections(b).map((s) => htmlList(s.title, s.items)).join("");
+  return descriptionSections(b, tone).map((s) => htmlList(s.title, s.items)).join("");
 }
 
 const SCHEMA_EMPLOYMENT: Record<EmploymentType, string> = {
@@ -113,7 +114,7 @@ export function jobPostingJsonLd(job: PublicJob, siteUrl: string): Record<string
     "@context": "https://schema.org/",
     "@type": "JobPosting",
     title: job.title,
-    description: descriptionHtml(job.briefing, job.adText) || escapeHtml(job.title),
+    description: descriptionHtml(job.briefing, job.adText, job.tone) || escapeHtml(job.title),
     identifier: { "@type": "PropertyValue", name: "recrewted", value: job.id },
     datePosted: job.publishedAt,
     validThrough,

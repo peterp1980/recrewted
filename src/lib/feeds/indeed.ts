@@ -24,7 +24,7 @@ export function indeedFeed(jobs: PublicJob[], siteUrl: string, now = new Date())
       `<postalcode>${cdata(j.remote ? "" : (j.postalCode ?? ""))}</postalcode>`,
       "<country><![CDATA[DE]]></country>",
       j.remote ? "<remotetype><![CDATA[Fully remote]]></remotetype>" : "",
-      `<description>${cdata(descriptionHtml(j.briefing, j.adText))}</description>`,
+      `<description>${cdata(descriptionHtml(j.briefing, j.adText, j.tone))}</description>`,
       salary ? `<salary>${cdata(salary)}</salary>` : "",
       j.employmentType ? `<jobtype>${cdata(JOBTYPE[j.employmentType])}</jobtype>` : "",
       "</job>",
