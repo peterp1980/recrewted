@@ -9,13 +9,14 @@ import { matchesText, type JobFilters } from "./filters";
 // CRM IDs and internal status never leave the server.
 
 const COLUMNS =
-  "id, title, location, postal_code, latitude, longitude, remote, employment_type, category, salary_min, salary_max, salary_period, published_at, employer_visible, organizations(name, website), vacancy_briefings(data)";
+  "id, title, location, postal_code, latitude, longitude, remote, employment_type, category, salary_min, salary_max, salary_period, published_at, employer_visible, organizations(name, website), vacancy_briefings(data), job_ads(channel, status, body, version)";
 
 type Row = {
   id: string; title: string; location: string | null; postal_code: string | null; latitude: number | null; longitude: number | null;
   remote: boolean; employment_type: string | null; category: string | null; salary_min: number | null; salary_max: number | null;
   salary_period: string; published_at: string | null; employer_visible: boolean;
   organizations: { name: string; website: string | null } | null; vacancy_briefings: { data: unknown } | null;
+  job_ads: { channel: string; status: string; body: string; version: number }[] | null;
 };
 
 function toPublic(r: Row): PublicJob {
@@ -37,6 +38,7 @@ function toPublic(r: Row): PublicJob {
     employerName: r.employer_visible ? (r.organizations?.name ?? null) : null,
     employerWebsite: r.employer_visible ? (r.organizations?.website ?? null) : null,
     briefing,
+    adText: (r.job_ads ?? []).filter((a) => a.channel === "portal" && a.status === "approved").sort((a, b) => b.version - a.version)[0]?.body ?? null,
   };
 }
 

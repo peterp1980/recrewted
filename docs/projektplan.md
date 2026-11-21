@@ -54,7 +54,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | # | Feature | Tage |
 | --- | --- | --- |
 | 15 | F12 Herkunft bis Einstellung + Server-Conversions (4 Plattformen) | 8 |
-| 16 | F8 Job-Ad-Generator mit AGG-Prüfung | 5 |
+| 16 | F8 Job-Ad-Generator mit AGG-Prüfung | gebaut (Branch `mvp`) |
 | 17 | F9 Portale (Indeed-Feed, BA; StepStone je Vertrag) | 5 |
 | 18 | F11 Stelle besetzt → überall offline (≤ 1 h) | gebaut (Branch `mvp`); Pausieren auf den Werbeplattformen braucht API-Zugang |
 | 19 | F21 B2B-Seiten + Redirects (abhängig vom Design) | 4 |

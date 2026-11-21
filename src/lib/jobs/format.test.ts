@@ -8,6 +8,7 @@ const job: PublicJob = {
   remote: false, employmentType: "full_time", category: "craft", salaryMin: 42000, salaryMax: 52000, salaryPeriod: "year",
   publishedAt: "2026-11-01T10:00:00.000Z", employerName: "Muster GmbH", employerWebsite: "https://muster.de",
   briefing: { ...emptyBriefing(), tasks: ["Wartung <Anlagen>"], mustHave: ["Ausbildung"] },
+  adText: null,
 };
 
 describe("urls", () => {
@@ -54,6 +55,7 @@ describe("JobPosting", () => {
 
   it("escapes HTML in the description", () => {
     expect(descriptionHtml(job.briefing)).toContain("Wartung &lt;Anlagen&gt;");
+    expect(descriptionHtml(job.briefing, "Absatz <b>1</b>\nZeile\n\nAbsatz 2")).toBe("<p>Absatz &lt;b&gt;1&lt;/b&gt;<br>Zeile</p><p>Absatz 2</p>");
   });
 
   it("names recrewted for confidential searches and marks remote jobs", () => {

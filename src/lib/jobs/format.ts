@@ -19,6 +19,8 @@ export type PublicJob = {
   employerName: string | null;
   employerWebsite: string | null;
   briefing: Briefing;
+  /** Approved portal text (F8), shown instead of the briefing sections when present. */
+  adText: string | null;
 };
 
 const UMLAUTS: Record<string, string> = { ä: "ae", ö: "oe", ü: "ue", ß: "ss" };
@@ -81,7 +83,8 @@ export function descriptionSections(b: Briefing): { title: string; items: string
   ].filter((s) => s.items.length > 0);
 }
 
-export function descriptionHtml(b: Briefing): string {
+export function descriptionHtml(b: Briefing, adText: string | null = null): string {
+  if (adText) return adText.split(/\n{2,}/).map((p) => `<p>${escapeHtml(p).replace(/\n/g, "<br>")}</p>`).join("");
   return descriptionSections(b).map((s) => htmlList(s.title, s.items)).join("");
 }
 
@@ -108,7 +111,7 @@ export function jobPostingJsonLd(job: PublicJob, siteUrl: string): Record<string
     "@context": "https://schema.org/",
     "@type": "JobPosting",
     title: job.title,
-    description: descriptionHtml(job.briefing) || escapeHtml(job.title),
+    description: descriptionHtml(job.briefing, job.adText) || escapeHtml(job.title),
     identifier: { "@type": "PropertyValue", name: "recrewted", value: job.id },
     datePosted: job.publishedAt,
     validThrough,

@@ -64,7 +64,11 @@ export default async function JobPage({ params }: Props) {
         ))}
       </dl>
       <ApplyBox href={`${canonical}/bewerben`} />
-      {descriptionSections(job.briefing).map((s) => (
+      {job.adText ? (
+        <section className="flex flex-col gap-3">
+          {job.adText.split(/\n{2,}/).map((p, i) => <p key={i} className="whitespace-pre-line">{p}</p>)}
+        </section>
+      ) : descriptionSections(job.briefing).map((s) => (
         <section key={s.title} className="flex flex-col gap-2">
           <h2 className="text-xl font-semibold">{s.title}</h2>
           <ul className="ml-5 list-disc">{s.items.map((i) => <li key={i}>{i}</li>)}</ul>
