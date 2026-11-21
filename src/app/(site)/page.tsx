@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, Check, ChevronDown, X } from "lucide-react";
@@ -143,8 +144,12 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-4 py-8 md:flex-row md:justify-between">
           <p className="text-sm text-muted md:max-w-56">{t.trustLabel}</p>
           <ul className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3">
-            {site.cases.items.map((c) => (
-              <li key={c.name} className="font-display text-xl font-bold tracking-tight text-neutral-400">{c.name}</li>
+            {[site.cases.featured, ...site.cases.items].map((c) => (
+              <li key={c.name}>
+                <Link href="/cases" className="block opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0">
+                  <Image src={c.logo} alt={c.name} width={200} height={70} className="h-10 w-auto" />
+                </Link>
+              </li>
             ))}
           </ul>
         </div>

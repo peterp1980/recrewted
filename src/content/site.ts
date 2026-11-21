@@ -23,7 +23,7 @@ export const site = {
       { value: "100 %", label: "der Kandidaten auf der Shortlist mit begründeter Bewertung" },
     ],
     // TODO(projx): names approved for the website? Same list as on /cases.
-    trustLabel: "Das Team hinter recrewted hat Recruiting-Kampagnen umgesetzt für",
+    trustLabel: "Kunden und Partner",
     compare: {
       title: "Anders als eine Stellenanzeige",
       lead: "Eine Anzeige bringt Bewerbungen. Wir liefern Kandidaten, die zu Ihren Kriterien passen – und zeigen, warum.",
@@ -76,13 +76,35 @@ export const site = {
   },
   cases: {
     title: "Cases",
-    lead: "Unternehmen, mit denen das Team hinter recrewted gearbeitet hat.",
-    // TODO(projx): replace placeholders with approved descriptions – no figures (decision in Lastenheft F21).
+    lead: "Was wir für Kunden erreicht haben – und was sie selbst darüber sagen.",
+    // Main case, taken from the old site (recrewted.de/erfolgsgeschichte-stepin). Figures as published there.
+    featured: {
+      name: "Stepin GmbH",
+      logo: "/cases/stepin-logo.png",
+      mark: "/cases/stepin-mark.png",
+      eyebrow: "Erfolgsgeschichte",
+      headline: "11 Stellen in zwei Monaten besetzt",
+      about: "Stepin steht für „Student Travel & Education Programmes International“ und wurde 1997 in Bonn gegründet. Das Unternehmen vermittelt Schüleraustausch, Au-pair- und Work-&-Travel-Programme.",
+      goal: "Stepin wuchs schnell und musste mehrere Stellen im Team dringend besetzen.",
+      challengeText: "Anzeigen schreiben, Bewerbungen sichten, Gespräche führen: Recruiting kostete viel Zeit, die für das Wachstum gebraucht wurde. Dazu kamen:",
+      challenges: ["Hohe Kosten", "Unpassende Bewerbungen", "Zu wenige Stellen besetzt", "Zu wenig Reichweite"],
+      solution: "Mit recrewted bekam Stepin innerhalb einer Woche eine eigene Karriereseite mit allen offenen Stellen, dazu neue Stellenanzeigen.",
+      results: [
+        { value: "11", label: "neue Mitarbeitende", text: "Alle offenen Stellen besetzt, mit deutlich passenderen Profilen." },
+        { value: "2 Monate", label: "bis alles besetzt war", text: "Alle 11 Stellen innerhalb von zwei Monaten besetzt." },
+        { value: "86 %", label: "geringere Kosten", text: "Im Vergleich zu den sonst üblichen Jobportalen." },
+        { value: "1 Woche", label: "bis zur Karriereseite", text: "Eigene Karriereseite mit allen Stellen, nach Stepins Wünschen." },
+      ],
+      quote: "recrewted hat meine Erwartungen in jeder Hinsicht übertroffen! Die Anwendung ist so unkompliziert, dass ich Zeit und Nerven gespart habe. Die Qualität der Bewerber, die wir durch recrewted gefunden haben, war beeindruckend hoch. Und der finanzielle Aspekt? Absolut unschlagbar im Vergleich zu anderen Recruiting-Portalen! Wer eine effiziente, qualitätsorientierte und kostengünstige Lösung fürs Recruiting sucht, ist mit recrewted an der richtigen Adresse!",
+      quoteBy: "Julia M. Proksch",
+      quoteRole: "Operational Excellence, Stepin",
+      quotePhoto: "/cases/stepin-testimonial.jpg",
+    },
+    // TODO(projx): short approved descriptions for Randstad and Hafermann (what we did, no figures yet).
     items: [
-      { name: "GULP", text: "Beschreibung folgt." },
-      { name: "Randstad", text: "Beschreibung folgt." },
-      { name: "Workerhero", text: "Beschreibung folgt." },
-      { name: "XING Jobs", text: "Beschreibung folgt." },
+      { name: "GULP", logo: "/cases/gulp.png", text: "Personaldienstleister für IT, Engineering und Life Science – im harten Wettbewerb mit bundesweiten Anbietern und internationalen Freelancer-Portalen." },
+      { name: "Randstad", logo: "/cases/randstad.png", text: "Internationaler Personaldienstleister." },
+      { name: "Hafermann Reisen", logo: "/cases/hafermann.png", text: "Reiseunternehmen." },
     ],
   },
   contact: {

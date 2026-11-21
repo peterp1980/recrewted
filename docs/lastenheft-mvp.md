@@ -146,7 +146,7 @@ Status einer Vakanz: `draft → contract_pending → active → paused → fille
 
 ### Website
 
-**F21 B2B-Seiten neu** – Startseite, Leistungen, Pakete, Cases (GULP, Randstad, Workerhero, XING Jobs – ohne Zahlen), Kontakt; saubere Meta-Daten; Redirects von `jobs.recrewted.de` und Altseiten.
+**F21 B2B-Seiten neu** – Startseite, Leistungen, Pakete, Cases (Hauptcase Stepin mit den Zahlen aus der veröffentlichten Erfolgsgeschichte; GULP, Randstad, Hafermann Reisen als Kacheln mit Logo – Entscheidung Peter 21.11.2026), Kontakt; saubere Meta-Daten; Redirects von `jobs.recrewted.de` und Altseiten.
 
 ## 5. Nicht im MVP
 
