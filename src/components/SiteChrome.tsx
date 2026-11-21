@@ -8,6 +8,10 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <Link href="/" className="text-lg font-semibold">recrewted</Link>
         <nav aria-label="Hauptnavigation" className="flex gap-4 text-sm">
+          <Link href="/leistungen" className="hidden hover:underline sm:inline">Leistungen</Link>
+          <Link href="/pakete" className="hidden hover:underline sm:inline">Pakete</Link>
+          <Link href="/cases" className="hidden hover:underline sm:inline">Cases</Link>
+          <Link href="/kontakt" className="hover:underline">Kontakt</Link>
           <Link href="/jobs" className="hover:underline">Jobs</Link>
           <Link href="/login" className="hover:underline">Anmelden</Link>
         </nav>

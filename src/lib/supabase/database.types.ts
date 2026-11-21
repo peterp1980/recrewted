@@ -85,6 +85,12 @@ export type Database = {
         Update: { created_at?: string; email?: string | null; first_name?: string; id?: string; last_name?: string; phone?: string | null; talent_pool_consent_at?: string | null }
         Relationships: []
       }
+      contact_requests: {
+        Row: { company: string | null; created_at: string; email: string; handled_at: string | null; id: string; message: string; name: string; phone: string | null }
+        Insert: { company?: string | null; created_at?: string; email: string; handled_at?: string | null; id?: string; message: string; name: string; phone?: string | null }
+        Update: { company?: string | null; created_at?: string; email?: string; handled_at?: string | null; id?: string; message?: string; name?: string; phone?: string | null }
+        Relationships: []
+      }
       conversion_log: {
         Row: { created_at: string; detail: string | null; event_id: number; id: number; platform: string; status: string }
         Insert: { created_at?: string; detail?: string | null; event_id: number; id?: never; platform: string; status: string }

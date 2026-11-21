@@ -33,7 +33,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | # | Feature | Tage |
 | --- | --- | --- |
 | 0 | Grundgerüst, Migration, RLS-Tests, CI | erledigt |
-| 1 | F18 Fehler-Monitoring, Backups (nur eine Umgebung: prod) | 1 |
+| 1 | F18 Fehler-Monitoring, Backups (nur eine Umgebung: prod) | gebaut (Branch `mvp`), siehe docs/betrieb.md |
 | 2 | F17 Login (Magic Link, nur Einladung), Nutzerverwaltung Admin | gebaut (Branch `mvp`), Test im Dashboard offen |
 | 3 | F19 Protokoll (Änderungen per Trigger, Lesezugriffe in der App) | gebaut (Branch `mvp`) |
 | 4 | F13 Briefing → Suchprofil | gebaut (Branch `mvp`) |
@@ -57,7 +57,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | 16 | F8 Job-Ad-Generator mit AGG-Prüfung | gebaut (Branch `mvp`) |
 | 17 | F9 Portale (Indeed-Feed, BA; StepStone je Vertrag) | Indeed-Feed + Status gebaut (Branch `mvp`); BA und StepStone warten auf Verträge |
 | 18 | F11 Stelle besetzt → überall offline (≤ 1 h) | gebaut (Branch `mvp`); Pausieren auf den Werbeplattformen braucht API-Zugang |
-| 19 | F21 B2B-Seiten + Redirects (abhängig vom Design) | 4 |
+| 19 | F21 B2B-Seiten + Redirects (abhängig vom Design) | gebaut (Branch `mvp`); Design, Case-Texte und alte URLs offen |
 | 20 | Härtung: E2E-Tests Abläufe 1–9, WCAG 2.2 AA, Lighthouse ≥ 90, Pentest-Vorbereitung | 5 |
 | | **Summe M2** | **≈ 29** |
 
@@ -80,3 +80,16 @@ Gesamt ≈ 77 Tage, mit Puffer rund 4–5 Monate bei einer Person. Der Pilot kan
 - Mail-Anbieter (EU-Hosting, z. B. ein deutscher/europäischer Dienst) – bisher nicht festgelegt.
 - KI-Modell und Anbieter für Bewertungsvorschläge (EU-Datenverarbeitung, AV-Vertrag).
 - Design und Domain-Struktur (siehe Lastenheft, Abschnitt 7).
+
+## Stand 21.11.2026 (Branch `mvp`)
+
+Gebaut: alle Features außer F15 Pipedrive und F16 PandaDoc (warten auf API-Zugänge).
+Migrationen 0001–0010 sind auf Prod eingespielt.
+
+Offen bis zum Livegang:
+
+- Zugänge/Entscheidungen: PandaDoc, Pipedrive, SMTP-Anbieter, KI-Anbieter, Werbekonten-APIs, Verträge Indeed/StepStone/BA
+- Supabase-Einstellungen (Site URL, Registrierung aus, Mail-Vorlagen) und Secrets in Vercel (siehe docs/betrieb.md)
+- Postleitzahlen-Import für die Umkreissuche (scripts/import-postal-codes.mjs)
+- Texte: Datenschutzerklärung, Impressum, Case-Beschreibungen; Design; alte URLs für Weiterleitungen
+- #20 Härtung: E2E-Tests der Abläufe 1–9 gegen eine Testdatenbank, WCAG-Prüfung mit echten Inhalten, Pentest

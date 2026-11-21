@@ -73,3 +73,11 @@ describe("retention (F20)", () => {
       expect(await errorOf(c, () => c.query("select public.candidate_export($1)", [ORG]))).toMatch(/permission denied/);
     }, "anon"));
 });
+
+describe("contact requests (F21)", () => {
+  it("are not readable or writable by visitors", () =>
+    asUser(db, null, async (c) => {
+      expect(await errorOf(c, () => c.query("insert into contact_requests (name, email, message) values ('Max', 'm@x.de', 'Hallo Welt')"))).toMatch(/row-level security/);
+      expect(Number((await c.query("select count(*) from contact_requests")).rows[0].count)).toBe(0);
+    }, "anon"));
+});
