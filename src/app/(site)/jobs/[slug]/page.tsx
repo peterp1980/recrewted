@@ -6,6 +6,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { getMessages } from "@/i18n";
 import { descriptionSections, idFromSlug, isNew, jobPath, jobPostingJsonLd, jsonLdScript, postedLabel, salaryText, type PublicJob } from "@/lib/jobs/format";
 import { getPublicJob, similarJobs } from "@/lib/jobs/public";
+import { googleOn } from "@/lib/feeds/settings";
 import { siteUrl } from "@/lib/site";
 import { entryParam } from "@/lib/careers/profile";
 import { refParam } from "@/lib/referrals/code";
@@ -51,7 +52,7 @@ export default async function JobPage({ params, searchParams }: Props) {
   const job = await load(slug);
   const canonical = jobPath(job);
   if (`/jobs/${slug}` !== canonical) permanentRedirect(canonical);
-  const similar = await similarJobs(job).catch(() => [] as PublicJob[]);
+  const [similar, google] = await Promise.all([similarJobs(job).catch(() => [] as PublicJob[]), googleOn(job.organizationId).catch(() => true)]);
 
   const t = getMessages().jobs;
   const o = getMessages().briefing.options;
@@ -80,7 +81,8 @@ export default async function JobPage({ params, searchParams }: Props) {
 
   return (
     <main className="overflow-x-clip pb-24 lg:pb-0">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jobPostingJsonLd(job, siteUrl())) }} />
+      {/* Google for Jobs: only when the channel is on for this customer (admin → Kanäle). */}
+      {google && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jobPostingJsonLd(job, siteUrl())) }} />}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbJsonLd([{ name: "Jobs", path: "/jobs" }, { name: job.title, path: canonical }])) }} />
       <section className="relative -mt-[76px] overflow-hidden bg-night pt-[76px] text-white">
         <div aria-hidden="true" className="hero-glow absolute inset-0 opacity-70" />

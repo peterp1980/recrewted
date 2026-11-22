@@ -50,6 +50,14 @@ Geheime Werte als „Sensitive“ anlegen. Rotieren: neuen Wert setzen, neu depl
 4. Unter der Domain zeigt `/` die Karriereseite; Stellen, Bewerbung und Tests laufen unter derselben Domain. Admin, Portal und Login leiten auf recrewted um.
 5. **Impressum des Kunden (0028):** Im selben Formular Impressumstext und/oder Link zum Impressum des Kunden eintragen. Die Domain gilt als geprüft, sobald `https://<domain>/api/domain-check` von unserem Server signiert beantwortet wird (DNS, Zertifikat und Weiterleitung in einem). Geprüft wird beim Öffnen der Unternehmensseite im Admin und täglich im Cron; das Ergebnis steht in `career_domain_verified_at`. Nur dann zeigt `/impressum` auf der Kundendomain das Impressum des Kunden, mit Hinweis auf den technischen Betrieb durch die projx GmbH. Auf recrewted.de und bei ungeprüfter Domain bleibt das Impressum der projx GmbH. Ändert sich die Domain, wird die Prüfung zurückgesetzt.
 
+## Kostenlose Jobkanäle (F9)
+
+- Admin → Kanäle: je Kanal ein Schalter für alle Kunden, dazu Feed-Adresse, Anmeldelink und Bewerbungen der letzten 90 Tage. Admin → Unternehmen → „Kanäle“: Ausnahmen je Kunde.
+- Raus: Google for Jobs (strukturierte Daten auf der Stellenseite) und XML-Feeds unter `/feeds/<kanal>.xml` (Indeed, Jooble, Talent.com, Adzuna, Careerjet, Jobrapido, kimeta im Indeed-Format, LinkedIn im eigenen Format). Ausgeschaltete Kanäle liefern einen leeren Feed.
+- Rein: Bewerber klicken auf unsere Stellenseite und bewerben sich dort; jeder Feed-Link trägt `utm_source=<kanal>`, die Bewerbung ist dem Kanal zugeordnet (F12).
+- Jeder Feed muss einmal beim Portal angemeldet werden (Links auf der Kanäle-Seite). LinkedIn listet nur nach Freischaltung als Feed-Partner. BA-Jobbörse ist kostenlos, braucht aber eine Anmeldung als Kooperationspartner (HR-BA-XML über SFTP mit Zertifikat).
+- Seit 0031 hängt nichts mehr am Gehalt: Stellen ohne Gehaltsangabe gehen ebenfalls raus (Gehalt optional, 21.11.2026).
+
 ## Angebote und Verträge mit PandaDoc (F16)
 
 - Nur Admins der projx GmbH erstellen, senden und verwalten Angebote und Verträge (RLS ab 0030). Recruiter sehen sie, Kunden sehen ihre unterschriebenen PDFs im Portal.

@@ -55,7 +55,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | --- | --- | --- |
 | 15 | F12 Herkunft bis Einstellung + Server-Conversions (4 Plattformen) | gebaut (Branch `mvp`); Conversions senden erst mit Zugangsdaten |
 | 16 | F8 Job-Ad-Generator mit AGG-Prüfung | gebaut (Branch `mvp`) |
-| 17 | F9 Portale (Indeed-Feed, BA; StepStone je Vertrag) | Indeed-Feed + Status gebaut (Branch `mvp`); BA und StepStone warten auf Verträge |
+| 17 | F9 Portale (Indeed-Feed, BA; StepStone je Vertrag) | gebaut (Branch `mvp`): 8 kostenlose Feeds + Google for Jobs, schaltbar global und je Kunde; BA wartet auf Kooperationspartner-Anmeldung, StepStone auf Vertrag |
 | 18 | F11 Stelle besetzt → überall offline (≤ 1 h) | gebaut (Branch `mvp`); Pausieren auf den Werbeplattformen braucht API-Zugang |
 | 19 | F21 B2B-Seiten + Redirects (abhängig vom Design) | gebaut (Branch `mvp`); Design, Case-Texte und alte URLs offen |
 | 20 | Härtung: E2E-Tests Abläufe 1–9, WCAG 2.2 AA, Lighthouse ≥ 90, Pentest-Vorbereitung | 5 |
@@ -84,7 +84,7 @@ Gesamt ≈ 77 Tage, mit Puffer rund 4–5 Monate bei einer Person. Der Pilot kan
 ## Stand 21.11.2026 (Branch `mvp`)
 
 Gebaut: alle Features. PandaDoc und Pipedrive senden, sobald die Schlüssel in Vercel stehen.
-Migrationen 0001–0030 sind auf Prod eingespielt. Gehalt ist seit 0016 optional (Entscheidung Peter).
+Migrationen 0001–0031 sind auf Prod eingespielt. Gehalt ist seit 0016 optional (Entscheidung Peter).
 
 Assessment (Freigabe Peter, 21.11.2026, aus Release 2 vorgezogen): Tests je Vakanz direkt nach der Bewerbung oder per Link; Ja/Nein, Auswahl, Freitext, Case, Upload; Zeitlimit; Browser-Protokoll (Fenster verlassen, Kopieren, Einfügen – nur Zeitpunkt); automatische Punkte nur für geschlossene Fragen, offene bewertet ein Mensch. Vor dem Livegang mit dem DSB abstimmen (Protokollierung, Speicherdauer).
 

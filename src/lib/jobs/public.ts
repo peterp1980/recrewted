@@ -10,10 +10,10 @@ import { sanitizeDocument, type CareerDocument, type SectionData } from "@/lib/c
 // CRM IDs and internal status never leave the server.
 
 const COLUMNS =
-  "id, title, location, postal_code, latitude, longitude, remote, employment_type, category, salary_min, salary_max, salary_period, published_at, employer_visible, organizations(name, website, candidate_tone, slug, career_enabled, brand_color, career_pages(published)), vacancy_briefings(data), job_ads(channel, status, body, version)";
+  "id, organization_id, title, location, postal_code, latitude, longitude, remote, employment_type, category, salary_min, salary_max, salary_period, published_at, employer_visible, organizations(name, website, candidate_tone, slug, career_enabled, brand_color, career_pages(published)), vacancy_briefings(data), job_ads(channel, status, body, version)";
 
 type Row = {
-  id: string; title: string; location: string | null; postal_code: string | null; latitude: number | null; longitude: number | null;
+  id: string; organization_id: string; title: string; location: string | null; postal_code: string | null; latitude: number | null; longitude: number | null;
   remote: boolean; employment_type: string | null; category: string | null; salary_min: number | null; salary_max: number | null;
   salary_period: string; published_at: string | null; employer_visible: boolean;
   organizations: {
@@ -46,6 +46,7 @@ function toPublic(r: Row): PublicJob {
   const briefing = fromStored(r.vacancy_briefings?.data);
   return {
     id: r.id,
+    organizationId: r.organization_id,
     title: r.title,
     location: r.location,
     postalCode: r.postal_code,

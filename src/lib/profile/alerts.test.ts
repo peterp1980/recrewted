@@ -4,7 +4,7 @@ import type { PublicJob } from "@/lib/jobs/format";
 import { comparePoolFit, matchJobs, parsePrefs, poolFit, prefsFromForm, prefsFromJob } from "./alerts";
 
 const job = (o: Partial<PublicJob>): PublicJob => ({
-  id: "x", title: "Job", location: "Witten", postalCode: "58452", latitude: 51.44, longitude: 7.33, remote: false,
+  id: "x", organizationId: "o", title: "Job", location: "Witten", postalCode: "58452", latitude: 51.44, longitude: 7.33, remote: false,
   employmentType: "full_time", category: "logistics", salaryMin: null, salaryMax: null, salaryPeriod: "year",
   publishedAt: "2026-11-21T10:00:00Z", employerName: "A", employerWebsite: null, employer: null, briefing: emptyBriefing(), adText: null, tone: "sie", ...o,
 });

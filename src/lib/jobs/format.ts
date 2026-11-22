@@ -4,6 +4,8 @@ import type { Briefing, Category, EmploymentType, SalaryPeriod } from "@/lib/bri
 
 export type PublicJob = {
   id: string;
+  /** Internal: for channel settings per customer. Never written into public output. */
+  organizationId: string;
   title: string;
   location: string | null;
   postalCode: string | null;

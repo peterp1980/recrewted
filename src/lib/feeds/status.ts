@@ -1,16 +1,19 @@
-// Per-portal status of a vacancy (F9). Board, Google and feeds read active vacancies with salary.
+import { CHANNELS, channelOn, type ChannelKey, type ChannelSettings } from "./channels";
 
-export type PortalKey = "jobboard" | "google" | "indeed" | "ba" | "stepstone";
-export type PortalStatus = { key: PortalKey; state: "online" | "offline" | "error" | "contract"; reason?: "notActive" | "noSalary" };
+// Where a vacancy is live (F9). Salary is optional (21.11.2026) and no longer blocks any channel.
 
-/** Portals without a contract/interface yet. Move a key out of here once its integration exists. */
-export const NEEDS_CONTRACT: PortalKey[] = ["ba", "stepstone"];
+export type ChannelState = "online" | "offline" | "off" | "customerOff" | "setup";
+export type ChannelStatus = { key: ChannelKey | "jobboard"; name: string; state: ChannelState };
 
-export function portalStatuses(v: { status: string; salaryMin: number | null; salaryMax: number | null }): PortalStatus[] {
-  return (["jobboard", "google", "indeed", "ba", "stepstone"] as PortalKey[]).map((key) => {
-    if (NEEDS_CONTRACT.includes(key)) return { key, state: "contract" };
-    if (v.status !== "active") return { key, state: "offline", reason: "notActive" };
-    if (v.salaryMin === null || v.salaryMax === null) return { key, state: "error", reason: "noSalary" };
-    return { key, state: "online" };
-  });
+export function channelStatuses(v: { status: string; organizationId: string }, s: ChannelSettings): ChannelStatus[] {
+  const live = v.status === "active";
+  return [
+    { key: "jobboard", name: "recrewted-Jobbörse", state: live ? "online" : "offline" },
+    ...CHANNELS.map((c): ChannelStatus => {
+      if (!c.ready) return { key: c.key, name: c.name, state: "setup" };
+      if (!s.global[c.key]) return { key: c.key, name: c.name, state: "off" };
+      if (!channelOn(s, c.key, v.organizationId)) return { key: c.key, name: c.name, state: "customerOff" };
+      return { key: c.key, name: c.name, state: live ? "online" : "offline" };
+    }),
+  ];
 }

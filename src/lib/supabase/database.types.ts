@@ -139,6 +139,18 @@ export type Database = {
         Update: { banner_version?: string; decided_at?: string; id?: string; marketing?: boolean; statistics?: boolean; subject_ref?: string; subject_type?: string }
         Relationships: []
       }
+      job_channels: {
+        Row: { key: string; enabled: boolean; updated_at: string; updated_by: string | null }
+        Insert: { key: string; enabled?: boolean; updated_at?: string; updated_by?: string | null }
+        Update: { key?: string; enabled?: boolean; updated_at?: string; updated_by?: string | null }
+        Relationships: []
+      }
+      organization_channels: {
+        Row: { organization_id: string; channel: string; enabled: boolean; updated_at: string }
+        Insert: { organization_id: string; channel: string; enabled: boolean; updated_at?: string }
+        Update: { organization_id?: string; channel?: string; enabled?: boolean; updated_at?: string }
+        Relationships: [{ foreignKeyName: "organization_channels_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: false; referencedRelation: "organizations"; referencedColumns: ["id"] }]
+      }
       contract_templates: {
         Row: { id: string; kind: string; name: string; pandadoc_template_id: string; customer_role: string; projx_role: string | null; version: string; active: boolean; created_at: string }
         Insert: { id?: string; kind: string; name: string; pandadoc_template_id: string; customer_role?: string; projx_role?: string | null; version?: string; active?: boolean; created_at?: string }
