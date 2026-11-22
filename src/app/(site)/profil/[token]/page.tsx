@@ -73,7 +73,7 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
                     <p className="font-semibold">{v?.title}</p>
                     <p className="text-sm text-muted">{[v?.employer_visible ? v.organizations?.name : null, v?.location, t.appliedOn(dateFmt.format(new Date(a.submitted_at)))].filter(Boolean).join(" · ")}</p>
                   </div>
-                  <span className="border border-ink bg-marker px-2 py-0.5 font-mono text-xs font-semibold tracking-wide uppercase">{t.status[a.status] ?? a.status}</span>
+                  <span className="rounded-full bg-brand-50 px-3 py-1 text-sm font-semibold text-brand-800">{t.status[a.status] ?? a.status}</span>
                   {OPEN.includes(a.status) && (
                     <details className="w-full text-sm">
                       <summary className="cursor-pointer text-ink/70 underline">{t.withdraw}</summary>

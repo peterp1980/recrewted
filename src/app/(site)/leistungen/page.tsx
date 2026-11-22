@@ -1,37 +1,45 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/seo";
-import { Arrow } from "@/components/marks";
+import { ArrowRight, BarChart3, ClipboardList, FileCheck2, LayoutDashboard, Megaphone, PenLine } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import { site } from "@/content/site";
 
 const t = site.services;
+const ICONS = [ClipboardList, PenLine, Megaphone, FileCheck2, LayoutDashboard, BarChart3];
 export const metadata: Metadata = pageMeta({ title: `${t.title} – recrewted`, description: t.lead, path: "/leistungen" });
 
 export default function ServicesPage() {
   return (
     <main className="overflow-x-clip">
       <PageHero eyebrow="Was wir machen" title={t.title} lead={t.lead}>
-        <div className="flex flex-wrap gap-4 pt-2">
-          <Link href="/kontakt" className="btn-primary px-6 py-3">Gespräch vereinbaren <Arrow className="h-4 w-6" /></Link>
-          <Link href="/pakete" className="btn-secondary px-6 py-3">Pakete ansehen</Link>
+        <div className="flex flex-wrap gap-3 pt-2">
+          <Link href="/kontakt" className="btn-light px-6 py-3">Gespräch vereinbaren <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+          <Link href="/pakete" className="btn-ghost-dark px-6 py-3">Pakete ansehen</Link>
         </div>
       </PageHero>
-      <section className="mx-auto max-w-6xl px-4 py-16">
-        <ol className="grid border-t-2 border-l-2 border-ink md:grid-cols-2 lg:grid-cols-3">
-          {t.items.map((s, i) => (
-            <li key={s.title} className={`flex min-h-[16rem] flex-col gap-4 border-r-2 border-b-2 border-ink p-7 ${i === 3 ? "bg-marker" : i === 5 ? "bg-ink text-paper" : "bg-paper"}`}>
-              <span className={`font-mono text-sm ${i === 5 ? "text-accent-500" : "text-accent-700"}`}>{String(i + 1).padStart(2, "0")} / {String(t.items.length).padStart(2, "0")}</span>
-              <h2 className="font-display text-3xl font-semibold leading-tight">{s.title}</h2>
-              <p className={i === 5 ? "text-paper/85" : "text-ink/80"}>{s.text}</p>
-            </li>
-          ))}
+      <section className="mx-auto max-w-6xl px-4 py-20">
+        <ol className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {t.items.map((s, i) => {
+            const Icon = ICONS[i] ?? ClipboardList;
+            return (
+              <li key={s.title} className="card-hover relative flex flex-col gap-4 overflow-hidden rounded-3xl border border-neutral-200 bg-white p-7">
+                <span aria-hidden="true" className="absolute top-5 right-6 font-display text-6xl font-extrabold text-neutral-100">{String(i + 1).padStart(2, "0")}</span>
+                <span className={`relative flex h-12 w-12 items-center justify-center rounded-2xl ${i % 2 ? "bg-accent-50 text-accent-700" : "bg-brand-50 text-brand-800"}`}><Icon className="h-6 w-6" aria-hidden="true" /></span>
+                <h2 className="relative font-display text-xl font-bold">{s.title}</h2>
+                <p className="relative text-ink/70">{s.text}</p>
+              </li>
+            );
+          })}
         </ol>
       </section>
       <section className="mx-auto max-w-6xl px-4">
-        <div className="flex flex-col items-start gap-6 border-2 border-ink bg-paper px-8 py-12 md:flex-row md:items-center md:justify-between md:px-12">
-          <h2 className="max-w-2xl font-display text-4xl leading-tight font-semibold">Alles aus einer Hand, <span className="marker">zu einem festen Preis.</span></h2>
-          <Link href="/kontakt" className="btn-primary shrink-0 px-6 py-3.5">Gespräch vereinbaren <Arrow className="h-4 w-6" /></Link>
+        <div className="relative overflow-hidden rounded-[2rem] bg-night px-8 py-14 text-white md:px-14">
+          <div aria-hidden="true" className="hero-glow absolute inset-0" />
+          <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
+            <h2 className="max-w-2xl font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Alles aus einer Hand, zu einem festen Preis.</h2>
+            <Link href="/kontakt" className="btn-light shrink-0 px-6 py-3.5">Gespräch vereinbaren <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+          </div>
         </div>
       </section>
     </main>

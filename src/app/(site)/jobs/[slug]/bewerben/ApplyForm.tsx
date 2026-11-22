@@ -154,7 +154,7 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
         </label>
       </div>
 
-      <button type="submit" disabled={pending || upload.state === "uploading"} className="btn-primary px-5 py-4 text-lg">
+      <button type="submit" disabled={pending || upload.state === "uploading"} className="rounded-lg bg-brand-700 px-5 py-4 text-lg font-semibold text-white hover:bg-brand-800 disabled:opacity-60">
         {pending ? t.sending : t.submit}
       </button>
     </form>

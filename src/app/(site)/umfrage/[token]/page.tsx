@@ -30,7 +30,7 @@ export default async function SurveyPage({ params, searchParams }: { params: Pro
             <legend className="mb-2 text-lg font-semibold">{t.question}</legend>
             <div className="grid grid-cols-5 gap-2">
               {[1, 2, 3, 4, 5].map((n) => (
-                <label key={n} className="flex cursor-pointer flex-col items-center gap-1 border-2 border-ink bg-paper p-3 has-[:checked]:bg-marker has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-accent-500">
+                <label key={n} className="flex cursor-pointer flex-col items-center gap-1 rounded-2xl border border-neutral-200 p-3 has-[:checked]:border-brand-700 has-[:checked]:bg-brand-50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500">
                   <input type="radio" name="score" value={n} required className="sr-only" />
                   <span className="font-display text-2xl font-bold">{n}</span>
                 </label>

@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Vorqualifizierte Kandidaten zum Festpreis.",
     start_url: "/",
     display: "browser",
-    background_color: "#f2eee4",
-    theme_color: "#141311",
+    background_color: "#070b14",
+    theme_color: "#070b14",
     lang: "de",
     icons: [
       { src: "/icon.svg", type: "image/svg+xml", sizes: "any" },
