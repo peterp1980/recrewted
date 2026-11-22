@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Clock } from "lucide-react";
+import { ArrowLeft } from "@/components/marks";
 import { notFound } from "next/navigation";
 import { applyMessages } from "@/i18n";
 import { idFromSlug, jobPath } from "@/lib/jobs/format";
@@ -32,13 +32,13 @@ export default async function ApplyPage({ params, searchParams }: Props) {
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-10">
-      <Link href={jobPath(job)} className="inline-flex items-center gap-1.5 self-start text-sm text-ink/70 hover:text-ink"><ArrowLeft className="h-4 w-4" aria-hidden="true" />{job.title}</Link>
+      <Link href={jobPath(job)} className="inline-flex items-center gap-2 self-start font-mono text-xs font-semibold tracking-widest uppercase hover:text-accent-700"><ArrowLeft className="h-4 w-5" />{job.title}</Link>
       <div className="flex flex-col gap-2">
-        <p className="inline-flex items-center gap-2 self-start rounded-full bg-brand-50 px-3 py-1 text-sm font-semibold text-brand-800"><Clock className="h-4 w-4" aria-hidden="true" />Dauert etwa zwei Minuten</p>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t.title(job.title)}</h1>
-        <p className="text-ink/70">{t.lead}</p>
+        <p className="stamp self-start">Dauert etwa 2 Minuten</p>
+        <h1 className="mt-2 font-display text-4xl leading-tight font-semibold tracking-tight sm:text-5xl">{t.title(job.title)}</h1>
+        <p className="text-ink/80">{t.lead}</p>
       </div>
-      <div className="rounded-3xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-7">
+      <div className="hard-shadow border-2 border-ink bg-paper p-5 sm:p-7">
         <ApplyForm slug={slug} questions={questions} utm={utm} tone={job.tone} />
       </div>
     </main>

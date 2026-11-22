@@ -57,19 +57,19 @@ export function ConsentAndTracking() {
 
   if (!open) return null;
   return (
-    <div role="dialog" aria-modal="false" aria-labelledby="consent-h" className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-5xl rounded-3xl border border-white/10 bg-night/95 text-white shadow-2xl backdrop-blur-xl">
+    <div role="dialog" aria-modal="false" aria-labelledby="consent-h" className="hard-shadow-pink fixed inset-x-3 bottom-3 z-50 mx-auto max-w-5xl border-2 border-ink bg-paper text-ink">
       <div className="flex flex-col gap-3 px-5 py-4 lg:flex-row lg:items-center lg:gap-8">
         <details className="min-w-0 flex-1 text-sm">
           <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-            <span id="consent-h" className="font-semibold">{t.title}:</span> <span className="text-white/75">{t.short}</span>{" "}
-            <span className="font-medium text-brand-300 underline underline-offset-2">{t.more}</span>
+            <span id="consent-h" className="font-semibold">{t.title}:</span> <span className="text-ink/80">{t.short}</span>{" "}
+            <span className="font-medium text-accent-700 underline underline-offset-2">{t.more}</span>
           </summary>
-          <p className="mt-2 text-white/70">{t.text} <a href="/datenschutz" className="underline">{t.privacy}</a></p>
+          <p className="mt-2 text-ink/75">{t.text} <a href="/datenschutz" className="underline">{t.privacy}</a></p>
         </details>
         {/* All three choices look the same: no nudging towards consent. */}
         <div className="grid shrink-0 grid-cols-3 gap-2 text-sm font-medium">
           {([[t.necessary, false, false], [t.statistics, true, false], [t.all, true, true]] as const).map(([label, st, mk]) => (
-            <button key={label} type="button" onClick={() => decide(st, mk)} className="rounded-full border border-white/25 px-3 py-2 text-white transition hover:border-white/60 hover:bg-white/10">{label}</button>
+            <button key={label} type="button" onClick={() => decide(st, mk)} className="border-2 border-ink px-3 py-2 text-ink transition hover:bg-ink hover:text-paper">{label}</button>
           ))}
         </div>
       </div>

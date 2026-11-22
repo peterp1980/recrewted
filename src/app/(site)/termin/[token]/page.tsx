@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { CalendarDays, Clock, MapPin } from "lucide-react";
 import { getMessages } from "@/i18n";
 import { Notice } from "@/components/Notice";
 import { byDay, timeLabel, whenLabel } from "@/lib/booking/format";
@@ -37,11 +36,11 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
       {s && t.notices[s] && <Notice kind={ok ? "ok" : "error"}>{t.notices[s]}</Notice>}
 
       {booking && (
-        <section aria-labelledby="mine" className="card flex flex-col gap-3 border-2 border-brand-700">
+        <section aria-labelledby="mine" className="hard-shadow-pink flex flex-col gap-3 border-2 border-ink bg-paper p-5">
           <h2 id="mine" className="text-lg font-semibold">{t.booked(du)}</h2>
-          <p className="flex items-center gap-2 text-lg"><CalendarDays className="h-5 w-5 text-brand-700" aria-hidden="true" /> {whenLabel(booking.starts_at)}</p>
-          <p className="flex items-center gap-2"><Clock className="h-5 w-5 text-muted" aria-hidden="true" /> {t.duration(booking.duration_minutes)}, {t.modes[booking.mode]}</p>
-          <p className="flex items-start gap-2"><MapPin className="mt-0.5 h-5 w-5 text-muted" aria-hidden="true" /> {booking.mode === "phone" ? t.phone(du) : booking.location ?? "–"}</p>
+          <p className="font-display text-2xl font-semibold"><span className="label mr-2 align-middle">Wann</span>{whenLabel(booking.starts_at)}</p>
+          <p><span className="label mr-2">Dauer</span>{t.duration(booking.duration_minutes)}, {t.modes[booking.mode]}</p>
+          <p><span className="label mr-2">Wo</span>{booking.mode === "phone" ? t.phone(du) : booking.location ?? "–"}</p>
           {booking.note && <p className="whitespace-pre-line text-sm text-ink/80">{booking.note}</p>}
           <div className="flex flex-wrap gap-2">
             <a href={`/termin/${token}/ics`} className="btn-secondary py-2">{t.calendar}</a>
@@ -72,7 +71,7 @@ export default async function BookingPage({ params, searchParams }: { params: Pr
                     <form key={slot.id} action={bookSlot}>
                       <input type="hidden" name="token" value={token} />
                       <input type="hidden" name="slotId" value={slot.id} />
-                      <button type="submit" className="rounded-lg border border-brand-700 px-4 py-2 font-medium text-brand-800 hover:bg-brand-50" aria-label={`${t.book}: ${whenLabel(slot.starts_at)}, ${slot.duration_minutes} Minuten, ${t.modes[slot.mode]}`}>
+                      <button type="submit" className="border-2 border-ink bg-paper px-4 py-2 font-semibold hover:bg-ink hover:text-paper" aria-label={`${t.book}: ${whenLabel(slot.starts_at)}, ${slot.duration_minutes} Minuten, ${t.modes[slot.mode]}`}>
                         {timeLabel(slot.starts_at)} <span className="text-sm font-normal text-muted">· {slot.duration_minutes} Min. · {t.modes[slot.mode]}</span>
                       </button>
                     </form>

@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { getMessages } from "@/i18n";
 import { idFromSlug, initials, salaryText } from "@/lib/jobs/format";
 import { getPublicJob } from "@/lib/jobs/public";
-import { ogFonts, Backdrop, OG_SIZE, Pill, Wordmark } from "@/lib/og/parts";
+import { Backdrop, INK, Label, OG_SIZE, ogFonts, Pill, Stamp, Wordmark } from "@/lib/og/parts";
 
 export const alt = "Stellenanzeige auf recrewted";
 export const size = OG_SIZE;
@@ -23,27 +23,25 @@ export default async function JobImage({ params }: { params: Promise<{ slug: str
     (
       <Backdrop>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Wordmark size={38} />
-          <div style={{ display: "flex", fontSize: 26, color: "rgba(255,255,255,0.75)" }}>Bewerbung in 2 Minuten · ohne Anschreiben</div>
+          <Wordmark size={34} />
+          <Label>Stellenanzeige</Label>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 26 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-            <div
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "center", width: 64, height: 64, borderRadius: 16,
-                fontSize: 28, fontWeight: 800, color: "#fff", backgroundColor: job?.employer?.color ?? "#152036",
-              }}
-            >
+        <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 58, height: 58, border: `3px solid ${INK}`, fontFamily: "Serif", fontWeight: 600, fontSize: 24, color: "#fff", backgroundColor: job?.employer?.color ?? INK }}>
               {job?.employerName ? initials(job.employerName) : "?"}
             </div>
-            <div style={{ display: "flex", fontSize: 32, fontWeight: 600, color: "rgba(255,255,255,0.9)" }}>{employer}</div>
+            <div style={{ display: "flex", fontSize: 30 }}>{employer}</div>
           </div>
-          <div style={{ display: "flex", fontSize: title.length > 40 ? 64 : 78, fontWeight: 800, lineHeight: 1.04, letterSpacing: -2, maxWidth: 1050 }}>{title}</div>
+          <div style={{ display: "flex", fontFamily: "Serif", fontWeight: 600, fontSize: title.length > 40 ? 62 : 78, lineHeight: 1.0, letterSpacing: -2, maxWidth: 980 }}>{title}</div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          {place && <Pill>{place}</Pill>}
-          {job?.employmentType && <Pill>{o.employmentType[job.employmentType]}</Pill>}
-          {salary && <Pill strong>{salary}</Pill>}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", gap: 12 }}>
+            {place && <Pill>{place}</Pill>}
+            {job?.employmentType && <Pill>{o.employmentType[job.employmentType]}</Pill>}
+            {salary && <Pill strong>{salary}</Pill>}
+          </div>
+          <Stamp>2 Min.</Stamp>
         </div>
       </Backdrop>
     ),

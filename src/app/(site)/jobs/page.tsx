@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ArrowUpRight, Check, ChevronDown, Clock, MapPin, Search, SearchX, Wallet } from "lucide-react";
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/seo";
 import { getMessages } from "@/i18n";
@@ -7,6 +6,7 @@ import { CATEGORIES, EMPLOYMENT_TYPES } from "@/lib/briefing/schema";
 import { jobsHref, parseJobFilters, RADII, type JobFilters } from "@/lib/jobs/filters";
 import { isNew, jobPath, postedLabel, salaryText } from "@/lib/jobs/format";
 import { EmployerMark } from "@/components/jobs/EmployerMark";
+import { Arrow, Circle, Tick } from "@/components/marks";
 import { PAGE_SIZE, searchJobs } from "@/lib/jobs/public";
 
 const t = getMessages().jobs;
@@ -26,8 +26,8 @@ export default async function JobsPage({ searchParams }: Props) {
     console.error("job search failed", e);
     return (
       <main className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-14">
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">{t.title}</h1>
-        <p role="alert" className="rounded-3xl bg-amber-50 p-6 text-amber-900">{t.unavailable}</p>
+        <h1 className="font-display text-5xl font-semibold tracking-tight">{t.title}</h1>
+        <p role="alert" className="border-2 border-ink bg-marker p-6">{t.unavailable}</p>
       </main>
     );
   }
@@ -42,122 +42,122 @@ export default async function JobsPage({ searchParams }: Props) {
   const filtered = Boolean(f.q || f.where || f.category || f.type || f.remote || f.salary);
   const wider = RADII.find((r) => r > f.radius);
 
+  const sel = "border-2 border-ink bg-paper py-2.5 pr-2 pl-3 text-[15px] font-medium";
+
   return (
     <main className="overflow-x-clip">
-      <section className="relative -mt-[76px] overflow-hidden bg-night pt-[76px] text-white">
-        <div aria-hidden="true" className="hero-glow absolute inset-0 opacity-80" />
-        <div aria-hidden="true" className="grid-lines absolute inset-0" />
-        <div className="relative mx-auto flex max-w-6xl flex-col gap-8 px-4 pt-14 pb-16 md:pt-20">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold tracking-widest text-brand-300 uppercase">Offene Stellen</p>
-            <h1 className="mt-3 font-display text-4xl font-extrabold tracking-tight sm:text-6xl">{t.title}</h1>
+      <section className="border-b border-ink">
+        <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 pt-12 pb-12 md:pt-16">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="eyebrow">Stellenregister</p>
+              <h1 className="mt-3 font-display text-6xl leading-none font-semibold tracking-tight sm:text-8xl">
+                <span className="relative inline-block">{t.title}<Circle className="pointer-events-none absolute -inset-x-5 -inset-y-3 h-[calc(100%+1.5rem)] w-[calc(100%+2.5rem)] text-accent-500" /></span>
+              </h1>
+            </div>
+            <p className="max-w-sm font-display text-xl italic">Bewerbung in zwei Minuten. Ohne Anschreiben, ohne Konto.</p>
           </div>
-          <form method="get" role="search" aria-label={t.searchLabel} className="flex flex-col gap-3">
+          <form id="jobsuche" method="get" role="search" aria-label={t.searchLabel} className="hard-shadow border-2 border-ink bg-paper">
             {f.remote && <input type="hidden" name="remote" value="1" />}
             {f.salary && <input type="hidden" name="gehalt" value="1" />}
-            <div className="grid grid-cols-1 gap-2 rounded-3xl bg-white p-2 text-ink shadow-2xl sm:grid-cols-[1.3fr_1fr_auto_auto] sm:rounded-full">
-              <label className="flex min-w-0 items-center gap-3 rounded-full px-4 py-1.5">
-                <Search className="h-5 w-5 shrink-0 text-muted" aria-hidden="true" />
-                <span className="sr-only">{t.q}</span>
-                <input name="q" defaultValue={f.q} placeholder={t.qPlaceholder} className="w-full min-w-0 border-0 bg-transparent py-2 outline-none placeholder:text-muted" />
+            <div className="grid grid-cols-1 sm:grid-cols-[1.3fr_1fr_auto_auto]">
+              <label className="flex min-w-0 flex-col gap-0.5 border-b-2 border-ink px-4 py-2.5 sm:border-r-2 sm:border-b-0">
+                <span className="label">{t.q}</span>
+                <input name="q" defaultValue={f.q} placeholder={t.qPlaceholder} className="w-full min-w-0 border-0 bg-transparent py-1 text-lg outline-none placeholder:text-ink/45" />
               </label>
-              <label className="flex min-w-0 items-center gap-3 rounded-full px-4 py-1.5 sm:border-l sm:border-neutral-200">
-                <MapPin className="h-5 w-5 shrink-0 text-muted" aria-hidden="true" />
-                <span className="sr-only">{t.where}</span>
-                <input name="ort" defaultValue={f.where} placeholder={t.wherePlaceholder} autoComplete="postal-code" className="w-full min-w-0 border-0 bg-transparent py-2 outline-none placeholder:text-muted" />
+              <label className="flex min-w-0 flex-col gap-0.5 border-b-2 border-ink px-4 py-2.5 sm:border-r-2 sm:border-b-0">
+                <span className="label">{t.where}</span>
+                <input name="ort" defaultValue={f.where} placeholder={t.wherePlaceholder} autoComplete="postal-code" className="w-full min-w-0 border-0 bg-transparent py-1 text-lg outline-none placeholder:text-ink/45" />
               </label>
-              <label className="flex items-center rounded-full px-3 sm:border-l sm:border-neutral-200">
-                <span className="sr-only">{t.radius}</span>
-                <select name="umkreis" defaultValue={String(f.radius)} className="border-0 bg-transparent py-2 font-medium outline-none">
+              <label className="flex flex-col gap-0.5 border-b-2 border-ink px-4 py-2.5 sm:border-r-2 sm:border-b-0">
+                <span className="label">{t.radius}</span>
+                <select name="umkreis" defaultValue={String(f.radius)} className="border-0 bg-transparent py-1 text-lg font-medium outline-none">
                   {RADII.map((r) => <option key={r} value={r}>+ {r} {t.km}</option>)}
                 </select>
               </label>
-              <button type="submit" className="rounded-full bg-brand-700 px-6 py-3 font-semibold text-white transition hover:bg-brand-800">{t.search}</button>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <label className="relative">
-                <span className="sr-only">{t.category}</span>
-                <select name="berufsfeld" defaultValue={f.category ?? ""} className="appearance-none rounded-full border border-white/15 bg-white/10 py-2 pr-9 pl-4 text-sm text-white backdrop-blur [&>option]:text-ink">
-                  <option value="">{t.category}: {t.all}</option>
-                  {CATEGORIES.map((c) => <option key={c} value={c}>{b.category[c]}</option>)}
-                </select>
-                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-white/70" aria-hidden="true" />
-              </label>
-              <label className="relative">
-                <span className="sr-only">{t.type}</span>
-                <select name="art" defaultValue={f.type ?? ""} className="appearance-none rounded-full border border-white/15 bg-white/10 py-2 pr-9 pl-4 text-sm text-white backdrop-blur [&>option]:text-ink">
-                  <option value="">{t.type}: {t.all}</option>
-                  {EMPLOYMENT_TYPES.map((e) => <option key={e} value={e}>{b.employmentType[e]}</option>)}
-                </select>
-                <ChevronDown className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-white/70" aria-hidden="true" />
-              </label>
-              <span aria-hidden="true" className="mx-1 hidden h-5 w-px bg-white/20 sm:block" />
-              {quick.map((q) => (
-                <Link
-                  key={q.label}
-                  href={jobsHref(f, q.change)}
-                  aria-pressed={q.active}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition ${q.active ? "bg-brand-500 text-night" : "border border-white/15 bg-white/5 text-white/85 hover:bg-white/15"}`}
-                >
-                  {q.active && <Check className="h-3.5 w-3.5" aria-hidden="true" />}{q.label}
-                </Link>
-              ))}
-              {filtered && <Link href="/jobs" className="ml-1 text-sm text-white/75 underline underline-offset-4 hover:text-white">{t.reset}</Link>}
+              <button type="submit" className="bg-ink px-8 py-4 text-lg font-semibold text-paper transition hover:bg-accent-700">{t.search}</button>
             </div>
           </form>
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="relative">
+              <span className="sr-only">{t.category}</span>
+              <select name="berufsfeld" form="jobsuche" defaultValue={f.category ?? ""} className={sel}>
+                <option value="">{t.category}: {t.all}</option>
+                {CATEGORIES.map((c) => <option key={c} value={c}>{b.category[c]}</option>)}
+              </select>
+            </label>
+            <label className="relative">
+              <span className="sr-only">{t.type}</span>
+              <select name="art" form="jobsuche" defaultValue={f.type ?? ""} className={sel}>
+                <option value="">{t.type}: {t.all}</option>
+                {EMPLOYMENT_TYPES.map((e) => <option key={e} value={e}>{b.employmentType[e]}</option>)}
+              </select>
+            </label>
+            <span aria-hidden="true" className="mx-1 hidden h-6 w-0.5 bg-ink sm:block" />
+            {quick.map((q) => (
+              <Link key={q.label} href={jobsHref(f, q.change)} aria-pressed={q.active} className={`inline-flex items-center gap-1.5 border-2 border-ink px-3.5 py-2 text-[15px] font-medium transition ${q.active ? "bg-ink text-paper" : "bg-paper hover:bg-marker"}`}>
+                {q.active && <Tick className="h-4 w-4 text-accent-500" />}{q.label}
+              </Link>
+            ))}
+            {filtered && <Link href="/jobs" className="ml-2 font-mono text-xs font-semibold tracking-widest uppercase underline underline-offset-4 hover:text-accent-700">{t.reset}</Link>}
+          </div>
         </div>
       </section>
 
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10">
-        <p aria-live="polite" className="text-ink/75">
+        <p aria-live="polite" className="font-mono text-sm tracking-wide uppercase">
           {t.results(result.total)}
           {result.radiusApplied && result.origin ? ` ${t.near(result.origin, f.radius)}` : ""}
         </p>
 
         {result.jobs.length === 0 ? (
-          <div className="flex flex-col items-center gap-4 rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-12 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-canvas"><SearchX className="h-6 w-6 text-ink/60" aria-hidden="true" /></span>
-            <p className="max-w-md text-lg font-semibold">Hier ist gerade nichts Passendes dabei.</p>
-            <p className="max-w-md text-ink/70">Neue Stellen kommen laufend dazu. Probieren Sie es mit einem größeren Umkreis oder weniger Filtern.</p>
-            <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-col items-start gap-4 border-2 border-dashed border-ink bg-paper px-6 py-12 md:px-10">
+            <span className="stamp">Kein Treffer</span>
+            <p className="max-w-md font-display text-3xl font-semibold">Hier ist gerade nichts Passendes dabei.</p>
+            <p className="max-w-md text-ink/80">Neue Stellen kommen laufend dazu. Probieren Sie es mit einem größeren Umkreis oder weniger Filtern.</p>
+            <div className="flex flex-wrap gap-3">
               {result.radiusApplied && wider && <Link href={jobsHref(f, { radius: wider })} className="btn-primary py-2.5">Umkreis auf {wider} km erweitern</Link>}
               {(f.type || f.remote || f.salary || f.category) && <Link href={jobsHref(f, { type: null, remote: false, salary: false, category: null })} className="btn-secondary py-2.5">Nur nach Ort und Stichwort suchen</Link>}
               <Link href="/jobs" className="btn-secondary py-2.5">Alle Stellen ansehen</Link>
             </div>
-            <p className="max-w-md text-sm text-ink/65">Schon einmal über recrewted beworben? Dann können Sie sich in Ihrem <Link href="/profil" className="font-semibold text-brand-800 underline underline-offset-4">Bewerberprofil</Link> passende neue Stellen per E-Mail schicken lassen.</p>
+            <p className="max-w-md text-sm text-ink/75">Schon einmal über recrewted beworben? Dann können Sie sich in Ihrem <Link href="/profil" className="font-semibold underline decoration-accent-500 decoration-2 underline-offset-4">Bewerberprofil</Link> passende neue Stellen per E-Mail schicken lassen.</p>
           </div>
         ) : (
-          <ul className="grid gap-4 md:grid-cols-2">
-            {result.jobs.map((j) => (
-              <li key={j.id}>
-                <Link href={jobPath(j)} className="group flex h-full flex-col gap-4 rounded-3xl border border-neutral-200 bg-white p-6 transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-[0_20px_50px_-20px_rgb(10_127_140/0.35)]">
-                  <div className="flex items-start gap-4">
+          <ul className="border-t-2 border-ink">
+            {result.jobs.map((j, i) => {
+              const salary = salaryText(j.salaryMin, j.salaryMax, j.salaryPeriod);
+              return (
+                <li key={j.id} className="border-b border-ink/25">
+                  <Link href={jobPath(j)} className="group grid grid-cols-[auto_1fr] items-center gap-x-5 gap-y-3 py-5 transition hover:bg-paper sm:grid-cols-[2.5rem_auto_1fr_auto] sm:px-2">
+                    <span className="hidden font-mono text-sm text-muted sm:block">{String((f.page - 1) * PAGE_SIZE + i + 1).padStart(2, "0")}</span>
                     <EmployerMark job={j} />
-                    <div className="min-w-0 flex-1">
-                      <h2 className="font-display text-xl font-bold group-hover:text-brand-800">{j.title}</h2>
-                      <p className="mt-1 truncate text-ink/70">{j.employerName ?? t.confidential}</p>
+                    <div className="min-w-0">
+                      <h2 className="font-display text-2xl leading-tight font-semibold group-hover:underline group-hover:decoration-accent-500 group-hover:decoration-2 group-hover:underline-offset-4">{j.title}</h2>
+                      <p className="mt-1 text-ink/75">{j.employerName ?? t.confidential}</p>
+                      <p className="mt-2 flex flex-wrap gap-2">
+                        <span className="chip">{j.remote ? t.remote : j.location}{j.distance !== null && !j.remote ? ` · ${t.distance(j.distance)}` : ""}</span>
+                        {j.employmentType && <span className="chip">{b.employmentType[j.employmentType]}</span>}
+                        {salary && <span className="chip bg-marker">{salary}</span>}
+                      </p>
                     </div>
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-canvas transition group-hover:bg-brand-700 group-hover:text-white"><ArrowUpRight className="h-5 w-5" aria-hidden="true" /></span>
-                  </div>
-                  <p className="mt-auto flex flex-wrap gap-2 pt-1">
-                    <span className="chip"><MapPin className="h-3.5 w-3.5" aria-hidden="true" />{j.remote ? t.remote : j.location}{j.distance !== null && !j.remote ? ` · ${t.distance(j.distance)}` : ""}</span>
-                    {j.employmentType && <span className="chip"><Clock className="h-3.5 w-3.5" aria-hidden="true" />{b.employmentType[j.employmentType]}</span>}
-                    {salaryText(j.salaryMin, j.salaryMax, j.salaryPeriod) && <span className="chip border-brand-100 bg-brand-50 text-brand-800"><Wallet className="h-3.5 w-3.5" aria-hidden="true" />{salaryText(j.salaryMin, j.salaryMax, j.salaryPeriod)}</span>}
-                  </p>
-                  <p className="flex items-center gap-2 text-xs text-ink/60">
-                    {isNew(j.publishedAt) && <span className="rounded-full bg-accent-500 px-2 py-0.5 font-bold tracking-wide text-white uppercase">Neu</span>}
-                    <span>{postedLabel(j.publishedAt).replace(/^am /, "seit ")}</span>
-                  </p>
-                </Link>
-              </li>
-            ))}
+                    <div className="col-span-2 flex items-center justify-between gap-3 sm:col-span-1 sm:flex-col sm:items-end">
+                      <p className="flex items-center gap-2 font-mono text-[11px] tracking-wide text-muted uppercase">
+                        {isNew(j.publishedAt) && <span className="border border-accent-700 bg-accent-50 px-1.5 py-0.5 font-semibold text-accent-700">Neu</span>}
+                        {postedLabel(j.publishedAt).replace(/^am /, "seit ")}
+                      </p>
+                      <Arrow className="h-5 w-8 transition group-hover:translate-x-1 group-hover:text-accent-700" />
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         )}
 
         {pages > 1 && (
-          <nav aria-label="Seiten" className="flex items-center justify-center gap-3">
+          <nav aria-label="Seiten" className="flex items-center justify-center gap-4">
             {f.page > 1 && <Link href={pageLink(f.page - 1)} className="btn-secondary py-2">{t.prev}</Link>}
-            <span className="text-muted">{f.page} / {pages}</span>
+            <span className="font-mono text-sm">{f.page} / {pages}</span>
             {f.page < pages && <Link href={pageLink(f.page + 1)} className="btn-secondary py-2">{t.next}</Link>}
           </nav>
         )}

@@ -1,37 +1,57 @@
 @import "tailwindcss";
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/schibsted-grotesk";
+@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource-variable/fraunces/opsz-italic.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/600.css";
 
 /*
- * recrewted design tokens (derived from the existing brand on recrewted.de):
- * turquoise for actions, pink for headings/accents, warm off-white background.
- * Darker shades are used where text sits on or in the colour (WCAG AA contrast).
+ * recrewted design: "die Personalakte". Paper, ink, the pink of the logo and a highlighter.
+ * Hard edges everywhere (all radius tokens are 0), hand-drawn marks instead of an icon set,
+ * stamps and ruled paper borrowed from application documents. Contrast checked for WCAG AA.
  */
 @theme {
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans Variable", "Inter Variable", ui-sans-serif, sans-serif;
-  --font-mono: ui-monospace, monospace;
+  --font-sans: "Schibsted Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
-  --color-brand-50: #effafb;
-  --color-brand-100: #d5f3f6;
-  --color-brand-300: #7fdbe5;
-  --color-brand-500: #1dc0d1; /* brand turquoise – accents, icons, large elements */
-  --color-brand-700: #0a7f8c; /* buttons with white text (AA) */
-  --color-brand-800: #086b76;
+  /* No rounded corners: every rounded-* utility resolves to 0. */
+  --radius-xs: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+  --radius-4xl: 0;
 
-  --color-accent-50: #fff0f4;
-  --color-accent-100: #ffd9e4;
-  --color-accent-500: #ff437b; /* brand pink – large headings, highlights */
-  --color-accent-700: #c8144b; /* pink for small text (AA) */
+  /* Petrol – links and actions in the apps; dark enough for white text (AA). */
+  --color-brand-50: #e8f1ef;
+  --color-brand-100: #cfe2de;
+  --color-brand-300: #8cc3b9;
+  --color-brand-500: #2a8f80;
+  --color-brand-700: #17665b;
+  --color-brand-800: #0f4f46;
 
-  /* Dark surfaces of the public site (hero, CTA, footer): near-black with a blue cast. */
-  --color-night: #070b14;
-  --color-night-800: #0d1424;
-  --color-night-700: #152036;
+  /* Logo pink. */
+  --color-accent-50: #ffe9f0;
+  --color-accent-100: #ffd3e1;
+  --color-accent-500: #ff437b;
+  --color-accent-700: #c8144b;
 
-  --color-ink: #1f2328;
-  --color-muted: #5c6166;
-  --color-canvas: #f6f5f3;
+  /* Highlighter. */
+  --color-marker: #ffe14d;
+
+  /* Dark surfaces: warm ink, not night blue. */
+  --color-night: #141311;
+  --color-night-800: #1f1d1a;
+  --color-night-700: #2e2b27;
+
+  --color-ink: #141311;
+  --color-muted: #5a554c;
+  --color-canvas: #f2eee4;
+  --color-paper: #fbf9f4;
+  --color-rule: #d9d2c3;
 }
 
 :root {
@@ -47,15 +67,15 @@ body {
 
 /* Every interactive element gets a clearly visible focus ring (WCAG 2.2). */
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 3px solid var(--color-brand-500);
+  outline: 3px solid var(--color-accent-500);
   outline-offset: 2px;
-  border-radius: 0.5rem;
 }
 
 @layer base {
   h1, h2, h3 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    font-optical-sizing: auto;
+    letter-spacing: -0.015em;
     text-wrap: balance;
   }
   p {
@@ -64,85 +84,101 @@ body {
   input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
   select,
   textarea {
-    background-color: #fff;
-    border-color: #cfd4da;
-    border-radius: 0.6rem;
+    background-color: var(--color-paper);
+    border-color: #8f897c;
+    border-radius: 0;
   }
   input:focus, select:focus, textarea:focus {
-    border-color: var(--color-brand-500);
+    border-color: var(--color-ink);
   }
   input[type="checkbox"], input[type="radio"] {
-    accent-color: var(--color-brand-700);
+    accent-color: var(--color-ink);
   }
   [aria-invalid="true"] {
     border-color: var(--color-accent-700) !important;
   }
+  ::selection {
+    background: var(--color-marker);
+    color: var(--color-ink);
+  }
 }
 
 @layer components {
+  /* Buttons: ink blocks with a hard offset shadow – they look like they can be pressed. */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-brand-700 px-5 py-2.5 font-semibold text-white shadow-[0_8px_24px_-8px_rgb(10_127_140/0.6)] transition hover:-translate-y-px hover:bg-brand-800 disabled:opacity-50 disabled:hover:translate-y-0;
+    @apply inline-flex items-center justify-center gap-2 border-2 border-ink bg-ink px-5 py-2.5 font-semibold text-paper shadow-[4px_4px_0_var(--color-accent-500)] transition-[transform,box-shadow] duration-150 hover:-translate-x-px hover:-translate-y-px hover:shadow-[6px_6px_0_var(--color-accent-500)] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none disabled:opacity-50 disabled:shadow-none;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-neutral-300 bg-white px-5 py-2.5 font-semibold text-ink transition hover:border-brand-700 hover:text-brand-800 disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 border-2 border-ink bg-paper px-5 py-2.5 font-semibold text-ink transition-[transform,box-shadow] duration-150 hover:shadow-[4px_4px_0_var(--color-ink)] hover:-translate-x-px hover:-translate-y-px disabled:opacity-50;
   }
-  /* Bright button on dark surfaces. */
   .btn-light {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 font-semibold text-night transition hover:-translate-y-px hover:bg-brand-50;
+    @apply inline-flex items-center justify-center gap-2 border-2 border-paper bg-paper px-5 py-2.5 font-semibold text-ink shadow-[4px_4px_0_var(--color-accent-500)] transition-[transform,box-shadow] duration-150 hover:-translate-x-px hover:-translate-y-px hover:shadow-[6px_6px_0_var(--color-accent-500)];
   }
   .btn-ghost-dark {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-5 py-2.5 font-semibold text-white transition hover:border-white/50 hover:bg-white/5;
+    @apply inline-flex items-center justify-center gap-2 border-2 border-paper/70 px-5 py-2.5 font-semibold text-paper transition hover:border-paper hover:bg-paper hover:text-ink;
   }
   .card {
-    @apply rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-sm;
+    @apply border border-ink/15 bg-paper p-5;
   }
   .card-dark {
-    @apply rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur;
+    @apply border border-paper/20 bg-paper/[0.04] p-5;
   }
+  /* Form-like label: mono, small caps, with a hairline frame. */
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-sm text-ink/80;
+    @apply inline-flex items-center gap-1.5 border border-ink/25 bg-paper px-2.5 py-1 font-mono text-[12px] uppercase tracking-wide text-ink/85;
   }
-  /* Thin grid lines that fade out to the edges, for dark sections. */
-  .grid-lines {
-    background-image:
-      linear-gradient(to right, rgb(255 255 255 / 0.06) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px);
-    background-size: 56px 56px;
-    mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 30%, transparent 75%);
-  }
-  /* Turquoise/pink light behind the hero. */
-  .hero-glow {
-    background:
-      radial-gradient(45% 55% at 20% 20%, rgb(29 192 209 / 0.35), transparent 70%),
-      radial-gradient(40% 50% at 85% 35%, rgb(255 67 123 / 0.28), transparent 70%),
-      radial-gradient(50% 40% at 55% 100%, rgb(29 192 209 / 0.18), transparent 70%);
-  }
-  .text-gradient {
-    background: linear-gradient(90deg, #5fe3ef 0%, #1dc0d1 35%, #ff6b98 75%, #ff437b 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  .label {
+    @apply font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted;
   }
   .eyebrow {
-    @apply text-sm font-semibold uppercase tracking-wide text-accent-700;
+    @apply font-mono text-[12px] font-semibold uppercase tracking-[0.16em] text-accent-700;
   }
-  .brand-gradient {
-    background: linear-gradient(180deg, #9bdee6 0%, #d9c0d6 55%, #fba3c0 100%);
+  /* Rubber stamp. */
+  .stamp {
+    @apply inline-block -rotate-6 border-[3px] border-double border-accent-700 px-3 py-1 font-mono text-sm font-semibold uppercase tracking-[0.2em] text-accent-700;
   }
-  /* Soft brand glow behind hero visuals. */
-  .brand-glow {
-    background:
-      radial-gradient(40% 50% at 30% 40%, rgb(29 192 209 / 0.22), transparent 70%),
-      radial-gradient(35% 45% at 75% 65%, rgb(255 67 123 / 0.16), transparent 70%);
+  /* Highlighter stroke behind text, as a recruiter would mark a CV. */
+  .marker {
+    background: linear-gradient(104deg, transparent 0.4em, var(--color-marker) 0.5em, var(--color-marker) calc(100% - 0.4em), transparent calc(100% - 0.3em)) 0 72% / 100% 0.62em no-repeat;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
   }
+  .marker-pink {
+    background: linear-gradient(104deg, transparent 0.4em, var(--color-accent-100) 0.5em, var(--color-accent-100) calc(100% - 0.4em), transparent calc(100% - 0.3em)) 0 72% / 100% 0.62em no-repeat;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  /* Ruled paper and a red margin line. */
+  .ruled {
+    background-image: repeating-linear-gradient(to bottom, transparent 0 31px, var(--color-rule) 31px 32px);
+  }
+  .margin-line {
+    background-image: linear-gradient(to right, transparent 46px, rgb(255 67 123 / 0.45) 46px 47px, transparent 47px);
+  }
+  .hard-shadow {
+    box-shadow: 8px 8px 0 var(--color-ink);
+  }
+  .hard-shadow-pink {
+    box-shadow: 8px 8px 0 var(--color-accent-500);
+  }
+  /* Paper grain on dark surfaces (very subtle, no gradients of light). */
+  .grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  /* Kept for the apps that still use them; deliberately plain now. */
+  .grid-lines { background-image: none; }
+  .hero-glow { background: none; }
+  .brand-glow { background: none; }
+  .brand-gradient { background: var(--color-accent-50); }
+  .text-gradient { color: var(--color-accent-500); }
   .card-hover {
-    @apply transition duration-200 hover:-translate-y-0.5 hover:shadow-md;
+    @apply transition duration-150 hover:-translate-x-px hover:-translate-y-px hover:shadow-[6px_6px_0_var(--color-ink)];
   }
   .section {
     @apply mx-auto max-w-6xl px-4 py-20 md:py-28;
   }
   .section-title {
-    @apply text-3xl font-bold tracking-tight sm:text-4xl;
+    @apply text-4xl font-semibold tracking-tight sm:text-5xl;
   }
 }
 
@@ -163,7 +199,7 @@ body {
 
 /* Logo strip: slow endless scroll; static and wrapped when motion is reduced. */
 .marquee {
-  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  mask-image: none;
 }
 .marquee-track {
   display: flex;
