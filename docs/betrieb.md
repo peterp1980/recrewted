@@ -67,6 +67,20 @@ Geheime Werte als „Sensitive“ anlegen. Rotieren: neuen Wert setzen, neu depl
 6. Datenschutz: AV-Vertrag (DPA) mit Resend abschließen; Resend ist ein US-Unternehmen – Übermittlungsgrundlage
    (Data Privacy Framework / Standardvertragsklauseln) ins Verarbeitungsverzeichnis.
 
+### Stand 22.11.2026
+
+- Resend-Domain `mail.recrewted.de` angelegt (Region eu-west-1, Tracking aus), ID `780158e1-3b8f-43ae-ae49-4b34a1efb21a`.
+- `MAIL_FROM` in Vercel gesetzt (Production + Preview). Offen: DNS-Einträge bei GoDaddy, `RESEND_API_KEY` in Vercel.
+- DNS-Einträge für die Zone `recrewted.de` (DNS liegt bei GoDaddy, Nameserver domaincontrol.com):
+
+| Typ | Name (Host) | Wert | Priorität |
+| --- | --- | --- | --- |
+| TXT | `resend._domainkey.mail` | DKIM-Schlüssel aus Resend (Domains › mail.recrewted.de) | – |
+| MX | `send.mail` | `feedback-smtp.eu-west-1.amazonses.com` | 10 |
+| TXT | `send.mail` | `v=spf1 include:amazonses.com ~all` | – |
+| CNAME | `rsend.mail` | `send.forge.rmta.net` | – |
+| TXT | `_dmarc.mail` (empfohlen) | `v=DMARC1; p=none;` | – |
+
 ## VERCEL_API_TOKEN (eigene Domains für Karriereseiten)
 
 1. vercel.com → Avatar oben rechts → **Account Settings** → **Tokens** → **Create Token**.
