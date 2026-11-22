@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Fonts for the social preview images (read from disk at request time).
+  outputFileTracingIncludes: { "/**/opengraph-image*": ["./src/lib/og/fonts/*.ttf"] },
   // Career page images (admin upload, max 4 MB); Vercel itself stops at 4.5 MB per request.
   experimental: { serverActions: { bodySizeLimit: "4.5mb" } },
   images: {

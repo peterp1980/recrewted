@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { getMessages } from "@/i18n";
 import { idFromSlug, initials, salaryText } from "@/lib/jobs/format";
 import { getPublicJob } from "@/lib/jobs/public";
-import { Backdrop, OG_SIZE, Pill, Wordmark } from "@/lib/og/parts";
+import { ogFonts, Backdrop, OG_SIZE, Pill, Wordmark } from "@/lib/og/parts";
 
 export const alt = "Stellenanzeige auf recrewted";
 export const size = OG_SIZE;
@@ -40,13 +40,13 @@ export default async function JobImage({ params }: { params: Promise<{ slug: str
           </div>
           <div style={{ display: "flex", fontSize: title.length > 40 ? 64 : 78, fontWeight: 800, lineHeight: 1.04, letterSpacing: -2, maxWidth: 1050 }}>{title}</div>
         </div>
-        <div style={{ display: "flex", gap: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           {place && <Pill>{place}</Pill>}
           {job?.employmentType && <Pill>{o.employmentType[job.employmentType]}</Pill>}
           {salary && <Pill strong>{salary}</Pill>}
         </div>
       </Backdrop>
     ),
-    size,
+    { ...size, fonts: await ogFonts() },
   );
 }
