@@ -126,7 +126,7 @@ export default async function JobPage({ params, searchParams }: Props) {
             {topBenefits.length > 0 && (
               <ul aria-label="Das bieten wir (Auszug)" className="flex flex-wrap gap-2">
                 {topBenefits.map((b) => (
-                  <li key={b} className="inline-flex items-center gap-1.5 rounded-full bg-accent-50 px-3 py-1.5 text-sm font-medium text-accent-700"><Gift className="h-3.5 w-3.5" aria-hidden="true" />{b}</li>
+                  <li key={b} className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-medium text-ink/80 ring-1 ring-neutral-200"><Gift className="h-3.5 w-3.5 text-brand-700" aria-hidden="true" />{b}</li>
                 ))}
               </ul>
             )}

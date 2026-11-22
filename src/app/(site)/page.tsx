@@ -150,11 +150,11 @@ export default function Home() {
           <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-4 py-9 md:flex-row md:gap-12">
             <p className="shrink-0 text-sm font-semibold tracking-widest text-white/70 uppercase">{t.trustLabel}</p>
             <div className="marquee w-full overflow-hidden">
-              <ul className="marquee-track items-center gap-20">
+              <ul className="marquee-track items-center gap-5">
                 {[...logos, ...logos].map((c, i) => (
                   <li key={`${c.name}-${i}`} data-dup={i >= logos.length ? "" : undefined} aria-hidden={i >= logos.length ? true : undefined} className="shrink-0">
-                    <Link href="/cases" tabIndex={i >= logos.length ? -1 : undefined} className="block opacity-80 transition hover:opacity-100">
-                      <Image src={c.logo} alt={c.name} width={240} height={84} className="h-11 w-auto brightness-0 invert md:h-12" />
+                    <Link href="/cases" tabIndex={i >= logos.length ? -1 : undefined} className="flex h-16 items-center rounded-2xl bg-white px-6 opacity-90 grayscale transition hover:opacity-100 hover:grayscale-0">
+                      <Image src={c.logo} alt={c.name} width={240} height={84} className="h-9 w-auto max-w-[9rem] object-contain md:h-10" />
                     </Link>
                   </li>
                 ))}
