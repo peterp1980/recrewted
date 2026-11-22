@@ -93,7 +93,6 @@ export default async function JobsPage({ searchParams }: Props) {
                 {EMPLOYMENT_TYPES.map((e) => <option key={e} value={e}>{b.employmentType[e]}</option>)}
               </select>
             </label>
-            <span aria-hidden="true" className="mx-1 hidden h-6 w-0.5 bg-ink sm:block" />
             {quick.map((q) => (
               <Link key={q.label} href={jobsHref(f, q.change)} aria-pressed={q.active} className={`inline-flex items-center gap-1.5 border-2 border-ink px-3.5 py-2 text-[15px] font-medium transition ${q.active ? "bg-ink text-paper" : "bg-paper hover:bg-marker"}`}>
                 {q.active && <Tick className="h-4 w-4 text-accent-500" />}{q.label}

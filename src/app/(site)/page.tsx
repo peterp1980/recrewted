@@ -72,7 +72,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-14 px-4 pt-14 pb-20 md:pt-20 lg:grid-cols-[1.1fr_1fr] lg:pb-24">
           <div className="flex min-w-0 flex-col gap-7">
             <p className="eyebrow">Recruiting zum Festpreis · Akte Nr. 01</p>
-            <h1 className="font-display text-[3.1rem] leading-[0.95] font-semibold tracking-[-0.03em] break-words hyphens-auto sm:text-[5.2rem]">
+            <h1 className="font-display text-[2.7rem] leading-[0.97] font-semibold tracking-[-0.03em] hyphens-auto sm:text-[5.2rem]">
               Vorqualifizierte Kandidaten.{" "}
               <span className="relative inline-block whitespace-nowrap">
                 <em className="font-medium text-accent-500">Zum Festpreis.</em>
