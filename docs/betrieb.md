@@ -58,6 +58,13 @@ Geheime Werte als „Sensitive“ anlegen. Rotieren: neuen Wert setzen, neu depl
 - Jeder Feed muss einmal beim Portal angemeldet werden (Links auf der Kanäle-Seite). LinkedIn listet nur nach Freischaltung als Feed-Partner. BA-Jobbörse ist kostenlos, braucht aber eine Anmeldung als Kooperationspartner (HR-BA-XML über SFTP mit Zertifikat).
 - Seit 0031 hängt nichts mehr am Gehalt: Stellen ohne Gehaltsangabe gehen ebenfalls raus (Gehalt optional, 21.11.2026).
 
+## Google for Jobs (0033)
+
+- Jede Stellenseite enthält `JobPosting`-Daten (Pflichtfelder per Test abgesichert), die Sitemap listet alle aktiven Stellen, besetzte Stellen liefern 404.
+- Indexing API: Wird eine Stelle aktiv, geändert (Titel, Ort, Gehalt, Arbeitgeber sichtbar, Remote) oder beendet, meldet recrewted das sofort an Google (Warteschlange `indexing_outbox`, sofort nach dem Statuswechsel, nach Vertragsabschluss und täglich im Cron). Nur für die öffentliche Adresse und nur bei Kunden mit eingeschaltetem Google for Jobs.
+- Einrichtung (einmalig): Search Console – Domain recrewted.de bestätigen, Sitemap einreichen. Google Cloud – „Web Search Indexing API“ aktivieren, Dienstkonto mit JSON-Schlüssel anlegen. Search Console – Dienstkonto als **Inhaber** eintragen. Vercel – `GOOGLE_INDEXING_CLIENT_EMAIL` und `GOOGLE_INDEXING_PRIVATE_KEY` („Sensitive“). Danach eine Stelle mit dem Rich-Results-Test prüfen.
+- Status und Schritte: Admin → Kanäle → „Google for Jobs“.
+
 ## Stellen importieren (0032)
 
 - **Kunden-Stellen:** Admin → Unternehmen → „Stellen des Kunden importieren“. Quellen: Personio (öffentlicher XML-Feed), Greenhouse, Lever, SmartRecruiters, Recruitee, Workable (öffentliche Schnittstellen, ohne Schlüssel) und Karriereseiten mit Google-for-Jobs-Daten (`JobPosting`). Nur im Auftrag des Kunden.

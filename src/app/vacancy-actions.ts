@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { processAtsTransfers } from "@/lib/ats/process";
 import { processCrmOutbox } from "@/lib/crm/process";
+import { processIndexing } from "@/lib/google/process";
 import { getSession } from "@/lib/auth/session";
 import { isStaff } from "@/lib/auth/roles";
 import { fromStored, missingForSubmit, parseBriefingForm } from "@/lib/briefing/schema";
@@ -185,6 +186,8 @@ export async function updateVacancySettings(formData: FormData) {
     .eq("id", vacancyId);
   // Status changes of vacancies linked to a Pipedrive deal are queued by a trigger (0029); send them now.
   if (!error) after(() => processCrmOutbox(5).catch((e) => console.error("crm sync failed", e)));
+  // Google for Jobs: tell Google right away that the job is live, changed or gone (0033).
+  if (!error) after(() => processIndexing(5).catch((e) => console.error("indexing failed", e)));
   revalidatePath(path);
   if (error?.code === "23514") redirect(`${path}?status=salaryMissing#einstellungen`);
   redirect(`${path}?status=${error ? "error" : "settingsSaved"}#einstellungen`);

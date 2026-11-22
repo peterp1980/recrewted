@@ -72,3 +72,18 @@ describe("JobPosting", () => {
     expect(jsonLdScript({ t: "</script><script>alert(1)</script>" })).not.toContain("</script>");
   });
 });
+
+describe("Google for Jobs required fields", () => {
+  const required = (d: Record<string, unknown>) => {
+    for (const k of ["title", "description", "datePosted", "validThrough", "hiringOrganization"]) expect(d[k], k).toBeTruthy();
+    expect((d.hiringOrganization as { name?: string }).name).toBeTruthy();
+    if (d.jobLocationType === "TELECOMMUTE") expect(d.applicantLocationRequirements).toBeTruthy();
+    else expect((d.jobLocation as { address: { addressLocality?: string; addressCountry?: string } }).address).toMatchObject({ addressLocality: expect.any(String), addressCountry: "DE" });
+    expect(new Date(d.validThrough as string).getTime()).toBeGreaterThan(new Date(d.datePosted as string).getTime());
+  };
+  it("has them for on-site, remote and confidential jobs", () => {
+    required(jobPostingJsonLd(job, "https://recrewted.de"));
+    required(jobPostingJsonLd({ ...job, remote: true }, "https://recrewted.de"));
+    required(jobPostingJsonLd({ ...job, employerName: null }, "https://recrewted.de"));
+  });
+});

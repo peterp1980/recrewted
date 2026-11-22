@@ -2,6 +2,7 @@ import { ExternalLink } from "lucide-react";
 import { setChannelGlobal } from "@/app/channel-actions";
 import { setFeatureSwitch } from "@/app/import-actions";
 import { externalConfigured } from "@/lib/external/jobs";
+import { indexingConfig } from "@/lib/google/indexing";
 import { requireAccess } from "@/lib/auth/session";
 import { CHANNELS } from "@/lib/feeds/channels";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -29,6 +30,11 @@ export default async function ChannelsPage({ searchParams }: Props) {
     createAdminClient().from("application_attribution").select("channel, applications!inner(submitted_at)").gte("applications.submitted_at", since),
     supabase.from("feature_switches").select("key, enabled"),
   ]);
+  const { data: idx } = await supabase.from("indexing_outbox").select("status, error, sent_at, created_at").gte("created_at", since).order("created_at", { ascending: false }).limit(500);
+  const idxCount = (s: string) => (idx ?? []).filter((x) => x.status === s).length;
+  const lastError = (idx ?? []).find((x) => x.status === "failed" || (x.status === "pending" && x.error))?.error ?? null;
+  const publicSite = siteUrl().startsWith("https://") && !siteUrl().includes(".vercel.app");
+  const google = indexingConfig() !== null;
   const sw = new Map((switches ?? []).map((s) => [s.key, s.enabled]));
   const partners = externalConfigured();
   const on = new Map((settings ?? []).map((s) => [s.key, s.enabled]));
@@ -43,6 +49,26 @@ export default async function ChannelsPage({ searchParams }: Props) {
         <p className="mt-2 max-w-3xl text-ink/80">Kostenlose Kanäle, auf denen aktive Vakanzen erscheinen. Raus geht es per Feed oder strukturierten Daten, rein kommen die Bewerbungen über unsere Bewerbungsseite – jedem Kanal zugeordnet. Hier gilt der Schalter für alle Kunden; Ausnahmen je Kunde stehen beim Unternehmen.</p>
       </div>
       {msg && <p role="status" className={`rounded-lg p-3 text-sm ${msg[1] ? "bg-emerald-50 text-emerald-900" : "bg-amber-50 text-amber-900"}`}>{msg[0]}</p>}
+      <section aria-labelledby="g4j-h" className="card flex flex-col gap-3">
+        <h2 id="g4j-h" className="text-xl font-semibold">Google for Jobs</h2>
+        <ul className="flex flex-col gap-1 text-sm">
+          <li>{"✓"} Stellendaten (JobPosting) auf jeder Stellenseite – Google liest sie beim Crawlen.</li>
+          <li>{"✓"} Sitemap mit allen aktiven Stellen: <code>{siteUrl()}/sitemap.xml</code></li>
+          <li>{publicSite ? "✓" : "○"} Öffentliche Adresse: <code>{siteUrl()}</code>{!publicSite && " – erst nach dem Umzug auf recrewted.de (NEXT_PUBLIC_SITE_URL) meldet recrewted Stellen aktiv an Google."}</li>
+          <li>{google ? "✓" : "○"} Indexing API (Stellen sofort an Google melden): {google ? "eingerichtet" : "Zugang fehlt (GOOGLE_INDEXING_CLIENT_EMAIL, GOOGLE_INDEXING_PRIVATE_KEY)"}</li>
+        </ul>
+        <p className="text-sm text-muted">Letzte 90 Tage: {idxCount("sent")} gemeldet, {idxCount("pending")} wartend, {idxCount("failed")} fehlgeschlagen{lastError ? ` · zuletzt: ${lastError}` : ""}</p>
+        <details className="text-sm">
+          <summary className="cursor-pointer font-medium">Einrichtung (einmalig)</summary>
+          <ol className="mt-2 list-decimal space-y-1 pl-5 text-ink/80">
+            <li>Google Search Console: Domain recrewted.de hinzufügen und per DNS-Eintrag bestätigen; Sitemap einreichen.</li>
+            <li>Google Cloud: Projekt anlegen, „Web Search Indexing API“ aktivieren, Dienstkonto anlegen und einen JSON-Schlüssel erzeugen.</li>
+            <li>Search Console → Einstellungen → Nutzer und Berechtigungen: die E-Mail des Dienstkontos als <b>Inhaber</b> hinzufügen.</li>
+            <li>Vercel: <code>GOOGLE_INDEXING_CLIENT_EMAIL</code> (client_email aus der JSON-Datei) und <code>GOOGLE_INDEXING_PRIVATE_KEY</code> (private_key, Typ „Sensitive“) eintragen.</li>
+            <li>Mit dem Rich-Results-Test von Google eine Stellenseite prüfen.</li>
+          </ol>
+        </details>
+      </section>
       <ul className="flex flex-col gap-3">
         <li className="card flex flex-col gap-1">
           <p className="font-semibold">recrewted-Jobbörse <span className="ml-2 rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-900">immer an</span></p>

@@ -1,6 +1,8 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { after, NextResponse, type NextRequest } from "next/server";
 import { applyDocumentStatus } from "@/lib/contracts/server";
 import { webhookSignatureOk } from "@/lib/contracts/pandadoc";
+import { processIndexing } from "@/lib/google/process";
+import { processCrmOutbox } from "@/lib/crm/process";
 
 // PandaDoc webhook (Settings → Integrations → Webhooks): URL https://<site>/api/pandadoc/webhook,
 // event "document_state_changed", shared key in PANDADOC_WEBHOOK_KEY. Unsigned requests are refused.
@@ -32,5 +34,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "processing failed" }, { status: 500 });
     }
   }
+  // A signed contract activates the vacancy: tell Google and Pipedrive now, not tomorrow.
+  if (results.includes("completed")) after(() => Promise.all([processIndexing(5), processCrmOutbox(5)]).then(() => undefined).catch(() => undefined));
   return NextResponse.json({ ok: true, results });
 }

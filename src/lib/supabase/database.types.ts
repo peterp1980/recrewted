@@ -139,6 +139,12 @@ export type Database = {
         Update: { banner_version?: string; decided_at?: string; id?: string; marketing?: boolean; statistics?: boolean; subject_ref?: string; subject_type?: string }
         Relationships: []
       }
+      indexing_outbox: {
+        Row: { id: number; vacancy_id: string; kind: string; status: string; attempts: number; error: string | null; url: string | null; created_at: string; sent_at: string | null }
+        Insert: { id?: number; vacancy_id: string; kind: string; status?: string; attempts?: number; error?: string | null; url?: string | null; created_at?: string; sent_at?: string | null }
+        Update: { id?: number; vacancy_id?: string; kind?: string; status?: string; attempts?: number; error?: string | null; url?: string | null; created_at?: string; sent_at?: string | null }
+        Relationships: []
+      }
       feature_switches: {
         Row: { key: string; enabled: boolean; updated_at: string; updated_by: string | null }
         Insert: { key: string; enabled?: boolean; updated_at?: string; updated_by?: string | null }
@@ -371,6 +377,7 @@ export type Database = {
     Functions: {
       claim_due_mails: { Args: { max_count: number }; Returns: Database["public"]["Tables"]["mail_outbox"]["Row"][] }
       submit_application: { Args: { p: Json }; Returns: Json }
+      claim_indexing: { Args: { max_count?: number }; Returns: Database["public"]["Tables"]["indexing_outbox"]["Row"][] }
       claim_crm_outbox: { Args: { max_count?: number }; Returns: Database["public"]["Tables"]["crm_outbox"]["Row"][] }
       claim_ats_transfers: { Args: { max_count?: number }; Returns: Database["public"]["Tables"]["ats_transfers"]["Row"][] }
       org_team: { Args: { org: string }; Returns: { profile_id: string; full_name: string | null; email: string | null; member_role: string; created_at: string }[] }

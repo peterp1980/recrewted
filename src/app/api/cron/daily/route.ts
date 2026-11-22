@@ -7,6 +7,7 @@ import { queueJobAlerts } from "@/lib/profile/send-alerts";
 import { syncAllDomains } from "@/lib/careers/verify-domain";
 import { processCrmOutbox } from "@/lib/crm/process";
 import { runAllImports } from "@/lib/imports/run";
+import { processIndexing } from "@/lib/google/process";
 import { isMondayInBerlin, queueWeeklyReports } from "@/lib/reports/send";
 
 /**
@@ -68,6 +69,9 @@ export async function GET(request: NextRequest) {
   result.conversions = await processConversions().catch((e) => ({ error: String(e) }));
   result.mails = await processDueMails(200).catch((e) => ({ error: String(e) }));
   // WhatsApp copies of candidate mails are sent inside processDueMails (only with opt-in and configured access).
+  // Google for Jobs: Indexing API (0033) – also covers jobs filled or activated outside the settings form.
+  result.indexing = await processIndexing(150).catch((e) => ({ error: String(e) }));
+
   // Customers' own jobs from their systems, as drafts (0032).
   result.imports = await runAllImports().catch((e) => ({ error: String(e) }));
 
