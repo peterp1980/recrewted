@@ -139,6 +139,24 @@ export type Database = {
         Update: { banner_version?: string; decided_at?: string; id?: string; marketing?: boolean; statistics?: boolean; subject_ref?: string; subject_type?: string }
         Relationships: []
       }
+      feature_switches: {
+        Row: { key: string; enabled: boolean; updated_at: string; updated_by: string | null }
+        Insert: { key: string; enabled?: boolean; updated_at?: string; updated_by?: string | null }
+        Update: { key?: string; enabled?: boolean; updated_at?: string; updated_by?: string | null }
+        Relationships: []
+      }
+      job_imports: {
+        Row: { id: string; organization_id: string; provider: string; source: string; enabled: boolean; last_run_at: string | null; last_result: Json | null; created_by: string | null; created_at: string }
+        Insert: { id?: string; organization_id: string; provider: string; source: string; enabled?: boolean; last_run_at?: string | null; last_result?: Json | null; created_by?: string | null; created_at?: string }
+        Update: { id?: string; organization_id?: string; provider?: string; source?: string; enabled?: boolean; last_run_at?: string | null; last_result?: Json | null; created_by?: string | null; created_at?: string }
+        Relationships: [{ foreignKeyName: "job_imports_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: false; referencedRelation: "organizations"; referencedColumns: ["id"] }]
+      }
+      imported_jobs: {
+        Row: { id: string; import_id: string; external_id: string; vacancy_id: string | null; title: string; url: string | null; first_seen_at: string; last_seen_at: string; gone_at: string | null }
+        Insert: { id?: string; import_id: string; external_id: string; vacancy_id?: string | null; title: string; url?: string | null; first_seen_at?: string; last_seen_at?: string; gone_at?: string | null }
+        Update: { id?: string; import_id?: string; external_id?: string; vacancy_id?: string | null; title?: string; url?: string | null; first_seen_at?: string; last_seen_at?: string; gone_at?: string | null }
+        Relationships: [{ foreignKeyName: "imported_jobs_import_id_fkey"; columns: ["import_id"]; isOneToOne: false; referencedRelation: "job_imports"; referencedColumns: ["id"] }, { foreignKeyName: "imported_jobs_vacancy_id_fkey"; columns: ["vacancy_id"]; isOneToOne: false; referencedRelation: "vacancies"; referencedColumns: ["id"] }]
+      }
       job_channels: {
         Row: { key: string; enabled: boolean; updated_at: string; updated_by: string | null }
         Insert: { key: string; enabled?: boolean; updated_at?: string; updated_by?: string | null }

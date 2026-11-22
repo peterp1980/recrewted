@@ -7,6 +7,8 @@ import { CATEGORIES, EMPLOYMENT_TYPES } from "@/lib/briefing/schema";
 import { jobsHref, parseJobFilters, RADII, type JobFilters } from "@/lib/jobs/filters";
 import { isNew, jobPath, postedLabel, salaryText } from "@/lib/jobs/format";
 import { EmployerMark } from "@/components/jobs/EmployerMark";
+import { ExternalJobs } from "@/components/jobs/ExternalJobs";
+import { Suspense } from "react";
 import { PAGE_SIZE, searchJobs } from "@/lib/jobs/public";
 
 const t = getMessages().jobs;
@@ -160,6 +162,13 @@ export default async function JobsPage({ searchParams }: Props) {
             <span className="text-muted">{f.page} / {pages}</span>
             {f.page < pages && <Link href={pageLink(f.page + 1)} className="btn-secondary py-2">{t.next}</Link>}
           </nav>
+        )}
+
+        {/* Partner jobs (admin switch), loaded after our own results. */}
+        {f.page === 1 && (
+          <Suspense fallback={null}>
+            <ExternalJobs q={f.q} where={f.where} radius={f.radius} />
+          </Suspense>
         )}
       </div>
     </main>

@@ -1,5 +1,7 @@
 import { ExternalLink } from "lucide-react";
 import { setChannelGlobal } from "@/app/channel-actions";
+import { setFeatureSwitch } from "@/app/import-actions";
+import { externalConfigured } from "@/lib/external/jobs";
 import { requireAccess } from "@/lib/auth/session";
 import { CHANNELS } from "@/lib/feeds/channels";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -20,12 +22,15 @@ export default async function ChannelsPage({ searchParams }: Props) {
   const isAdmin = session.role === "admin";
   const supabase = await createClient();
   const since = new Date(Date.now() - 90 * 86_400_000).toISOString();
-  const [{ data: settings }, { data: off }, { data: apps }] = await Promise.all([
+  const [{ data: settings }, { data: off }, { data: apps }, { data: switches }] = await Promise.all([
     supabase.from("job_channels").select("key, enabled, updated_at"),
     supabase.from("organization_channels").select("channel, organizations(name)").eq("enabled", false),
     // Applications per channel over 90 days ("in"): attribution written at apply time (F12).
     createAdminClient().from("application_attribution").select("channel, applications!inner(submitted_at)").gte("applications.submitted_at", since),
+    supabase.from("feature_switches").select("key, enabled"),
   ]);
+  const sw = new Map((switches ?? []).map((s) => [s.key, s.enabled]));
+  const partners = externalConfigured();
   const on = new Map((settings ?? []).map((s) => [s.key, s.enabled]));
   const count = new Map<string, number>();
   for (const a of apps ?? []) if (a.channel) count.set(a.channel, (count.get(a.channel) ?? 0) + 1);
@@ -72,6 +77,41 @@ export default async function ChannelsPage({ searchParams }: Props) {
           );
         })}
       </ul>
+      <section id="import" aria-labelledby="import-h" className="flex scroll-mt-20 flex-col gap-3">
+        <h2 id="import-h" className="text-2xl font-bold">Rein: Stellen importieren</h2>
+        {[
+          {
+            key: "import_customer_jobs",
+            title: "Stellen unserer Kunden aus deren Systemen",
+            text: "Personio, Greenhouse, Lever, SmartRecruiters, Recruitee, Workable und Karriereseiten mit Google-for-Jobs-Daten. Quellen trägt der Admin beim Unternehmen ein; neue Stellen werden Entwürfe, nichts geht ohne Freigabe online.",
+            extra: null,
+          },
+          {
+            key: "external_jobs",
+            title: "Partner-Stellen in der Jobbörse (Adzuna, Jooble)",
+            text: "Zeigt unter unseren eigenen Treffern weitere Stellen der Partner, klar als extern markiert, mit Quellenangabe. Der Klick führt zum Partner – diese Bewerbungen laufen nicht durch unsere Vorqualifizierung. Nicht in Google for Jobs, Feeds oder Sitemap.",
+            extra: `Zugang: Adzuna ${partners.adzuna ? "eingerichtet" : "fehlt (ADZUNA_APP_ID, ADZUNA_APP_KEY)"} · Jooble ${partners.jooble ? "eingerichtet" : "fehlt (JOOBLE_API_KEY)"}`,
+          },
+        ].map((x) => {
+          const enabled = Boolean(sw.get(x.key));
+          return (
+            <div key={x.key} className="card flex flex-col gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="font-semibold">{x.title} <span className={`ml-2 rounded-full px-2 py-0.5 text-xs ${enabled ? "bg-emerald-50 text-emerald-900" : "bg-neutral-100 text-ink/70"}`}>{enabled ? "an" : "aus"}</span></p>
+                {isAdmin && (
+                  <form action={setFeatureSwitch}>
+                    <input type="hidden" name="key" value={x.key} />
+                    {!enabled && <input type="hidden" name="enabled" value="on" />}
+                    <button className={enabled ? "btn-secondary py-1.5 text-sm" : "btn-primary py-1.5 text-sm"}>{enabled ? "Ausschalten" : "Einschalten"}</button>
+                  </form>
+                )}
+              </div>
+              <p className="text-sm text-ink/80">{x.text}</p>
+              {x.extra && <p className="text-sm text-muted">{x.extra}</p>}
+            </div>
+          );
+        })}
+      </section>
       <p className="text-sm text-muted">Kostenpflichtig und deshalb nicht hier: StepStone, XING, meinestadt.de und bezahlte Anzeigen auf Indeed oder LinkedIn. Die laufen als Managed-Kampagnen mit Budget.</p>
     </main>
   );

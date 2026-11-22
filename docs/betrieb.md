@@ -58,6 +58,15 @@ Geheime Werte als „Sensitive“ anlegen. Rotieren: neuen Wert setzen, neu depl
 - Jeder Feed muss einmal beim Portal angemeldet werden (Links auf der Kanäle-Seite). LinkedIn listet nur nach Freischaltung als Feed-Partner. BA-Jobbörse ist kostenlos, braucht aber eine Anmeldung als Kooperationspartner (HR-BA-XML über SFTP mit Zertifikat).
 - Seit 0031 hängt nichts mehr am Gehalt: Stellen ohne Gehaltsangabe gehen ebenfalls raus (Gehalt optional, 21.11.2026).
 
+## Stellen importieren (0032)
+
+- **Kunden-Stellen:** Admin → Unternehmen → „Stellen des Kunden importieren“. Quellen: Personio (öffentlicher XML-Feed), Greenhouse, Lever, SmartRecruiters, Recruitee, Workable (öffentliche Schnittstellen, ohne Schlüssel) und Karriereseiten mit Google-for-Jobs-Daten (`JobPosting`). Nur im Auftrag des Kunden.
+- Neue Stellen werden **Entwürfe** mit vorausgefülltem Briefing (Überschriften wie „Ihre Aufgaben“, „Profil“, „Wir bieten“ werden zugeordnet, der Rest steht in den Notizen). Ein Recruiter prüft und gibt frei; aktive Vakanzen ändert ein Import nie. Verschwindet eine Stelle beim Kunden, steht sie als „nicht mehr gelistet“ in der Liste.
+- Abruf beim Anlegen, auf Knopfdruck und täglich im Cron. Höchstens 50 neue Entwürfe je Lauf.
+- **Partner-Stellen (Adzuna, Jooble):** unter den eigenen Treffern in der Jobbörse, klar als extern markiert, mit Quellenangabe, Links mit `nofollow sponsored`, nicht in Google for Jobs, Feeds, Sitemap oder llms.txt. Serverseitige Abfrage nur mit Suchbegriff und Ort (keine Besucherdaten), eine Stunde zwischengespeichert. Vercel-Variablen: `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` (kostenloses Entwicklerkonto auf developer.adzuna.com), `JOOBLE_API_KEY` (kostenloser Partner-Schlüssel von Jooble). Nutzungsbedingungen beider Anbieter vor dem Einschalten lesen (Quellenangabe ist Pflicht).
+- **Schalter:** Admin → Kanäle → „Rein: Stellen importieren“. Kunden-Import ist an, Partner-Stellen sind aus.
+- **Nicht gebaut, bewusst:** Übernahme aus der BA-Jobbörse (ohne Zustimmung der BA rechtlich unsicher) und Scraping von Portalen oder fremden Karriereseiten (Nutzungsbedingungen, Datenbankrecht).
+
 ## Angebote und Verträge mit PandaDoc (F16)
 
 - Nur Admins der projx GmbH erstellen, senden und verwalten Angebote und Verträge (RLS ab 0030). Recruiter sehen sie, Kunden sehen ihre unterschriebenen PDFs im Portal.

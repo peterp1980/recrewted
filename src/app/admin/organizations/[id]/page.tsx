@@ -1,3 +1,4 @@
+import { JobImportsSection } from "@/components/JobImportsSection";
 import { CustomerChannels } from "@/components/CustomerChannels";
 import { ContractsSection } from "@/components/ContractsSection";
 import { FairnessSettings } from "@/components/FairnessSettings";
@@ -20,12 +21,12 @@ import { syncDomainVerification } from "@/lib/careers/verify-domain";
 
 export const metadata = { title: "Unternehmen – recrewted" };
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ status?: string; error?: string; r?: string; ats?: string; msg?: string; field?: string; team?: string; ki?: string; fair?: string; vt?: string; vtd?: string; ch?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ status?: string; error?: string; r?: string; ats?: string; msg?: string; field?: string; team?: string; ki?: string; fair?: string; vt?: string; vtd?: string; ch?: string; imp?: string }> };
 
 const field = "rounded-lg border border-neutral-300 px-3 py-2";
 
 export default async function OrganizationPage({ params, searchParams }: Props) {
-  const [{ id }, { status, error, r, ats, msg, field: atsField, team, ki, fair, vt, vtd, ch }] = await Promise.all([params, searchParams]);
+  const [{ id }, { status, error, r, ats, msg, field: atsField, team, ki, fair, vt, vtd, ch, imp }] = await Promise.all([params, searchParams]);
   const session = await requireAccess(`/admin/organizations/${id}`);
   const t = getMessages().organizations;
   const e = getMessages().editor;
@@ -156,6 +157,7 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
 
       <ContractsSection organizationId={org.id} status={vt} detail={vtd} />
       <CustomerChannels organizationId={org.id} status={ch} />
+      <JobImportsSection organizationId={org.id} status={imp} />
       <FairnessSettings organizationId={org.id} blindReview={org.blind_review} canChange status={fair} />
       <AiSwitches organizationId={org.id} assist={org.ai_assist} scoring={org.ai_scoring} status={ki} />
       <TeamSection organizationId={org.id} from="admin" status={team} canManage viewerId={session.userId} />
