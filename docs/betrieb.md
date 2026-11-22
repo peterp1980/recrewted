@@ -50,6 +50,13 @@ Geheime Werte als „Sensitive“ anlegen. Rotieren: neuen Wert setzen, neu depl
 4. Unter der Domain zeigt `/` die Karriereseite; Stellen, Bewerbung und Tests laufen unter derselben Domain. Admin, Portal und Login leiten auf recrewted um.
 5. **Impressum des Kunden (0028):** Im selben Formular Impressumstext und/oder Link zum Impressum des Kunden eintragen. Die Domain gilt als geprüft, sobald `https://<domain>/api/domain-check` von unserem Server signiert beantwortet wird (DNS, Zertifikat und Weiterleitung in einem). Geprüft wird beim Öffnen der Unternehmensseite im Admin und täglich im Cron; das Ergebnis steht in `career_domain_verified_at`. Nur dann zeigt `/impressum` auf der Kundendomain das Impressum des Kunden, mit Hinweis auf den technischen Betrieb durch die projx GmbH. Auf recrewted.de und bei ungeprüfter Domain bleibt das Impressum der projx GmbH. Ändert sich die Domain, wird die Prüfung zurückgesetzt.
 
+## Angebote und Verträge mit PandaDoc (F16)
+
+- Nur Admins der projx GmbH erstellen, senden und verwalten Angebote und Verträge (RLS ab 0030). Recruiter sehen sie, Kunden sehen ihre unterschriebenen PDFs im Portal.
+- Einrichtung: in Vercel `PANDADOC_API_KEY` und `PANDADOC_WEBHOOK_KEY` (beide „Sensitive“). In PandaDoc einen Webhook auf `https://<site>/api/pandadoc/webhook` mit dem Ereignis „Document state changed“ anlegen. Vorlagen unter Admin → Verträge hinterlegen (je Dokumentart eine aktive, mit Rolle „Kunde“, optional „projx“ für die Gegenzeichnung). Platzhalter-Liste steht auf derselben Seite.
+- Ablauf: Admin → Unternehmen (Rahmenvertrag, AGB, AV-Vertrag) oder Admin → Vakanz (Angebot, Auftragsbestätigung) → „Erstellen und senden“. PandaDoc schickt dem Kunden die Mail zum Unterschreiben. Beim Senden geht die Vakanz auf „Vertrag versendet“.
+- Nach der Unterschrift (Webhook): PDF in den privaten Bucket `contracts`, Vakanz wird aktiv, Pipedrive-Deal wird gewonnen. Ohne Webhook: „Status abrufen“ im Admin.
+
 ## Pipedrive (F15)
 
 - Vercel-Variablen: `PIPEDRIVE_API_TOKEN` (geheim, trägt Peter selbst ein: Pipedrive → Persönliche Einstellungen → API → Token kopieren; Vercel → Projekt → Settings → Environment Variables, Typ „Sensitive“, Production und Preview), `PIPEDRIVE_PIPELINE_ID=12` (Pipeline „recrewted“), `PIPEDRIVE_STAGE_ID=81` („Qualifiziert“), optional `PIPEDRIVE_COMPANY_DOMAIN` für Deal-Links.

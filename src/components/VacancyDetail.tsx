@@ -1,4 +1,5 @@
 import { CrmBox } from "@/components/CrmBox";
+import { ContractsSection } from "@/components/ContractsSection";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMessages } from "@/i18n";
@@ -33,7 +34,7 @@ type Props = {
   id: string;
   base: "/admin" | "/portal";
   staff: boolean;
-  search: { status?: string; missing?: string; q?: string; c?: string; k?: string; a?: string; t?: string; p?: string; ct?: string; sl?: string; ki?: string; crm?: string };
+  search: { status?: string; missing?: string; q?: string; c?: string; k?: string; a?: string; t?: string; p?: string; ct?: string; sl?: string; ki?: string; crm?: string; vt?: string; vtd?: string };
 };
 
 /** Vacancy page with briefing (F13). Staff additionally see suggestions and can apply them. */
@@ -112,7 +113,7 @@ export async function VacancyDetail({ id, base, staff, search }: Props) {
       <VacancyContacts vacancyId={vacancy.id} organizationId={vacancy.organization_id} canEdit={teamCanEdit} status={search.ct} />
       {vacancy.status !== "draft" && <InterviewSlots vacancyId={vacancy.id} canEdit={teamCanEdit} staff={staff} status={search.sl} />}
 
-      {staff && <StaffSections vacancyId={vacancy.id} briefing={briefing} search={search} />}
+      {staff && <StaffSections vacancyId={vacancy.id} organizationId={vacancy.organization_id} briefing={briefing} search={search} />}
     </main>
   );
 }
@@ -172,12 +173,13 @@ async function Suggestions({ vacancyId, briefing }: { vacancyId: string; briefin
   );
 }
 
-async function StaffSections({ vacancyId, briefing, search }: { vacancyId: string; briefing: ReturnType<typeof fromStored>; search: Props["search"] }) {
+async function StaffSections({ vacancyId, organizationId, briefing, search }: { vacancyId: string; organizationId: string; briefing: ReturnType<typeof fromStored>; search: Props["search"] }) {
   const session = await getSession();
   if (!session) return null;
   return (
     <>
       <VacancySettings vacancyId={vacancyId} />
+      <ContractsSection organizationId={organizationId} vacancyId={vacancyId} status={search.vt} detail={search.vtd} />
       <CrmBox vacancyId={vacancyId} status={search.crm} />
       <DistributionSection vacancyId={vacancyId} />
       <ApplicationsList vacancyId={vacancyId} viewerId={session.userId} />

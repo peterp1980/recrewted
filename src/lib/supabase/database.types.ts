@@ -139,10 +139,16 @@ export type Database = {
         Update: { banner_version?: string; decided_at?: string; id?: string; marketing?: boolean; statistics?: boolean; subject_ref?: string; subject_type?: string }
         Relationships: []
       }
+      contract_templates: {
+        Row: { id: string; kind: string; name: string; pandadoc_template_id: string; customer_role: string; projx_role: string | null; version: string; active: boolean; created_at: string }
+        Insert: { id?: string; kind: string; name: string; pandadoc_template_id: string; customer_role?: string; projx_role?: string | null; version?: string; active?: boolean; created_at?: string }
+        Update: { id?: string; kind?: string; name?: string; pandadoc_template_id?: string; customer_role?: string; projx_role?: string | null; version?: string; active?: boolean; created_at?: string }
+        Relationships: []
+      }
       contracts: {
-        Row: { created_at: string; id: string; kind: string; organization_id: string; pandadoc_document_id: string | null; signed_at: string | null; status: E["contract_status"]; storage_path: string | null; template_version: string; vacancy_id: string | null }
-        Insert: { created_at?: string; id?: string; kind: string; organization_id: string; pandadoc_document_id?: string | null; signed_at?: string | null; status?: E["contract_status"]; storage_path?: string | null; template_version: string; vacancy_id?: string | null }
-        Update: { created_at?: string; id?: string; kind?: string; organization_id?: string; pandadoc_document_id?: string | null; signed_at?: string | null; status?: E["contract_status"]; storage_path?: string | null; template_version?: string; vacancy_id?: string | null }
+        Row: { created_at: string; id: string; kind: string; organization_id: string; pandadoc_document_id: string | null; signed_at: string | null; status: E["contract_status"]; storage_path: string | null; template_version: string; vacancy_id: string | null; name: string | null; recipient_name: string | null; recipient_email: string | null; countersigner_email: string | null; amount_eur: number | null; tokens: Json; created_by: string | null; sent_at: string | null; viewed_at: string | null; declined_at: string | null; error: string | null; updated_at: string }
+        Insert: { created_at?: string; id?: string; kind: string; organization_id: string; pandadoc_document_id?: string | null; signed_at?: string | null; status?: E["contract_status"]; storage_path?: string | null; template_version: string; vacancy_id?: string | null; name?: string | null; recipient_name?: string | null; recipient_email?: string | null; countersigner_email?: string | null; amount_eur?: number | null; tokens?: Json; created_by?: string | null; sent_at?: string | null; viewed_at?: string | null; declined_at?: string | null; error?: string | null; updated_at?: string }
+        Update: { created_at?: string; id?: string; kind?: string; organization_id?: string; pandadoc_document_id?: string | null; signed_at?: string | null; status?: E["contract_status"]; storage_path?: string | null; template_version?: string; vacancy_id?: string | null; name?: string | null; recipient_name?: string | null; recipient_email?: string | null; countersigner_email?: string | null; amount_eur?: number | null; tokens?: Json; created_by?: string | null; sent_at?: string | null; viewed_at?: string | null; declined_at?: string | null; error?: string | null; updated_at?: string }
         Relationships: Rel[]
       }
       customer_feedback: {

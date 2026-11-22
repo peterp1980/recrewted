@@ -29,6 +29,7 @@ export const de = {
     adAccounts: "Werbekonten",
     organizations: "Unternehmen",
     kpis: "Kennzahlen",
+    contracts: "Verträge",
     ai: "KI",
     portal: "Meine Vakanzen",
     career: "Karriereseite",
