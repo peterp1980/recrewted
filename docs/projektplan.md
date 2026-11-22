@@ -39,7 +39,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | 4 | F13 Briefing → Suchprofil | gebaut (Branch `mvp`) |
 | 5 | F16 PandaDoc (Vorlagen, Versand, Webhook, PDF in Storage) | 4 |
 | 6 | F15 Pipedrive (Deal ↔ Vakanz, Stages spiegeln) | 2 |
-| 7 | F1 Jobbörse + Google for Jobs, F10 Gehaltsfeld | gebaut (Branch `mvp`); Umkreissuche braucht PLZ-Import |
+| 7 | F1 Jobbörse + Google for Jobs, F10 Gehaltsfeld | gebaut (Branch `mvp`); PLZ-Import erledigt (22.11.2026, 23.296 Einträge GeoNames) |
 | 8 | F2 Kurzbewerbung mobil + Eingangsmail | gebaut (Branch `mvp`); Mailversand wartet auf SMTP-Anbieter |
 | 9 | F20 Consent-Banner, Einwilligungen, Löschjobs | gebaut (Branch `mvp`); Fristen mit DSB abstimmen |
 | 10 | F3 Ausschlussfragen + zeitversetzte Absage | gebaut (Branch `mvp`) |
@@ -94,6 +94,5 @@ Offen bis zum Livegang:
 
 - Zugänge/Entscheidungen: PandaDoc, Pipedrive, SMTP-Anbieter, KI-Anbieter, Werbekonten-APIs, Verträge Indeed/StepStone/BA
 - Supabase-Einstellungen (Site URL, Registrierung aus, Mail-Vorlagen) und Secrets in Vercel (siehe docs/betrieb.md)
-- Postleitzahlen-Import für die Umkreissuche (scripts/import-postal-codes.mjs)
 - Texte: Datenschutzerklärung, Impressum, Case-Beschreibungen; Design; alte URLs für Weiterleitungen
 - #20 Härtung: E2E-Tests der Abläufe 1–9 gegen eine Testdatenbank, WCAG-Prüfung mit echten Inhalten, Pentest
