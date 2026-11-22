@@ -14,6 +14,12 @@ export async function middleware(request: NextRequest) {
       url.pathname = `/karriere/${slug}`;
       return NextResponse.rewrite(url);
     }
+    // The imprint on a customer domain is the customer's (if verified and given; the page decides).
+    if (path === "/impressum") {
+      const url = request.nextUrl.clone();
+      url.pathname = `/karriere/${slug}/impressum`;
+      return NextResponse.rewrite(url);
+    }
     // Internal areas stay on recrewted's own domain.
     if (path.startsWith("/admin") || path.startsWith("/portal") || path.startsWith("/login") || path.startsWith("/vorschau")) {
       return NextResponse.redirect(new URL(path, siteUrl()));

@@ -48,6 +48,16 @@ Geheime Werte als „Sensitive“ anlegen. Rotieren: neuen Wert setzen, neu depl
 2. Der Kunde legt beim Domain-Anbieter den angezeigten Eintrag an: Subdomain `CNAME → cname.vercel-dns.com`, Hauptdomain `A → 76.76.21.21`.
 3. Ist `VERCEL_API_TOKEN` gesetzt, wird die Domain beim Speichern im Vercel-Projekt angelegt und der Status angezeigt. Sonst die Domain in Vercel (Projekt → Domains) von Hand hinzufügen.
 4. Unter der Domain zeigt `/` die Karriereseite; Stellen, Bewerbung und Tests laufen unter derselben Domain. Admin, Portal und Login leiten auf recrewted um.
+5. **Impressum des Kunden (0028):** Im selben Formular Impressumstext und/oder Link zum Impressum des Kunden eintragen. Die Domain gilt als geprüft, sobald `https://<domain>/api/domain-check` von unserem Server signiert beantwortet wird (DNS, Zertifikat und Weiterleitung in einem). Geprüft wird beim Öffnen der Unternehmensseite im Admin und täglich im Cron; das Ergebnis steht in `career_domain_verified_at`. Nur dann zeigt `/impressum` auf der Kundendomain das Impressum des Kunden, mit Hinweis auf den technischen Betrieb durch die projx GmbH. Auf recrewted.de und bei ungeprüfter Domain bleibt das Impressum der projx GmbH. Ändert sich die Domain, wird die Prüfung zurückgesetzt.
+
+## SEO und GEO
+
+- Jede öffentliche Seite hat Titel, Beschreibung, Canonical, Open Graph und Twitter-Card (`src/lib/seo.ts`).
+- Vorschaubilder: `src/app/opengraph-image.tsx` (Website) und je Stelle `jobs/[slug]/opengraph-image.tsx` (Titel, Arbeitgeber, Ort, Gehalt).
+- Strukturierte Daten: `Organization` (recrewted, betrieben von der projx GmbH), `WebSite` mit Suche, `FAQPage` auf der Startseite; `JobPosting` und `BreadcrumbList` je Stelle.
+- `/llms.txt`: Kurzfassung für KI-Suche (ChatGPT, Perplexity, Claude, Gemini) mit Leistungen, FAQ und allen aktiven Stellen; alle 15 Minuten neu.
+- `robots.txt` erlaubt Suchmaschinen und KI-Crawler ausdrücklich, sperrt persönliche Links (Termin, Umfrage, Profil, Tests), Admin, Portal und Widgets.
+- Nach dem Umzug auf recrewted.de: Domain in der Google Search Console und den Bing Webmaster Tools anmelden und die Sitemap einreichen.
 
 
 ## Mailversand mit Resend

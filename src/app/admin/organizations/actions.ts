@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireAccess } from "@/lib/auth/session";
 import { parseSettingsForm } from "@/lib/careers/profile";
+import { parseImprint } from "@/lib/careers/imprint";
 import { addDomain, removeDomain } from "@/lib/careers/vercel";
 import { createClient } from "@/lib/supabase/server";
 import { audit } from "@/lib/audit";
@@ -18,12 +19,14 @@ export async function saveCareerSettings(form: FormData) {
   const parsed = parseSettingsForm(form);
   if (!parsed.ok) redirect(`${path}?error=${parsed.error}`);
   const p = parsed.value;
+  const imp = parseImprint(form);
+  if (!imp.ok) redirect(`${path}?error=imprint`);
 
   const supabase = await createClient();
   const { data: before } = await supabase.from("organizations").select("career_domain").eq("id", id).maybeSingle();
   const { data, error } = await supabase
     .from("organizations")
-    .update({ slug: p.slug, career_enabled: p.enabled, brand_color: p.brandColor, candidate_tone: p.tone, career_domain: p.domain, weekly_report: p.weeklyReport })
+    .update({ slug: p.slug, career_enabled: p.enabled, brand_color: p.brandColor, candidate_tone: p.tone, career_domain: p.domain, weekly_report: p.weeklyReport, imprint: imp.value.imprint, imprint_url: imp.value.imprintUrl })
     .eq("id", id)
     .select("slug")
     .maybeSingle();

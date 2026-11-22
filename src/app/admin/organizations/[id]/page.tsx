@@ -14,6 +14,7 @@ import { siteUrl } from "@/lib/site";
 import { saveCareerSettings } from "../actions";
 import { dnsRecord } from "@/lib/careers/domain";
 import { domainStatus } from "@/lib/careers/vercel";
+import { syncDomainVerification } from "@/lib/careers/verify-domain";
 
 export const metadata = { title: "Unternehmen – recrewted" };
 
@@ -29,7 +30,7 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
   const supabase = await createClient();
   const { data: org } = await supabase
     .from("organizations")
-    .select("id, name, website, slug, career_enabled, brand_color, candidate_tone, career_domain, weekly_report, ai_assist, ai_scoring, blind_review, career_pages(status, published_at), vacancies(id, title, status)")
+    .select("id, name, website, slug, career_enabled, brand_color, candidate_tone, career_domain, career_domain_verified_at, imprint, imprint_url, weekly_report, ai_assist, ai_scoring, blind_review, career_pages(status, published_at), vacancies(id, title, status)")
     .eq("id", id)
     .maybeSingle();
   if (!org) notFound();
@@ -112,12 +113,24 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
             <span className="text-sm text-muted">{t.domainHint}</span>
             <input name="domain" defaultValue={org.career_domain ?? ""} placeholder="karriere.beispiel.de" inputMode="url" autoCapitalize="none" spellCheck={false} className={field} />
           </label>
+          <fieldset className="grid gap-3 rounded-xl border border-neutral-200 p-4">
+            <legend className="px-1 font-medium">{t.imprint}</legend>
+            <span className="text-sm text-muted">{t.imprintHint}</span>
+            <label className="grid gap-1">
+              <span className="text-sm font-medium">{t.imprintText}</span>
+              <textarea name="imprint" rows={6} defaultValue={org.imprint ?? ""} maxLength={5000} placeholder={"Muster GmbH\nMusterstraße 1\n80331 München\nVertreten durch: …\nTelefon: … · E-Mail: …\nRegistergericht: … · HRB …\nUSt-IdNr.: DE …"} className={field} />
+            </label>
+            <label className="grid gap-1">
+              <span className="text-sm font-medium">{t.imprintUrl}</span>
+              <input name="imprintUrl" defaultValue={org.imprint_url ?? ""} placeholder="https://www.beispiel.de/impressum" inputMode="url" className={field} />
+            </label>
+          </fieldset>
           <button type="submit" className="btn-primary self-start">{t.save}</button>
         </fieldset>
         {readOnly && <p className="text-sm text-muted">{t.errors.forbidden}</p>}
       </form>
 
-      {org.career_domain && <DnsBox domain={org.career_domain} />}
+      {org.career_domain && <DnsBox organizationId={org.id} domain={org.career_domain} hasImprint={Boolean(org.imprint || org.imprint_url)} />}
 
       <section aria-labelledby="links" className="card flex flex-col gap-4">
         <h2 id="links" className="text-lg font-semibold">{t.links}</h2>
@@ -149,16 +162,22 @@ export default async function OrganizationPage({ params, searchParams }: Props) 
 }
 
 /** What the customer has to set at their DNS provider, and whether it works yet. */
-async function DnsBox({ domain }: { domain: string }) {
+async function DnsBox({ organizationId, domain, hasImprint }: { organizationId: string; domain: string; hasImprint: boolean }) {
   const t = getMessages().organizations;
   const rec = dnsRecord(domain);
-  const status = await domainStatus(domain);
-  const tone = status.state === "ok" ? "bg-emerald-50 text-emerald-900" : status.state === "unknown" ? "bg-neutral-100 text-ink/80" : "bg-amber-50 text-amber-900";
+  const [status, reaches] = await Promise.all([domainStatus(domain), syncDomainVerification(organizationId, domain)]);
+  const verifiedText = reaches
+    ? hasImprint
+      ? t.domainVerified(new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" }).format(new Date()))
+      : t.domainVerifiedNoImprint
+    : t.domainUnverified;
+  const tone = reaches || status.state === "ok" ? "bg-emerald-50 text-emerald-900" : status.state === "unknown" ? "bg-neutral-100 text-ink/80" : "bg-amber-50 text-amber-900";
   const rows = [rec, ...status.verification.map((v) => ({ type: v.type, name: v.domain, value: v.value }))];
   return (
     <section aria-labelledby="dns-h" className="card flex flex-col gap-4">
       <h2 id="dns-h" className="text-lg font-semibold">{t.dns}</h2>
-      <p role="status" className={`rounded-lg p-3 text-sm font-medium ${tone}`}>{t.domainState[status.state]}</p>
+      <p role="status" className={`rounded-lg p-3 text-sm font-medium ${tone}`}>{t.domainState[reaches ? "ok" : status.state]}</p>
+      <p className={`rounded-lg p-3 text-sm ${reaches && hasImprint ? "bg-emerald-50 text-emerald-900" : "bg-neutral-100 text-ink/80"}`}>{verifiedText}</p>
       <p className="text-ink/80">{t.dnsLead(domain)}</p>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[480px] text-left text-sm">

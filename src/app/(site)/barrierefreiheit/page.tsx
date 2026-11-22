@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
-import { siteUrl } from "@/lib/site";
 
-export const metadata: Metadata = { title: "Barrierefreiheit – recrewted", alternates: { canonical: `${siteUrl()}/barrierefreiheit` } };
+export const metadata: Metadata = pageMeta({ title: "Barrierefreiheit – recrewted", description: "Erklärung zur Barrierefreiheit von recrewted.de nach dem Barrierefreiheitsstärkungsgesetz.", path: "/barrierefreiheit" });
 
 /**
  * Accessibility statement (BFSG / EN 301 549, WCAG 2.1 AA). DRAFT: facts as built; projx reviews the wording

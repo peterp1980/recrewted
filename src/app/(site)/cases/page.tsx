@@ -1,14 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { ArrowRight, Quote, X } from "lucide-react";
 import { site } from "@/content/site";
-import { siteUrl } from "@/lib/site";
 import { PageHero } from "@/components/PageHero";
 
 const t = site.cases;
 const c = t.featured;
-export const metadata: Metadata = { title: `${t.title} – recrewted`, description: t.lead, alternates: { canonical: `${siteUrl()}/cases` } };
+export const metadata: Metadata = pageMeta({ title: `${t.title} – recrewted`, description: t.lead, path: "/cases" });
 
 export default function CasesPage() {
   return (

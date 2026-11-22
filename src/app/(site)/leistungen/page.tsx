@@ -1,13 +1,13 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { ArrowRight, BarChart3, ClipboardList, FileCheck2, LayoutDashboard, Megaphone, PenLine } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import { site } from "@/content/site";
-import { siteUrl } from "@/lib/site";
 
 const t = site.services;
 const ICONS = [ClipboardList, PenLine, Megaphone, FileCheck2, LayoutDashboard, BarChart3];
-export const metadata: Metadata = { title: `${t.title} – recrewted`, description: t.lead, alternates: { canonical: `${siteUrl()}/leistungen` } };
+export const metadata: Metadata = pageMeta({ title: `${t.title} – recrewted`, description: t.lead, path: "/leistungen" });
 
 export default function ServicesPage() {
   return (

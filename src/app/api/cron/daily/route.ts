@@ -4,6 +4,7 @@ import { processConversions } from "@/lib/conversions/process";
 import { processDueMails } from "@/lib/mail/outbox";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { queueJobAlerts } from "@/lib/profile/send-alerts";
+import { syncAllDomains } from "@/lib/careers/verify-domain";
 import { isMondayInBerlin, queueWeeklyReports } from "@/lib/reports/send";
 
 /**
@@ -65,5 +66,8 @@ export async function GET(request: NextRequest) {
   result.conversions = await processConversions().catch((e) => ({ error: String(e) }));
   result.mails = await processDueMails(200).catch((e) => ({ error: String(e) }));
   // WhatsApp copies of candidate mails are sent inside processDueMails (only with opt-in and configured access).
+  // Customer domains: still reaching us? Decides whether their own imprint is shown (0028).
+  result.domains = await syncAllDomains().catch((e) => ({ error: String(e) }));
+
   return NextResponse.json(result);
 }

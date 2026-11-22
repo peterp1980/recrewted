@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { CalendarClock, FileSignature, MessageSquareText } from "lucide-react";
 import { site } from "@/content/site";
-import { siteUrl } from "@/lib/site";
 import { sendContactRequest } from "@/lib/contact-actions";
 import { Notice } from "@/components/Notice";
 import { PageHero } from "@/components/PageHero";
 
 const t = site.contact;
-export const metadata: Metadata = { title: `${t.title} – recrewted`, description: t.lead, alternates: { canonical: `${siteUrl()}/kontakt` } };
+export const metadata: Metadata = pageMeta({ title: `${t.title} – recrewted`, description: t.lead, path: "/kontakt" });
 const input = "w-full rounded-xl border border-neutral-300 px-3.5 py-2.5 text-base";
 
 // What happens after the request – the actual process (briefing, offer, start), no promises beyond it.

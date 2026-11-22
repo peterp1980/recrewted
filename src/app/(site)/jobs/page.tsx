@@ -1,21 +1,17 @@
 import Link from "next/link";
 import { ArrowUpRight, Check, ChevronDown, Clock, MapPin, Search, SearchX, Wallet } from "lucide-react";
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { getMessages } from "@/i18n";
 import { CATEGORIES, EMPLOYMENT_TYPES } from "@/lib/briefing/schema";
 import { jobsHref, parseJobFilters, RADII, type JobFilters } from "@/lib/jobs/filters";
 import { isNew, jobPath, postedLabel, salaryText } from "@/lib/jobs/format";
 import { EmployerMark } from "@/components/jobs/EmployerMark";
 import { PAGE_SIZE, searchJobs } from "@/lib/jobs/public";
-import { siteUrl } from "@/lib/site";
 
 const t = getMessages().jobs;
 
-export const metadata: Metadata = {
-  title: t.metaTitle,
-  description: t.metaDescription,
-  alternates: { canonical: `${siteUrl()}/jobs` },
-};
+export const metadata: Metadata = pageMeta({ title: t.metaTitle, description: t.metaDescription, path: "/jobs" });
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 

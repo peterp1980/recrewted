@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, Check, Clock, Gift, Laptop, MapPin, MessageCircle, Smartphone, Sparkles, UserCheck, Wallet } from "lucide-react";
 import type { Metadata } from "next";
+import { breadcrumbJsonLd, pageMeta } from "@/lib/seo";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getMessages } from "@/i18n";
 import { descriptionSections, idFromSlug, isNew, jobPath, jobPostingJsonLd, jsonLdScript, postedLabel, salaryText, type PublicJob } from "@/lib/jobs/format";
@@ -31,11 +32,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const job = await load((await params).slug);
   const where = job.remote ? "Remote" : job.location;
   const salary = salaryText(job.salaryMin, job.salaryMax, job.salaryPeriod);
-  return {
+  const lead = job.briefing.tasks[0] ? ` ${job.briefing.tasks[0]}.` : "";
+  return pageMeta({
     title: `${job.title}${where ? ` in ${where}` : ""} – recrewted`,
-    description: [job.employerName, where, salary].filter(Boolean).join(" · "),
-    alternates: { canonical: `${siteUrl()}${jobPath(job)}` },
-  };
+    description: `${[job.employerName, where, salary].filter(Boolean).join(" · ")}.${lead} Bewerbung in zwei Minuten, ohne Anschreiben.`.slice(0, 300),
+    path: jobPath(job),
+  });
 }
 
 export default async function JobPage({ params, searchParams }: Props) {
@@ -79,6 +81,7 @@ export default async function JobPage({ params, searchParams }: Props) {
   return (
     <main className="overflow-x-clip pb-24 lg:pb-0">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jobPostingJsonLd(job, siteUrl())) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbJsonLd([{ name: "Jobs", path: "/jobs" }, { name: job.title, path: canonical }])) }} />
       <section className="relative -mt-[76px] overflow-hidden bg-night pt-[76px] text-white">
         <div aria-hidden="true" className="hero-glow absolute inset-0 opacity-70" />
         <div aria-hidden="true" className="grid-lines absolute inset-0" />

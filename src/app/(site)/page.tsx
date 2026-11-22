@@ -1,13 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { faqJsonLd, organizationJsonLd, pageMeta, websiteJsonLd } from "@/lib/seo";
+import { jsonLdScript } from "@/lib/jobs/format";
 import { ArrowRight, BarChart3, Check, ChevronDown, ClipboardList, FileText, Megaphone, Quote, ShieldCheck, Smartphone, Sparkles, X } from "lucide-react";
 import { site } from "@/content/site";
-import { siteUrl } from "@/lib/site";
 
 const t = site.home;
 const stepin = site.cases.featured;
-export const metadata: Metadata = { title: t.title, description: t.description, alternates: { canonical: `${siteUrl()}/` } };
+export const metadata: Metadata = pageMeta({ title: t.title, description: t.description, path: "/" });
 
 const dots = (r: number) => (
   <span className="flex gap-1" aria-hidden="true">
@@ -116,6 +117,7 @@ const logos = [site.cases.featured, ...site.cases.items];
 export default function Home() {
   return (
     <main className="overflow-x-clip">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript([organizationJsonLd(), websiteJsonLd(), faqJsonLd(t.faq)]) }} />
       {/* Hero – dark, runs underneath the floating header */}
       <section className="relative -mt-[76px] overflow-hidden bg-night pt-[76px] text-white">
         <div aria-hidden="true" className="hero-glow absolute inset-0" />
