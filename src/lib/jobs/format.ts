@@ -18,11 +18,22 @@ export type PublicJob = {
   publishedAt: string;
   employerName: string | null;
   employerWebsite: string | null;
+  /** Branding from the employer's published career page; null for confidential searches or without a page. */
+  employer: EmployerBrand | null;
   briefing: Briefing;
   /** Approved portal text (F8), shown instead of the briefing sections when present. */
   adText: string | null;
   /** How the employer addresses candidates in the form and mails. */
   tone: "sie" | "du";
+};
+
+export type EmployerBrand = {
+  logo: string | null;
+  /** Career page slug, only when the page is published. */
+  slug: string | null;
+  color: string | null;
+  about: string | null;
+  image: string | null;
 };
 
 const UMLAUTS: Record<string, string> = { ä: "ae", ö: "oe", ü: "ue", ß: "ss" };
@@ -81,7 +92,7 @@ export function descriptionSections(b: Briefing, tone: "sie" | "du" = "sie"): { 
   return [
     { title: du ? "Deine Aufgaben" : "Ihre Aufgaben", items: b.tasks },
     { title: du ? "Das bringst du mit" : "Das bringen Sie mit", items: b.mustHave },
-    { title: "Von Vorteil", items: b.niceToHave },
+    { title: du ? "Schön, wenn du außerdem mitbringst" : "Schön, wenn Sie außerdem mitbringen", items: b.niceToHave },
     { title: "Das bieten wir", items: b.benefits },
   ].filter((s) => s.items.length > 0);
 }
@@ -108,7 +119,12 @@ export const VALIDITY_DAYS = 60;
 export function jobPostingJsonLd(job: PublicJob, siteUrl: string): Record<string, unknown> {
   const validThrough = new Date(new Date(job.publishedAt).getTime() + VALIDITY_DAYS * 86_400_000).toISOString();
   const org = job.employerName
-    ? { "@type": "Organization", name: job.employerName, ...(job.employerWebsite ? { sameAs: job.employerWebsite } : {}) }
+    ? {
+        "@type": "Organization",
+        name: job.employerName,
+        ...(job.employerWebsite ? { sameAs: job.employerWebsite } : {}),
+        ...(job.employer?.logo ? { logo: job.employer.logo.startsWith("/") ? `${siteUrl}${job.employer.logo}` : job.employer.logo } : {}),
+      }
     : { "@type": "Organization", name: "recrewted", sameAs: siteUrl };
   return {
     "@context": "https://schema.org/",
@@ -150,4 +166,28 @@ export function jobPostingJsonLd(job: PublicJob, siteUrl: string): Record<string
 /** Serializes JSON-LD safely for a <script> tag. */
 export function jsonLdScript(data: unknown): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
+const DAY = 86_400_000;
+
+/** Postings younger than a week get a "Neu" badge. */
+export function isNew(publishedAt: string, now = Date.now()): boolean {
+  return now - new Date(publishedAt).getTime() < 7 * DAY;
+}
+
+/** "heute", "gestern", "vor 3 Tagen", "vor 2 Wochen", or the date for older postings (Berlin calendar days). */
+export function postedLabel(publishedAt: string, now = new Date()): string {
+  const day = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin" }).format(d);
+  const days = Math.round((Date.parse(day(now)) - Date.parse(day(new Date(publishedAt)))) / DAY);
+  if (days <= 0) return "heute";
+  if (days === 1) return "gestern";
+  if (days < 14) return `vor ${days} Tagen`;
+  if (days < 35) return `vor ${Math.floor(days / 7)} Wochen`;
+  return `am ${new Intl.DateTimeFormat("de-DE", { dateStyle: "long", timeZone: "Europe/Berlin" }).format(new Date(publishedAt))}`;
+}
+
+/** Two letters for a logo placeholder: "Hafermann Reisen" -> "HR". */
+export function initials(name: string): string {
+  const words = name.replace(/\b(GmbH|AG|KG|SE|UG|e\.?\s?V\.?|mbH|Co\.?)\b/gi, "").split(/[\s&+-]+/).filter(Boolean);
+  return (words.length > 1 ? words[0][0] + words[1][0] : (words[0] ?? "?").slice(0, 2)).toUpperCase();
 }

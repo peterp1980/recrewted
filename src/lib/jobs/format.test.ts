@@ -6,7 +6,7 @@ const ID = "3f2b1c4d-1234-4abc-8def-0123456789ab";
 const job: PublicJob = {
   id: ID, title: "Elektroniker (m/w/d)", location: "München", postalCode: "80331", latitude: 48.137, longitude: 11.575,
   remote: false, employmentType: "full_time", category: "craft", salaryMin: 42000, salaryMax: 52000, salaryPeriod: "year",
-  publishedAt: "2026-11-01T10:00:00.000Z", employerName: "Muster GmbH", employerWebsite: "https://muster.de",
+  publishedAt: "2026-11-01T10:00:00.000Z", employerName: "Muster GmbH", employerWebsite: "https://muster.de", employer: null,
   briefing: { ...emptyBriefing(), tasks: ["Wartung <Anlagen>"], mustHave: ["Ausbildung"] },
   adText: null,
   tone: "sie",

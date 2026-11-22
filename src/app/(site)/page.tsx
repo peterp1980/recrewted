@@ -81,10 +81,10 @@ function ProductMockup() {
       </div>
       <div className="float-slow absolute -top-12 -left-6 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-night-800/90 px-4 py-3 text-white shadow-2xl backdrop-blur sm:flex">
         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand-500/20"><Smartphone className="h-4 w-4 text-brand-300" /></span>
-        <span><span className="block text-[11px] text-white/60">Bewerbung</span><span className="text-sm font-semibold">in 2 Minuten</span></span>
+        <span><span className="block text-[11px] text-white/70">Bewerbung</span><span className="text-sm font-semibold">in 2 Minuten</span></span>
       </div>
       <div className="float-slower absolute -right-5 -bottom-8 hidden max-w-[15rem] rounded-2xl border border-white/10 bg-night-800/90 px-4 py-3 text-white shadow-2xl backdrop-blur sm:block">
-        <p className="text-[11px] text-white/60">Warum 5 von 5?</p>
+        <p className="text-[11px] text-white/70">Warum 5 von 5?</p>
         <p className="text-sm font-medium">„Gesellenbrief 2019, seitdem im Beruf“</p>
       </div>
     </div>
@@ -103,7 +103,7 @@ function FunnelGraphic() {
     <div aria-hidden="true" className="flex flex-col gap-2">
       {steps.map(([label, w, c]) => (
         <div key={label} className="flex items-center gap-3">
-          <span className="w-28 shrink-0 text-xs text-white/60">{label}</span>
+          <span className="w-28 shrink-0 text-xs text-white/70">{label}</span>
           <span className={`h-7 rounded-r-lg ${w} ${c}`} />
         </div>
       ))}
@@ -136,7 +136,7 @@ export default function Home() {
               <Link href="/kontakt" className="btn-light px-6 py-3.5 text-base">{t.ctaContact} <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
               <Link href="/leistungen" className="btn-ghost-dark px-6 py-3.5 text-base">So arbeiten wir</Link>
             </div>
-            <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/65">
+            <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/75">
               {["Werbebudget inklusive", "Daten in Frankfurt", "Shortlist mit Begründung"].map((x) => (
                 <li key={x} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-brand-300" aria-hidden="true" />{x}</li>
               ))}
@@ -147,14 +147,14 @@ export default function Home() {
 
         {/* Logo marquee */}
         <div className="relative border-t border-white/10 bg-white/[0.02]">
-          <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-7 md:flex-row md:gap-10">
-            <p className="shrink-0 text-xs font-semibold tracking-widest text-white/45 uppercase">{t.trustLabel}</p>
+          <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 px-4 py-9 md:flex-row md:gap-12">
+            <p className="shrink-0 text-sm font-semibold tracking-widest text-white/70 uppercase">{t.trustLabel}</p>
             <div className="marquee w-full overflow-hidden">
-              <ul className="marquee-track items-center gap-16">
+              <ul className="marquee-track items-center gap-20">
                 {[...logos, ...logos].map((c, i) => (
                   <li key={`${c.name}-${i}`} data-dup={i >= logos.length ? "" : undefined} aria-hidden={i >= logos.length ? true : undefined} className="shrink-0">
-                    <Link href="/cases" tabIndex={i >= logos.length ? -1 : undefined} className="block opacity-60 transition hover:opacity-100">
-                      <Image src={c.logo} alt={c.name} width={200} height={70} className="h-9 w-auto brightness-0 invert" />
+                    <Link href="/cases" tabIndex={i >= logos.length ? -1 : undefined} className="block opacity-80 transition hover:opacity-100">
+                      <Image src={c.logo} alt={c.name} width={240} height={84} className="h-11 w-auto brightness-0 invert md:h-12" />
                     </Link>
                   </li>
                 ))}
@@ -164,13 +164,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Facts */}
-      <section className="section reveal grid gap-6 md:grid-cols-3">
-        {t.facts.map((f, i) => (
+      {/* Proof first: a real result, then two facts that hold by design */}
+      <section aria-labelledby="proof-h" className="section reveal grid gap-4 md:grid-cols-3 md:grid-rows-2">
+        <Link href="/cases" className="group relative isolate flex min-h-[22rem] flex-col justify-end overflow-hidden rounded-3xl p-7 text-white md:col-span-2 md:row-span-2 md:p-10">
+          <Image src="/cases/stepin-team.jpg" alt="" fill sizes="(min-width: 768px) 66vw, 100vw" className="-z-20 object-cover transition duration-700 group-hover:scale-[1.03]" />
+          <span aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-night via-night/70 to-night/10" />
+          <span className="self-start rounded-full bg-white/15 px-3 py-1 text-xs font-semibold tracking-widest uppercase backdrop-blur">{stepin.eyebrow} · {stepin.name}</span>
+          <h2 id="proof-h" className="mt-4 max-w-xl font-display text-4xl font-extrabold tracking-tight sm:text-5xl">{stepin.headline}</h2>
+          <dl className="mt-6 flex flex-wrap gap-x-10 gap-y-4">
+            {stepin.results.slice(0, 3).map((r) => (
+              <div key={r.label}>
+                <dt className="sr-only">{r.label}</dt>
+                <dd><span className="block font-display text-3xl font-extrabold text-brand-300">{r.value}</span><span className="text-sm text-white/80">{r.label}</span></dd>
+              </div>
+            ))}
+          </dl>
+          <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-white/90 group-hover:text-white">Zur Erfolgsgeschichte <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden="true" /></span>
+        </Link>
+        {t.facts.slice(0, 2).map((f, i) => (
           <div key={f.value} className="relative overflow-hidden rounded-3xl border border-neutral-200 bg-white p-7">
             <span aria-hidden="true" className={`absolute -top-10 -right-10 h-28 w-28 rounded-full blur-2xl ${i === 1 ? "bg-accent-500/20" : "bg-brand-500/20"}`} />
-            <p className="font-display text-6xl font-extrabold tracking-tight">{f.value}</p>
-            <p className="mt-3 max-w-xs text-ink/70">{f.label}</p>
+            <p className="font-display text-5xl font-extrabold tracking-tight">{f.value}</p>
+            <p className="mt-3 max-w-xs text-ink/75">{f.label}</p>
           </div>
         ))}
       </section>
@@ -269,18 +284,8 @@ export default function Home() {
         <div className="reveal grid overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-neutral-200 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="flex flex-col gap-6 p-8 md:p-12">
             <Image src={stepin.logo} alt={stepin.name} width={240} height={80} className="h-9 w-auto self-start" />
-            <h2 id="case-h" className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{stepin.headline}</h2>
-            <dl className="grid grid-cols-2 gap-x-6 gap-y-5">
-              {stepin.results.map((r) => (
-                <div key={r.label}>
-                  <dt className="sr-only">{r.label}</dt>
-                  <dd>
-                    <span className="block font-display text-3xl font-extrabold text-brand-800">{r.value}</span>
-                    <span className="text-sm text-ink/65">{r.label}</span>
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <h2 id="case-h" className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Was Stepin über die Zusammenarbeit sagt</h2>
+            <p className="text-lg leading-relaxed text-ink/75">{stepin.goal} {stepin.solution}</p>
             <Link href="/cases" className="btn-secondary self-start">Ganze Geschichte lesen <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
           </div>
           <figure className="relative flex flex-col justify-end overflow-hidden bg-night p-8 text-white md:p-12">
@@ -291,7 +296,7 @@ export default function Home() {
               <Image src={stepin.quotePhoto} alt="" width={96} height={96} className="h-12 w-12 rounded-full object-cover ring-2 ring-white/20" />
               <span>
                 <span className="block font-semibold">{stepin.quoteBy}</span>
-                <span className="text-sm text-white/60">{stepin.quoteRole}</span>
+                <span className="text-sm text-white/70">{stepin.quoteRole}</span>
               </span>
             </figcaption>
           </figure>

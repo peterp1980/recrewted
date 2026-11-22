@@ -1,24 +1,46 @@
 import "server-only";
 import { fromStored } from "@/lib/briefing/schema";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { distanceKm, type PublicJob } from "./format";
+import { distanceKm, type EmployerBrand, type PublicJob } from "./format";
 import { matchesText, type JobFilters } from "./filters";
-import { sanitizeDocument, type CareerDocument } from "@/lib/careers/document";
+import { sanitizeDocument, type CareerDocument, type SectionData } from "@/lib/careers/document";
 
 // The job board is public, but vacancies are not: this module reads active
 // vacancies with the service role and returns only public fields. Pricing,
 // CRM IDs and internal status never leave the server.
 
 const COLUMNS =
-  "id, title, location, postal_code, latitude, longitude, remote, employment_type, category, salary_min, salary_max, salary_period, published_at, employer_visible, organizations(name, website, candidate_tone), vacancy_briefings(data), job_ads(channel, status, body, version)";
+  "id, title, location, postal_code, latitude, longitude, remote, employment_type, category, salary_min, salary_max, salary_period, published_at, employer_visible, organizations(name, website, candidate_tone, slug, career_enabled, brand_color, career_pages(published)), vacancy_briefings(data), job_ads(channel, status, body, version)";
 
 type Row = {
   id: string; title: string; location: string | null; postal_code: string | null; latitude: number | null; longitude: number | null;
   remote: boolean; employment_type: string | null; category: string | null; salary_min: number | null; salary_max: number | null;
   salary_period: string; published_at: string | null; employer_visible: boolean;
-  organizations: { name: string; website: string | null; candidate_tone: string } | null; vacancy_briefings: { data: unknown } | null;
+  organizations: {
+    name: string; website: string | null; candidate_tone: string; slug: string | null; career_enabled: boolean; brand_color: string | null;
+    career_pages: { published: unknown } | null;
+  } | null; vacancy_briefings: { data: unknown } | null;
   job_ads: { channel: string; status: string; body: string; version: number }[] | null;
 };
+
+/** Logo, colour and a short "about" text from the published career page. Never for confidential searches. */
+function employerBrand(r: Row): EmployerBrand | null {
+  const o = r.organizations;
+  if (!r.employer_visible || !o) return null;
+  const published = o.career_enabled ? o.career_pages?.published : null;
+  const doc = published ? sanitizeDocument(published) : null;
+  const visible = doc?.sections.filter((s) => s.visible) ?? [];
+  const hero = visible.find((s) => s.type === "hero")?.data as SectionData["hero"] | undefined;
+  const text = visible.find((s) => s.type === "text")?.data as SectionData["text"] | undefined;
+  const about = (text?.body || hero?.text || "").trim();
+  return {
+    logo: doc?.logoUrl ?? null,
+    slug: doc && o.slug ? o.slug : null,
+    color: o.brand_color && /^#[0-9a-f]{6}$/i.test(o.brand_color) ? o.brand_color : null,
+    about: about ? (about.length > 420 ? `${about.slice(0, 417).replace(/\s+\S*$/, "")} …` : about) : null,
+    image: hero?.imageUrl ?? text?.imageUrl ?? null,
+  };
+}
 
 function toPublic(r: Row): PublicJob {
   const briefing = fromStored(r.vacancy_briefings?.data);
@@ -38,6 +60,7 @@ function toPublic(r: Row): PublicJob {
     publishedAt: r.published_at ?? new Date().toISOString(),
     employerName: r.employer_visible ? (r.organizations?.name ?? null) : null,
     employerWebsite: r.employer_visible ? (r.organizations?.website ?? null) : null,
+    employer: employerBrand(r),
     briefing,
     tone: r.organizations?.candidate_tone === "du" ? "du" : "sie",
     adText: (r.job_ads ?? []).filter((a) => a.channel === "portal" && a.status === "approved").sort((a, b) => b.version - a.version)[0]?.body ?? null,
@@ -65,6 +88,16 @@ export async function allPublicJobs(): Promise<PublicJob[]> {
   return (await activeRows()).map(toPublic);
 }
 
+/** Up to three other active jobs: same field first, then nearby, then the newest. */
+export async function similarJobs(job: PublicJob, limit = 3): Promise<PublicJob[]> {
+  const others = (await allPublicJobs()).filter((j) => j.id !== job.id);
+  const here = job.latitude !== null && job.longitude !== null ? { lat: job.latitude, lng: job.longitude } : null;
+  const score = (j: PublicJob) =>
+    (job.category && j.category === job.category ? 0 : 1000) +
+    (here && j.latitude !== null && j.longitude !== null ? Math.min(distanceKm(here, { lat: j.latitude, lng: j.longitude }), 999) : 999);
+  return others.map((j) => [score(j), j] as const).sort((a, b) => a[0] - b[0]).slice(0, limit).map(([, j]) => j);
+}
+
 /** Looks up a postal code or place name. Empty until postal codes are imported. */
 export async function geocode(where: string): Promise<{ lat: number; lng: number; label: string } | null> {
   if (!where) return null;
@@ -86,6 +119,8 @@ export async function searchJobs(f: JobFilters): Promise<SearchResult> {
   let list = jobs
     .filter((j) => !f.category || j.category === f.category)
     .filter((j) => !f.type || j.employmentType === f.type)
+    .filter((j) => !f.remote || j.remote)
+    .filter((j) => !f.salary || j.salaryMin !== null || j.salaryMax !== null)
     .filter((j) => matchesText([j.title, j.location, j.employerName, ...j.briefing.tasks, ...j.briefing.mustHave].join(" "), f.q))
     .map((j) => ({
       ...j,

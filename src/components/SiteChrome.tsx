@@ -56,7 +56,7 @@ export function SiteFooter({ note }: { note?: string }) {
           <Link href="/kontakt" className="btn-light self-start px-4 py-2 text-sm">Gespräch vereinbaren <ArrowUpRight className="h-4 w-4" aria-hidden="true" /></Link>
         </div>
         <nav aria-label="Angebot" className="flex flex-col gap-2.5 text-sm">
-          <p className="mb-1 text-xs font-semibold tracking-widest text-white/40 uppercase">Angebot</p>
+          <p className="mb-1 text-xs font-semibold tracking-widest text-white/70 uppercase">Angebot</p>
           <Link href="/leistungen" className="hover:text-white">Leistungen</Link>
           <Link href="/pakete" className="hover:text-white">Pakete</Link>
           <Link href="/cases" className="hover:text-white">Cases</Link>
@@ -64,7 +64,7 @@ export function SiteFooter({ note }: { note?: string }) {
           <Link href="/profil" className="hover:text-white">{getMessages().profile.footer}</Link>
         </nav>
         <nav aria-label="Rechtliches" className="flex flex-col gap-2.5 text-sm">
-          <p className="mb-1 text-xs font-semibold tracking-widest text-white/40 uppercase">Rechtliches</p>
+          <p className="mb-1 text-xs font-semibold tracking-widest text-white/70 uppercase">Rechtliches</p>
           <Link href="/kontakt" className="hover:text-white">Kontakt</Link>
           <Link href="/impressum" className="hover:text-white">Impressum</Link>
           <Link href="/datenschutz" className="hover:text-white">Datenschutz</Link>
@@ -73,7 +73,7 @@ export function SiteFooter({ note }: { note?: string }) {
         </nav>
       </div>
       <div className="relative border-t border-white/10">
-        <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 px-4 py-5 text-xs text-white/50">
+        <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 px-4 py-5 text-xs text-white/75">
           <span>© {new Date().getFullYear()} recrewted · projx GmbH</span>
           {note && <span>{note}</span>}
         </div>

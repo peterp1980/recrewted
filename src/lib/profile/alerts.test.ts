@@ -6,7 +6,7 @@ import { comparePoolFit, matchJobs, parsePrefs, poolFit, prefsFromForm, prefsFro
 const job = (o: Partial<PublicJob>): PublicJob => ({
   id: "x", title: "Job", location: "Witten", postalCode: "58452", latitude: 51.44, longitude: 7.33, remote: false,
   employmentType: "full_time", category: "logistics", salaryMin: null, salaryMax: null, salaryPeriod: "year",
-  publishedAt: "2026-11-21T10:00:00Z", employerName: "A", employerWebsite: null, briefing: emptyBriefing(), adText: null, tone: "sie", ...o,
+  publishedAt: "2026-11-21T10:00:00Z", employerName: "A", employerWebsite: null, employer: null, briefing: emptyBriefing(), adText: null, tone: "sie", ...o,
 });
 const since = new Date("2026-11-20T00:00:00Z");
 

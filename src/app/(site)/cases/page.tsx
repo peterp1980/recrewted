@@ -52,7 +52,7 @@ export default function CasesPage() {
               <blockquote className="mt-4 text-xl leading-relaxed sm:text-2xl">„{c.quote}“</blockquote>
               <figcaption className="mt-6">
                 <span className="block font-semibold">{c.quoteBy}</span>
-                <span className="text-white/60">{c.quoteRole}</span>
+                <span className="text-white/70">{c.quoteRole}</span>
               </figcaption>
             </figure>
           </div>

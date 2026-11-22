@@ -6,7 +6,7 @@ import { indeedFeed } from "./indeed";
 const job: PublicJob = {
   id: "3f2b1c4d-1234-4abc-8def-0123456789ab", title: "Elektroniker (m/w/d)", location: "München", postalCode: "80331", latitude: null, longitude: null,
   remote: false, employmentType: "full_time", category: "craft", salaryMin: 42000, salaryMax: 52000, salaryPeriod: "year",
-  publishedAt: "2026-11-01T10:00:00.000Z", employerName: "Muster GmbH", employerWebsite: null,
+  publishedAt: "2026-11-01T10:00:00.000Z", employerName: "Muster GmbH", employerWebsite: null, employer: null,
   briefing: { ...emptyBriefing(), tasks: ["A ]]> B"] }, adText: null, tone: "sie",
 };
 
