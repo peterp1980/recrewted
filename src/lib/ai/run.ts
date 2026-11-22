@@ -6,7 +6,7 @@ import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import type { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/database.types";
-import { aiConfig, modelId, modelLabel, type AiConfig } from "./config";
+import { aiConfig, modelId, modelLabel, scoringProviderOk, type AiConfig } from "./config";
 import { PROMPTS, type AiKind } from "./prompts";
 
 // One AI call = one log entry (EU AI Act: logs, traceability, human oversight).
@@ -113,7 +113,9 @@ export async function decideRecommendation(id: string, status: "accepted" | "mod
 
 /** Is AI assistance available for this customer (global switch + customer switches)? */
 export async function aiAllowed(organizationId: string, what: "assist" | "scoring"): Promise<boolean> {
-  if (!aiConfig()) return false;
+  const cfg = aiConfig();
+  if (!cfg) return false;
+  if (what === "scoring" && !scoringProviderOk(cfg)) return false;
   const { data } = await createAdminClient().from("organizations").select("ai_assist, ai_scoring").eq("id", organizationId).single();
   return what === "assist" ? Boolean(data?.ai_assist) : Boolean(data?.ai_assist && data?.ai_scoring);
 }

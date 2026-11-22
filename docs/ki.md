@@ -45,6 +45,8 @@ Das KI-Register mit Überwachung liegt unter `/admin/ki`.
   Die Claude API direkt kann Verarbeitung nur auf „US“ oder „global“ festlegen, nicht auf die EU – nur nach Freigabe des DSB.
 - Modell: `claude-opus-5-5` (Bedrock-ID `anthropic.claude-opus-5-5`). Vor dem Einschalten prüfen, ob es in `eu-central-1`
   angeboten wird; sonst `AI_MODEL` auf ein dort verfügbares Modell setzen.
+- Stand 22.11.2026: `AI_ENABLED=true`, `AI_PROVIDER=anthropic` gesetzt, `ANTHROPIC_API_KEY` von Peter eingetragen. Mit der direkten
+  API bleiben Bewertungsvorschläge technisch gesperrt, bis `AI_SCORING_APPROVED=true` gesetzt ist (nach DSB-Freigabe).
 - Vercel-Variablen: `AI_ENABLED=true`, optional `AI_PROVIDER` (`bedrock`|`anthropic`), `AI_AWS_REGION`, `AI_MODEL`,
   dazu AWS-Zugang für Bedrock (`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` eines IAM-Users nur mit Bedrock-Invoke-Recht,
   oder ein Bedrock-API-Key) bzw. `ANTHROPIC_API_KEY`. Nie ins Repo.

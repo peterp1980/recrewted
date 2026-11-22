@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aiConfig, modelId, modelLabel } from "./config";
+import { aiConfig, modelId, modelLabel, scoringProviderOk } from "./config";
 import { screenItems, verifyEvidence } from "./legal";
 import { PROMPTS } from "./prompts";
 
@@ -12,6 +12,9 @@ describe("ai config", () => {
     expect(modelLabel(c)).toBe("bedrock:eu-central-1:anthropic.claude-opus-5-5");
     expect(modelId(aiConfig({ AI_ENABLED: "true", AI_PROVIDER: "anthropic" })!)).toBe("claude-opus-5-5");
     expect(aiConfig({ AI_ENABLED: "true", AI_MODEL: "gpt; drop" })).toBeNull();
+    // Rating suggestions with the direct API only after explicit approval.
+    const direct = aiConfig({ AI_ENABLED: "true", AI_PROVIDER: "anthropic" })!;
+    expect([scoringProviderOk(direct, {}), scoringProviderOk(direct, { AI_SCORING_APPROVED: "true" }), scoringProviderOk(c, {})]).toEqual([false, true, true]);
   });
   it("versions every prompt and states the AGG rules", () => {
     for (const p of Object.values(PROMPTS)) {

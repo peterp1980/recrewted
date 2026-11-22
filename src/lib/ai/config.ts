@@ -21,6 +21,13 @@ export function aiConfig(env: Record<string, string | undefined> = process.env):
   return { provider, model, region: env.AI_AWS_REGION || "eu-central-1" };
 }
 
+/**
+ * Candidate rating suggestions process applicant documents. With the direct Claude API (no EU-only processing)
+ * they stay blocked until the data protection officer approved it: AI_SCORING_APPROVED=true.
+ */
+export const scoringProviderOk = (c: AiConfig, env: Record<string, string | undefined> = process.env) =>
+  c.provider === "bedrock" || env.AI_SCORING_APPROVED === "true";
+
 /** Bedrock model ids carry the "anthropic." prefix; the Claude API takes the bare id. */
 export const modelId = (c: AiConfig) => (c.provider === "bedrock" ? `anthropic.${c.model}` : c.model);
 
