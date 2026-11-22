@@ -122,9 +122,9 @@ export type Database = {
         Relationships: []
       }
       contact_requests: {
-        Row: { company: string | null; created_at: string; email: string; handled_at: string | null; id: string; message: string; name: string; phone: string | null }
-        Insert: { company?: string | null; created_at?: string; email: string; handled_at?: string | null; id?: string; message: string; name: string; phone?: string | null }
-        Update: { company?: string | null; created_at?: string; email?: string; handled_at?: string | null; id?: string; message?: string; name?: string; phone?: string | null }
+        Row: { company: string | null; created_at: string; email: string; handled_at: string | null; id: string; message: string; name: string; phone: string | null; pipedrive_lead_id: string | null }
+        Insert: { company?: string | null; created_at?: string; email: string; handled_at?: string | null; id?: string; message: string; name: string; phone?: string | null; pipedrive_lead_id?: string | null }
+        Update: { company?: string | null; created_at?: string; email?: string; handled_at?: string | null; id?: string; message?: string; name?: string; phone?: string | null; pipedrive_lead_id?: string | null }
         Relationships: []
       }
       conversion_log: {
@@ -232,6 +232,12 @@ export type Database = {
         Update: { id?: string; organization_id?: string; provider?: string; enabled?: boolean; trigger_on?: string; config?: Json; secret_enc?: string | null; secret_hint?: string | null; last_test_at?: string | null; last_test_ok?: boolean | null; last_error?: string | null; remote_jobs?: Json; updated_by?: string | null; updated_at?: string; created_at?: string }
         Relationships: [{ foreignKeyName: "ats_connections_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: true; referencedRelation: "organizations"; referencedColumns: ["id"] }]
       }
+      crm_outbox: {
+        Row: { id: number; kind: string; vacancy_id: string | null; contact_request_id: string | null; payload: Json; status: string; attempts: number; error: string | null; created_at: string; sent_at: string | null }
+        Insert: { id?: number; kind: string; vacancy_id?: string | null; contact_request_id?: string | null; payload?: Json; status?: string; attempts?: number; error?: string | null; created_at?: string; sent_at?: string | null }
+        Update: { id?: number; kind?: string; vacancy_id?: string | null; contact_request_id?: string | null; payload?: Json; status?: string; attempts?: number; error?: string | null; created_at?: string; sent_at?: string | null }
+        Relationships: []
+      }
       ats_transfers: {
         Row: { id: string; application_id: string; connection_id: string; provider: string; status: string; attempts: number; external_id: string | null; error: string | null; requested_by: string | null; created_at: string; sent_at: string | null }
         Insert: { id?: string; application_id: string; connection_id: string; provider: string; status?: string; attempts?: number; external_id?: string | null; error?: string | null; requested_by?: string | null; created_at?: string; sent_at?: string | null }
@@ -287,9 +293,9 @@ export type Database = {
         Relationships: []
       }
       feedback_requests: {
-        Row: { application_id: string; requested_at: string; answered_at: string | null; answered_by: string | null; answer: string | null }
-        Insert: { application_id: string; requested_at?: string; answered_at?: string | null; answered_by?: string | null; answer?: string | null }
-        Update: { application_id?: string; requested_at?: string; answered_at?: string | null; answered_by?: string | null; answer?: string | null }
+        Row: { application_id: string; requested_at: string; answered_at: string | null; answered_by: string | null; answer: string | null; template: string | null }
+        Insert: { application_id: string; requested_at?: string; answered_at?: string | null; answered_by?: string | null; answer?: string | null; template?: string | null }
+        Update: { application_id?: string; requested_at?: string; answered_at?: string | null; answered_by?: string | null; answer?: string | null; template?: string | null }
         Relationships: [{ foreignKeyName: "feedback_requests_application_id_fkey"; columns: ["application_id"]; isOneToOne: true; referencedRelation: "applications"; referencedColumns: ["id"] }]
       }
       referrers: {
@@ -329,6 +335,7 @@ export type Database = {
     Functions: {
       claim_due_mails: { Args: { max_count: number }; Returns: Database["public"]["Tables"]["mail_outbox"]["Row"][] }
       submit_application: { Args: { p: Json }; Returns: Json }
+      claim_crm_outbox: { Args: { max_count?: number }; Returns: Database["public"]["Tables"]["crm_outbox"]["Row"][] }
       claim_ats_transfers: { Args: { max_count?: number }; Returns: Database["public"]["Tables"]["ats_transfers"]["Row"][] }
       org_team: { Args: { org: string }; Returns: { profile_id: string; full_name: string | null; email: string | null; member_role: string; created_at: string }[] }
       user_id_by_email: { Args: { addr: string }; Returns: string | null }

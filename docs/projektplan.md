@@ -38,7 +38,7 @@ Schätzung für eine Entwicklerin/einen Entwickler mit Claude Code, in Arbeitsta
 | 3 | F19 Protokoll (Änderungen per Trigger, Lesezugriffe in der App) | gebaut (Branch `mvp`) |
 | 4 | F13 Briefing → Suchprofil | gebaut (Branch `mvp`) |
 | 5 | F16 PandaDoc (Vorlagen, Versand, Webhook, PDF in Storage) | 4 |
-| 6 | F15 Pipedrive (Deal ↔ Vakanz, Stages spiegeln) | 2 |
+| 6 | F15 Pipedrive (Deal ↔ Vakanz, Stages spiegeln) | gebaut (Branch `mvp`); Pipeline „recrewted“ (12) besteht, sendet mit `PIPEDRIVE_API_TOKEN` |
 | 7 | F1 Jobbörse + Google for Jobs, F10 Gehaltsfeld | gebaut (Branch `mvp`); PLZ-Import erledigt (22.11.2026, 23.296 Einträge GeoNames) |
 | 8 | F2 Kurzbewerbung mobil + Eingangsmail | gebaut (Branch `mvp`); Mailversand wartet auf SMTP-Anbieter |
 | 9 | F20 Consent-Banner, Einwilligungen, Löschjobs | gebaut (Branch `mvp`); Fristen mit DSB abstimmen |
@@ -83,8 +83,8 @@ Gesamt ≈ 77 Tage, mit Puffer rund 4–5 Monate bei einer Person. Der Pilot kan
 
 ## Stand 21.11.2026 (Branch `mvp`)
 
-Gebaut: alle Features außer F15 Pipedrive und F16 PandaDoc (warten auf API-Zugänge).
-Migrationen 0001–0028 sind auf Prod eingespielt. Gehalt ist seit 0016 optional (Entscheidung Peter).
+Gebaut: alle Features außer F16 PandaDoc (wartet auf API-Zugang und Vorlagen).
+Migrationen 0001–0029 sind auf Prod eingespielt. Gehalt ist seit 0016 optional (Entscheidung Peter).
 
 Assessment (Freigabe Peter, 21.11.2026, aus Release 2 vorgezogen): Tests je Vakanz direkt nach der Bewerbung oder per Link; Ja/Nein, Auswahl, Freitext, Case, Upload; Zeitlimit; Browser-Protokoll (Fenster verlassen, Kopieren, Einfügen – nur Zeitpunkt); automatische Punkte nur für geschlossene Fragen, offene bewertet ein Mensch. Vor dem Livegang mit dem DSB abstimmen (Protokollierung, Speicherdauer).
 

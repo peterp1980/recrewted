@@ -3,6 +3,8 @@ import { loadScorecard } from "@/lib/scorecard/load";
 import { createClient } from "@/lib/supabase/server";
 import { answerFeedbackRequest } from "@/app/application-actions";
 import { Notice } from "./Notice";
+import { FeedbackAnswerForm } from "./FeedbackAnswerForm";
+import { defaultTemplate, feedbackTemplates } from "@/lib/feedback/templates";
 
 const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeZone: "Europe/Berlin" });
 
@@ -10,13 +12,15 @@ const fmt = new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeZone: "E
 export async function FeedbackRequestBox({ applicationId, status }: { applicationId: string; status?: string }) {
   const t = getMessages().feedbackRequest;
   const supabase = await createClient();
-  const { data: req } = await supabase.from("feedback_requests").select("requested_at, answered_at, answer").eq("application_id", applicationId).maybeSingle();
+  const [{ data: req }, { data: app }] = await Promise.all([
+    supabase.from("feedback_requests").select("requested_at, answered_at, answer").eq("application_id", applicationId).maybeSingle(),
+    supabase.from("applications").select("vacancies(organizations(candidate_tone))").eq("id", applicationId).maybeSingle(),
+  ]);
   if (!req) return null;
   const sc = req.answered_at ? null : await loadScorecard(applicationId);
-  const weak = (sc?.criteria ?? []).filter((c) => c.rating !== null && c.rating <= 2);
-  const draft = weak.length
-    ? `${t.draftIntro}\n\n${weak.map((c) => `– ${c.name}${c.reason ? `: ${c.reason}` : ""}`).join("\n")}`
-    : t.draftEmpty;
+  const weak = (sc?.criteria ?? []).filter((c) => c.rating !== null && c.rating <= 2).map((c) => ({ name: c.name, reason: c.reason }));
+  const tone = app?.vacancies?.organizations?.candidate_tone === "du" ? "du" : "sie";
+  const templates = feedbackTemplates(tone, weak);
   return (
     <section id="feedback-anfrage" aria-labelledby="fr-h" className="flex scroll-mt-20 flex-col gap-3 rounded-2xl border border-amber-200 bg-white p-4">
       <h2 id="fr-h" className="text-xl font-semibold">{t.title}</h2>
@@ -28,12 +32,10 @@ export async function FeedbackRequestBox({ applicationId, status }: { applicatio
           <p className="whitespace-pre-line rounded-lg bg-canvas p-3 text-sm">{req.answer}</p>
         </>
       ) : (
-        <form action={answerFeedbackRequest} className="flex flex-col gap-2">
-          <input type="hidden" name="applicationId" value={applicationId} />
+        <>
           <p className="text-sm text-ink/80">{t.lead}</p>
-          <textarea name="answer" rows={7} minLength={20} maxLength={3000} defaultValue={draft} className="rounded-lg border border-neutral-300 px-3 py-2" />
-          <button type="submit" className="self-start rounded-lg bg-brand-700 px-4 py-2 font-semibold text-white hover:bg-brand-800">{t.send}</button>
-        </form>
+          <FeedbackAnswerForm applicationId={applicationId} templates={templates} initial={defaultTemplate(templates)} action={answerFeedbackRequest} send={t.send} />
+        </>
       )}
     </section>
   );

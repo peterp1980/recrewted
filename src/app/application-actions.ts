@@ -227,6 +227,8 @@ export async function answerFeedbackRequest(form: FormData) {
   const answer = String(form.get("answer") ?? "").trim();
   if (answer.length < 20 || answer.length > 3000) redirect(back("invalid"));
   if (findAggIssues(answer).length) redirect(back("agg"));
+  if (/\[[^\]]+\]/.test(answer)) redirect(back("placeholder"));
+  const template = String(form.get("template") ?? "").slice(0, 30) || null;
   const admin = createAdminClient();
   const { data: app } = await admin
     .from("applications")
@@ -236,7 +238,7 @@ export async function answerFeedbackRequest(form: FormData) {
   if (!app?.candidates?.email) redirect(back("noEmail"));
   const { data: updated } = await admin
     .from("feedback_requests")
-    .update({ answer, answered_at: new Date().toISOString(), answered_by: session.userId })
+    .update({ answer, template, answered_at: new Date().toISOString(), answered_by: session.userId })
     .eq("application_id", applicationId)
     .is("answered_at", null)
     .select("application_id");

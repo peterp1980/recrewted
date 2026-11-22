@@ -1,3 +1,4 @@
+import { CrmBox } from "@/components/CrmBox";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getMessages } from "@/i18n";
@@ -32,7 +33,7 @@ type Props = {
   id: string;
   base: "/admin" | "/portal";
   staff: boolean;
-  search: { status?: string; missing?: string; q?: string; c?: string; k?: string; a?: string; t?: string; p?: string; ct?: string; sl?: string; ki?: string };
+  search: { status?: string; missing?: string; q?: string; c?: string; k?: string; a?: string; t?: string; p?: string; ct?: string; sl?: string; ki?: string; crm?: string };
 };
 
 /** Vacancy page with briefing (F13). Staff additionally see suggestions and can apply them. */
@@ -177,6 +178,7 @@ async function StaffSections({ vacancyId, briefing, search }: { vacancyId: strin
   return (
     <>
       <VacancySettings vacancyId={vacancyId} />
+      <CrmBox vacancyId={vacancyId} status={search.crm} />
       <DistributionSection vacancyId={vacancyId} />
       <ApplicationsList vacancyId={vacancyId} viewerId={session.userId} />
       <TalentPool vacancyId={vacancyId} status={search.p} />

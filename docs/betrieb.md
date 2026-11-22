@@ -50,6 +50,14 @@ Geheime Werte als „Sensitive“ anlegen. Rotieren: neuen Wert setzen, neu depl
 4. Unter der Domain zeigt `/` die Karriereseite; Stellen, Bewerbung und Tests laufen unter derselben Domain. Admin, Portal und Login leiten auf recrewted um.
 5. **Impressum des Kunden (0028):** Im selben Formular Impressumstext und/oder Link zum Impressum des Kunden eintragen. Die Domain gilt als geprüft, sobald `https://<domain>/api/domain-check` von unserem Server signiert beantwortet wird (DNS, Zertifikat und Weiterleitung in einem). Geprüft wird beim Öffnen der Unternehmensseite im Admin und täglich im Cron; das Ergebnis steht in `career_domain_verified_at`. Nur dann zeigt `/impressum` auf der Kundendomain das Impressum des Kunden, mit Hinweis auf den technischen Betrieb durch die projx GmbH. Auf recrewted.de und bei ungeprüfter Domain bleibt das Impressum der projx GmbH. Ändert sich die Domain, wird die Prüfung zurückgesetzt.
 
+## Pipedrive (F15)
+
+- Vercel-Variablen: `PIPEDRIVE_API_TOKEN` (geheim, trägt Peter selbst ein: Pipedrive → Persönliche Einstellungen → API → Token kopieren; Vercel → Projekt → Settings → Environment Variables, Typ „Sensitive“, Production und Preview), `PIPEDRIVE_PIPELINE_ID=12` (Pipeline „recrewted“), `PIPEDRIVE_STAGE_ID=81` („Qualifiziert“), optional `PIPEDRIVE_COMPANY_DOMAIN` für Deal-Links.
+- Admin → Vakanz → „Pipedrive“: bestehenden Deal verknüpfen (Nummer oder Link) oder neuen Deal anlegen (Firma wird gesucht oder angelegt, Wert = Festpreis der Vakanz).
+- Statuswechsel einer verknüpften Vakanz landen als Notiz am Deal; die erste Aktivierung (Vertrag unterschrieben) markiert den Deal als gewonnen. Notizen enthalten nur Zahlen (Bewerbungen, qualifiziert, Shortlist, eingestellt), keine Bewerberdaten.
+- Jede Anfrage über das Kontaktformular wird ein Lead (Person per E-Mail gefunden oder angelegt, Firma, Nachricht als Notiz).
+- Alles läuft über die Warteschlange `crm_outbox` (0029): sofort nach der Änderung, Wiederholung im täglichen Cron, höchstens 5 Versuche. Ohne Token wartet die Warteschlange, nichts geht verloren.
+
 ## SEO und GEO
 
 - Jede öffentliche Seite hat Titel, Beschreibung, Canonical, Open Graph und Twitter-Card (`src/lib/seo.ts`).

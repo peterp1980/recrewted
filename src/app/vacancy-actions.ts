@@ -4,6 +4,7 @@ import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { processAtsTransfers } from "@/lib/ats/process";
+import { processCrmOutbox } from "@/lib/crm/process";
 import { getSession } from "@/lib/auth/session";
 import { isStaff } from "@/lib/auth/roles";
 import { fromStored, missingForSubmit, parseBriefingForm } from "@/lib/briefing/schema";
@@ -182,6 +183,8 @@ export async function updateVacancySettings(formData: FormData) {
       salary_note: String(formData.get("salaryNote") ?? "").trim().slice(0, 300) || null,
     })
     .eq("id", vacancyId);
+  // Status changes of vacancies linked to a Pipedrive deal are queued by a trigger (0029); send them now.
+  if (!error) after(() => processCrmOutbox(5).catch((e) => console.error("crm sync failed", e)));
   revalidatePath(path);
   if (error?.code === "23514") redirect(`${path}?status=salaryMissing#einstellungen`);
   redirect(`${path}?status=${error ? "error" : "settingsSaved"}#einstellungen`);

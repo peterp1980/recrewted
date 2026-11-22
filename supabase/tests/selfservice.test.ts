@@ -46,3 +46,17 @@ describe("withdraw", () => {
       expect((await c.query("select * from feedback_requests")).rows).toEqual([]);
     }));
 });
+
+describe("feedback answer template (0029)", () => {
+  it("stores a template id and rejects anything else", async () => {
+    await db.query("begin");
+    try {
+      await db.query("insert into feedback_requests (application_id) values ($1) on conflict do nothing", [APP2]);
+      await db.query("update feedback_requests set template = 'neutral' where application_id = $1", [APP2]);
+      expect((await db.query("select template from feedback_requests where application_id = $1", [APP2])).rows[0].template).toBe("neutral");
+      await expect(db.query("update feedback_requests set template = 'Neutral!' where application_id = $1", [APP2])).rejects.toThrow(/check constraint/);
+    } finally {
+      await db.query("rollback");
+    }
+  });
+});
