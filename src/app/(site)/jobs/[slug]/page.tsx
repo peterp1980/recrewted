@@ -100,7 +100,7 @@ export default async function JobPage({ params, searchParams }: Props) {
               </p>
             </div>
           </div>
-          <h1 className="max-w-4xl font-display text-[2.4rem] leading-[1.02] font-semibold tracking-tight hyphens-auto sm:text-6xl lg:text-7xl">{job.title}</h1>
+          <h1 className="max-w-4xl font-display text-5xl leading-[0.98] font-semibold tracking-tight break-words hyphens-auto sm:text-7xl">{job.title}</h1>
           <p className="flex flex-wrap gap-x-6 gap-y-2 font-mono text-[13px] tracking-wide uppercase">
             {place && <span><span className="text-muted">Ort </span>{place}</span>}
             {job.employmentType && <span><span className="text-muted">Zeit </span>{o.employmentType[job.employmentType]}</span>}
