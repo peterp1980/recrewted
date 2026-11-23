@@ -377,6 +377,7 @@ export type Database = {
     Functions: {
       claim_due_mails: { Args: { max_count: number }; Returns: Database["public"]["Tables"]["mail_outbox"]["Row"][] }
       submit_application: { Args: { p: Json }; Returns: Json }
+      sign_out_everywhere: { Args: { uid: string }; Returns: undefined }
       claim_indexing: { Args: { max_count?: number }; Returns: Database["public"]["Tables"]["indexing_outbox"]["Row"][] }
       claim_crm_outbox: { Args: { max_count?: number }; Returns: Database["public"]["Tables"]["crm_outbox"]["Row"][] }
       claim_ats_transfers: { Args: { max_count?: number }; Returns: Database["public"]["Tables"]["ats_transfers"]["Row"][] }

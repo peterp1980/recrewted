@@ -58,6 +58,14 @@ Geheime Werte als „Sensitive“ anlegen. Rotieren: neuen Wert setzen, neu depl
 - Jeder Feed muss einmal beim Portal angemeldet werden (Links auf der Kanäle-Seite). LinkedIn listet nur nach Freischaltung als Feed-Partner. BA-Jobbörse ist kostenlos, braucht aber eine Anmeldung als Kooperationspartner (HR-BA-XML über SFTP mit Zertifikat).
 - Seit 0031 hängt nichts mehr am Gehalt: Stellen ohne Gehaltsangabe gehen ebenfalls raus (Gehalt optional, 21.11.2026).
 
+## Nutzerverwaltung (0034)
+
+- **Admins (projx):** Admin → Nutzer. Suche und Filter nach Rolle und Status (aktiv, eingeladen, gesperrt). Je Nutzer: Name, E-Mail und Rolle ändern; Kunden-Zugänge beliebigen Unternehmen mit Team-Rolle zuordnen; „Zugang zurücksetzen“ (überall abmelden plus neuer Anmeldelink), nur Link schicken, überall abmelden, sperren und entsperren, löschen (Bestätigung mit „LÖSCHEN“).
+- **Schutzregeln:** Niemand sperrt, löscht oder degradiert sich selbst; der letzte Admin bleibt; der letzte Inhaber eines Kunden-Teams bleibt, solange andere im Team sind. Wer von „Kunde“ zu Admin oder Recruiter wechselt, verliert seine Kunden-Zuordnungen.
+- **Kunden-Inhaber:** Portal → Team, nur im eigenen Team: einladen, Rolle ändern, Anmeldelink schicken, entfernen. Gehört die entfernte Person zu keinem anderen Unternehmen mehr, wird ihr Zugang gelöscht. recrewted-Konten können Kunden weder einladen noch sehen.
+- **Löschen:** Was die Person angelegt hat (Vakanzen, Bewertungen, Kommentare, Verträge), bleibt erhalten, der Verweis wird leer; im Protokoll bleibt ihre ID. Sperren meldet sofort überall ab.
+- Anmeldelinks gehen über Supabase Auth. Solange dort der eingebaute Mailversand läuft, sind es nur wenige Mails pro Stunde – deshalb Supabase-SMTP auf Resend umstellen (siehe Mailversand).
+
 ## Google for Jobs (0033)
 
 - Jede Stellenseite enthält `JobPosting`-Daten (Pflichtfelder per Test abgesichert), die Sitemap listet alle aktiven Stellen, besetzte Stellen liefern 404.

@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import { canManage, isMemberRole, parseColleague } from "@/lib/team/roles";
 import { myRole } from "@/lib/team/server";
 import { isUuid } from "@/lib/vacancies/paths";
+import { deleteAccount, sendLoginLink } from "@/lib/users/manage";
 
 // Customers manage their own team: owners invite colleagues, change roles and remove them.
 // recrewted staff can do the same for any customer. Writes use the service role after these checks;
@@ -82,9 +83,36 @@ export async function removeMember(form: FormData) {
   // No longer responsible for this customer's vacancies.
   const { data: vacs } = await admin.from("vacancies").select("id").eq("organization_id", orgId);
   if (vacs?.length) await admin.from("vacancy_contacts").delete().eq("profile_id", profileId).in("vacancy_id", vacs.map((v) => v.id));
-  await audit(session.userId, "remove_member", "customer_members", profileId, { organization_id: orgId });
+  // A customer account that belongs to no other customer any more is deleted (data minimisation).
+  // Never one's own account and never a recrewted staff account.
+  let deleted = false;
+  if (profileId !== session.userId) {
+    const [{ data: prof }, { count }] = await Promise.all([
+      admin.from("profiles").select("role").eq("id", profileId).maybeSingle(),
+      admin.from("customer_members").select("profile_id", { count: "exact", head: true }).eq("profile_id", profileId),
+    ]);
+    if (prof?.role === "customer" && (count ?? 0) === 0) deleted = (await deleteAccount(profileId)) === "deleted";
+  }
+  await audit(session.userId, "remove_member", "customer_members", profileId, { organization_id: orgId, account_deleted: deleted });
   refresh(orgId);
-  redirect(page(form, orgId, "removed"));
+  redirect(page(form, orgId, deleted ? "removedDeleted" : "removed"));
+}
+
+/** New login link for a colleague of the same customer (owners, staff). */
+export async function sendColleagueLink(form: FormData) {
+  const orgId = String(form.get("organizationId") ?? "");
+  const session = await manager(orgId);
+  const profileId = String(form.get("profileId") ?? "");
+  if (!isUuid(profileId)) redirect(page(form, orgId, "error"));
+  const admin = createAdminClient();
+  // Only people in this team – an owner cannot reach anyone else's account.
+  const { data: m } = await admin.from("customer_members").select("profile_id").eq("organization_id", orgId).eq("profile_id", profileId).maybeSingle();
+  if (!m) redirect(page(form, orgId, "forbidden"));
+  const { data } = await admin.auth.admin.getUserById(profileId);
+  if (!data.user?.email) redirect(page(form, orgId, "error"));
+  const r = await sendLoginLink(data.user.email);
+  await audit(session.userId, "colleague_login_link", "customer_members", profileId, { organization_id: orgId, result: r });
+  redirect(page(form, orgId, r === "sent" ? "linkSent" : r === "rate" ? "rate" : "error"));
 }
 
 /** Who is responsible for a vacancy (gets the shortlist mails). RLS: staff, owners and members. */

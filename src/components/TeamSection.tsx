@@ -1,7 +1,7 @@
 import { getMessages } from "@/i18n";
 import { createClient } from "@/lib/supabase/server";
 import { MEMBER_ROLES } from "@/lib/team/roles";
-import { changeMemberRole, inviteColleague, removeMember } from "@/app/team-actions";
+import { changeMemberRole, inviteColleague, removeMember, sendColleagueLink } from "@/app/team-actions";
 import { Notice } from "./Notice";
 
 const field = "w-full rounded-lg border border-neutral-300 px-3 py-2";
@@ -17,7 +17,7 @@ export async function TeamSection({ organizationId, from, status, canManage, vie
       <input type="hidden" name="from" value={from} />
     </>
   );
-  const ok = ["invited", "saved", "removed"].includes(status ?? "");
+  const ok = ["invited", "saved", "removed", "removedDeleted", "linkSent"].includes(status ?? "");
   return (
     <section id="team" aria-labelledby="team-h" className="card flex scroll-mt-20 flex-col gap-4">
       <h2 id="team-h" className="text-lg font-semibold">{t.title}</h2>
@@ -40,6 +40,11 @@ export async function TeamSection({ organizationId, from, status, canManage, vie
                     {MEMBER_ROLES.map((r) => <option key={r} value={r}>{t.roles[r]}</option>)}
                   </select>
                   <button type="submit" className="rounded-lg border border-neutral-300 px-3 py-1 text-sm hover:bg-brand-50">{t.change}</button>
+                </form>
+                <form action={sendColleagueLink}>
+                  {hidden}
+                  <input type="hidden" name="profileId" value={m.profile_id} />
+                  <button type="submit" className="rounded-lg border border-neutral-300 px-3 py-1 text-sm hover:bg-brand-50">{t.sendLink}</button>
                 </form>
                 <form action={removeMember}>
                   {hidden}
