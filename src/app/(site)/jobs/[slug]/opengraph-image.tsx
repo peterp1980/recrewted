@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { getMessages } from "@/i18n";
 import { idFromSlug, initials, salaryText } from "@/lib/jobs/format";
 import { getPublicJob } from "@/lib/jobs/public";
+import { onColor } from "@/lib/careers/profile";
 import { ogFonts, Backdrop, OG_SIZE, Pill, Wordmark } from "@/lib/og/parts";
 
 export const alt = "Stellenanzeige auf recrewted";
@@ -31,7 +32,7 @@ export default async function JobImage({ params }: { params: Promise<{ slug: str
             <div
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center", width: 64, height: 64, borderRadius: 16,
-                fontSize: 28, fontWeight: 800, color: "#fff", backgroundColor: job?.employer?.color ?? "#152036",
+                fontSize: 28, fontWeight: 800, color: onColor(job?.employer?.color ?? "#152036"), backgroundColor: job?.employer?.color ?? "#152036",
               }}
             >
               {job?.employerName ? initials(job.employerName) : "?"}

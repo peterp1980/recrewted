@@ -1,5 +1,6 @@
 import { Building2 } from "lucide-react";
 import { initials, type PublicJob } from "@/lib/jobs/format";
+import { onColor } from "@/lib/careers/profile";
 
 /** Employer logo from the career page, else initials in the brand colour; a neutral icon for confidential searches. */
 export function EmployerMark({ job, size = "md" }: { job: Pick<PublicJob, "employerName" | "employer">; size?: "md" | "lg" }) {
@@ -19,11 +20,13 @@ export function EmployerMark({ job, size = "md" }: { job: Pick<PublicJob, "emplo
       </span>
     );
   }
+  // Text colour by contrast with the brand colour (WCAG 1.4.3).
+  const bg = job.employer?.color ?? "#0e1726";
   return (
     <span
       aria-hidden="true"
-      className={`${box} flex shrink-0 items-center justify-center font-display font-bold text-white`}
-      style={{ backgroundColor: job.employer?.color ?? "#0e1726" }}
+      className={`${box} flex shrink-0 items-center justify-center font-display font-bold`}
+      style={{ backgroundColor: bg, color: onColor(bg) }}
     >
       {initials(job.employerName)}
     </span>
