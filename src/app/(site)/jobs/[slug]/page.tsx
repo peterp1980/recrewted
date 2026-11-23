@@ -99,7 +99,7 @@ export default async function JobPage({ params, searchParams }: Props) {
                 {job.employer?.slug ? <Link href={`/karriere/${job.employer.slug}`} className="underline-offset-4 hover:underline">{job.employerName}</Link> : (job.employerName ?? t.confidential)}
               </p>
               <p className="flex flex-wrap items-center gap-2 text-sm text-white/70">
-                {isNew(job.publishedAt) && <span className="rounded-full bg-accent-500 px-2 py-0.5 text-xs font-bold tracking-wide text-white uppercase">Neu</span>}
+                {isNew(job.publishedAt) && <span className="rounded-full bg-accent-700 px-2 py-0.5 text-xs font-bold tracking-wide text-white uppercase">Neu</span>}
                 <span>Veröffentlicht {posted}</span>
               </p>
             </div>
@@ -123,7 +123,7 @@ export default async function JobPage({ params, searchParams }: Props) {
             <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {facts.map((f) => (
                 <div key={f.label} className={`rounded-2xl p-4 ${f.accent ? "bg-brand-50 ring-1 ring-brand-100" : "bg-white ring-1 ring-neutral-200"}`}>
-                  <dt className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-ink/60 uppercase"><f.icon className="h-3.5 w-3.5" aria-hidden="true" />{f.label}</dt>
+                  <dt className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-ink/75 uppercase"><f.icon className="h-3.5 w-3.5" aria-hidden="true" />{f.label}</dt>
                   <dd className={`mt-1 font-display text-base font-bold leading-snug ${f.accent ? "text-brand-800" : ""}`}>{f.value}</dd>
                 </div>
               ))}
@@ -150,14 +150,14 @@ export default async function JobPage({ params, searchParams }: Props) {
                 {s.items.map((item) => (
                   <li key={item} className="flex gap-3">
                     <span className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${nice ? "bg-neutral-100" : "bg-brand-50"}`}>
-                      {nice ? <Sparkles className="h-3 w-3 text-ink/60" aria-hidden="true" /> : <Check className="h-3.5 w-3.5 text-brand-800" aria-hidden="true" />}
+                      {nice ? <Sparkles className="h-3 w-3 text-ink/75" aria-hidden="true" /> : <Check className="h-3.5 w-3.5 text-brand-800" aria-hidden="true" />}
                     </span>
                     {item}
                   </li>
                 ))}
               </ul>
               {nice && (
-                <p className="text-sm text-ink/65">{du ? "Fehlt dir davon etwas? Bewirb dich trotzdem." : "Fehlt Ihnen davon etwas? Bewerben Sie sich trotzdem."}</p>
+                <p className="text-sm text-ink/75">{du ? "Fehlt dir davon etwas? Bewirb dich trotzdem." : "Fehlt Ihnen davon etwas? Bewerben Sie sich trotzdem."}</p>
               )}
             </section>
             );
@@ -203,7 +203,7 @@ export default async function JobPage({ params, searchParams }: Props) {
 
           <div className="flex flex-col gap-4 border-t border-neutral-200 pt-6">
             <ShareJob url={`${siteUrl()}${canonical}`} title={job.title} du={du} />
-            <p className="text-sm text-ink/65">{t.posted} {dateFmt.format(new Date(job.publishedAt))}</p>
+            <p className="text-sm text-ink/75">{t.posted} {dateFmt.format(new Date(job.publishedAt))}</p>
           </div>
         </article>
         <aside className="hidden lg:sticky lg:top-24 lg:block lg:self-start">

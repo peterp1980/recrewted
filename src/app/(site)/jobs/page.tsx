@@ -98,10 +98,11 @@ export default async function JobsPage({ searchParams }: Props) {
                 <Link
                   key={q.label}
                   href={jobsHref(f, q.change)}
-                  aria-pressed={q.active}
+                  aria-current={q.active ? "true" : undefined}
                   className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition ${q.active ? "bg-brand-500 text-night" : "border border-white/15 bg-white/5 text-white/85 hover:bg-white/15"}`}
                 >
                   {q.active && <Check className="h-3.5 w-3.5" aria-hidden="true" />}{q.label}
+                  <span className="sr-only">{q.active ? " – Filter aktiv, zum Entfernen klicken" : " – Filter setzen"}</span>
                 </Link>
               ))}
               {filtered && <Link href="/jobs" className="ml-1 text-sm text-white/75 underline underline-offset-4 hover:text-white">{t.reset}</Link>}
@@ -118,7 +119,7 @@ export default async function JobsPage({ searchParams }: Props) {
 
         {result.jobs.length === 0 ? (
           <div className="flex flex-col items-center gap-4 rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-12 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-canvas"><SearchX className="h-6 w-6 text-ink/60" aria-hidden="true" /></span>
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-canvas"><SearchX className="h-6 w-6 text-ink/75" aria-hidden="true" /></span>
             <p className="max-w-md text-lg font-semibold">Hier ist gerade nichts Passendes dabei.</p>
             <p className="max-w-md text-ink/70">Neue Stellen kommen laufend dazu. Probieren Sie es mit einem größeren Umkreis oder weniger Filtern.</p>
             <div className="flex flex-wrap justify-center gap-2">
@@ -126,7 +127,7 @@ export default async function JobsPage({ searchParams }: Props) {
               {(f.type || f.remote || f.salary || f.category) && <Link href={jobsHref(f, { type: null, remote: false, salary: false, category: null })} className="btn-secondary py-2.5">Nur nach Ort und Stichwort suchen</Link>}
               <Link href="/jobs" className="btn-secondary py-2.5">Alle Stellen ansehen</Link>
             </div>
-            <p className="max-w-md text-sm text-ink/65">Schon einmal über recrewted beworben? Dann können Sie sich in Ihrem <Link href="/profil" className="font-semibold text-brand-800 underline underline-offset-4">Bewerberprofil</Link> passende neue Stellen per E-Mail schicken lassen.</p>
+            <p className="max-w-md text-sm text-ink/75">Schon einmal über recrewted beworben? Dann können Sie sich in Ihrem <Link href="/profil" className="font-semibold text-brand-800 underline underline-offset-4">Bewerberprofil</Link> passende neue Stellen per E-Mail schicken lassen.</p>
           </div>
         ) : (
           <ul className="grid gap-4 md:grid-cols-2">
@@ -146,8 +147,8 @@ export default async function JobsPage({ searchParams }: Props) {
                     {j.employmentType && <span className="chip"><Clock className="h-3.5 w-3.5" aria-hidden="true" />{b.employmentType[j.employmentType]}</span>}
                     {salaryText(j.salaryMin, j.salaryMax, j.salaryPeriod) && <span className="chip border-brand-100 bg-brand-50 text-brand-800"><Wallet className="h-3.5 w-3.5" aria-hidden="true" />{salaryText(j.salaryMin, j.salaryMax, j.salaryPeriod)}</span>}
                   </p>
-                  <p className="flex items-center gap-2 text-xs text-ink/60">
-                    {isNew(j.publishedAt) && <span className="rounded-full bg-accent-500 px-2 py-0.5 font-bold tracking-wide text-white uppercase">Neu</span>}
+                  <p className="flex items-center gap-2 text-xs text-ink/75">
+                    {isNew(j.publishedAt) && <span className="rounded-full bg-accent-700 px-2 py-0.5 font-bold tracking-wide text-white uppercase">Neu</span>}
                     <span>{postedLabel(j.publishedAt).replace(/^am /, "seit ")}</span>
                   </p>
                 </Link>

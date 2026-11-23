@@ -30,7 +30,7 @@ export default async function CustomerImprintPage({ params }: Props) {
 
   const color = o.brand_color ?? "#0a7f8c";
   return (
-    <main className="min-h-screen bg-white text-ink">
+    <main id="inhalt" tabIndex={-1} className="min-h-screen bg-white text-ink outline-none">
       <header className="border-b border-neutral-200" style={{ borderTopColor: color, borderTopWidth: 4 }}>
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-5">
           <Link href="/" className="font-display text-lg font-bold">{o.name}</Link>

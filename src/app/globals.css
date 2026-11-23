@@ -38,6 +38,12 @@
   color-scheme: light;
 }
 
+/* Focus never hides under the sticky header or the mobile apply bar (WCAG 2.4.11). */
+html {
+  scroll-padding-top: 6rem;
+  scroll-padding-bottom: 6rem;
+}
+
 body {
   background: var(--color-canvas);
   color: var(--color-ink);

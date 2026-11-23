@@ -24,7 +24,7 @@ export default function ServicesPage() {
             const Icon = ICONS[i] ?? ClipboardList;
             return (
               <li key={s.title} className="card-hover relative flex flex-col gap-4 overflow-hidden rounded-3xl border border-neutral-200 bg-white p-7">
-                <span aria-hidden="true" className="absolute top-5 right-6 font-display text-6xl font-extrabold text-neutral-100">{String(i + 1).padStart(2, "0")}</span>
+                <span aria-hidden="true" data-n={String(i + 1).padStart(2, "0")} className="absolute top-5 right-6 font-display text-6xl font-extrabold text-neutral-100 before:content-[attr(data-n)]" />
                 <span className={`relative flex h-12 w-12 items-center justify-center rounded-2xl ${i % 2 ? "bg-accent-50 text-accent-700" : "bg-brand-50 text-brand-800"}`}><Icon className="h-6 w-6" aria-hidden="true" /></span>
                 <h2 className="relative font-display text-xl font-bold">{s.title}</h2>
                 <p className="relative text-ink/70">{s.text}</p>

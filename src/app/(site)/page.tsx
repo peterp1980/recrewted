@@ -265,7 +265,7 @@ export default function Home() {
             <h3 className="text-sm font-semibold tracking-widest text-muted uppercase">{t.compare.before}</h3>
             <ul className="mt-6 flex flex-col gap-5">
               {t.compare.rows.map(([a]) => (
-                <li key={a} className="flex gap-3 text-ink/60"><X className="mt-0.5 h-5 w-5 shrink-0 text-neutral-400" aria-hidden="true" />{a}</li>
+                <li key={a} className="flex gap-3 text-ink/75"><X className="mt-0.5 h-5 w-5 shrink-0 text-neutral-400" aria-hidden="true" />{a}</li>
               ))}
             </ul>
           </div>

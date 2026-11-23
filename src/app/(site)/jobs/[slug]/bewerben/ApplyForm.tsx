@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { applyMessages, getMessages, type Tone } from "@/i18n";
 import { MAX_CV_BYTES } from "@/lib/apply/parse";
 import type { ScreeningQuestion } from "@/lib/screening/rules";
@@ -29,18 +29,40 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
     const { error } = await createClient().storage.from("cvs").uploadToSignedUrl(target.path, target.token, file, { contentType: file.type || "application/octet-stream" });
     setUpload(error ? { state: "error", path: "", name: file.name } : { state: "done", path: target.path, name: file.name });
   }
+  // After a failed submit, focus moves to the error summary so screen readers announce it (WCAG 3.3.1).
+  const summary = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (state.errors.length || state.missingQuestions.length) summary.current?.focus();
+  }, [state]);
   const v = state.values;
   const has = (e: ApplyState["errors"][number]) => state.errors.includes(e);
   const err = (e: ApplyState["errors"][number], id: string) =>
     has(e) ? <p id={id} className="text-sm text-red-700">{t.errors[e]}</p> : null;
   const generalErrors = (["duplicate", "closed", "server"] as const).filter(has);
+  // Every error with a link to its field.
+  const FIELD: Partial<Record<ApplyState["errors"][number], string>> = {
+    firstName: "f-firstName", lastName: "f-lastName", contact: "f-email", email: "f-email", phone: "f-phone",
+    consent: "f-consent", questions: questions.find((q) => state.missingQuestions.includes(q.id)) ? `f-q-${state.missingQuestions[0]}` : undefined,
+    cvSize: "f-cv", cvType: "f-cv",
+  };
+  const fieldErrors = state.errors.filter((e) => !(generalErrors as string[]).includes(e));
   const cvPath = upload.state === "done" ? upload.path : (v.cvPath ?? "");
 
   return (
     // key forces fresh defaultValues after an error round-trip (React resets forms after actions)
     <form key={JSON.stringify(state)} action={action} className="flex flex-col gap-5" noValidate={false}>
-      {generalErrors.length > 0 && (
-        <div role="alert" className="rounded-lg bg-red-50 p-4 text-red-900">{generalErrors.map((e) => <p key={e}>{t.errors[e]}</p>)}</div>
+      {(generalErrors.length > 0 || fieldErrors.length > 0) && (
+        <div ref={summary} tabIndex={-1} role="alert" aria-labelledby="err-h" className="rounded-lg bg-red-50 p-4 text-red-900 outline-offset-2">
+          {generalErrors.map((e) => <p key={e}>{t.errors[e]}</p>)}
+          {fieldErrors.length > 0 && (
+            <>
+              <p id="err-h" className="font-semibold">{tone === "du" ? (fieldErrors.length === 1 ? "Bitte prüf diesen Punkt:" : `Bitte prüf diese ${fieldErrors.length} Punkte:`) : fieldErrors.length === 1 ? "Bitte prüfen Sie diesen Punkt:" : `Bitte prüfen Sie diese ${fieldErrors.length} Punkte:`}</p>
+              <ul className="mt-1 list-disc pl-5">
+                {fieldErrors.map((e) => <li key={e}>{FIELD[e] ? <a href={`#${FIELD[e]}`} className="underline">{t.errors[e]}</a> : t.errors[e]}</li>)}
+              </ul>
+            </>
+          )}
+        </div>
       )}
       <input type="hidden" name="slug" value={slug} />
       {Object.entries(utm).map(([k, val]) => <input key={k} type="hidden" name={k} value={val} />)}
@@ -51,12 +73,12 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="grid gap-1">
           <span className="font-medium">{t.firstName}</span>
-          <input name="firstName" required autoComplete="given-name" defaultValue={v.firstName} className={input} aria-invalid={has("firstName") || undefined} aria-describedby={has("firstName") ? "e-fn" : undefined} />
+          <input id="f-firstName" name="firstName" required autoComplete="given-name" defaultValue={v.firstName} className={input} aria-invalid={has("firstName") || undefined} aria-describedby={has("firstName") ? "e-fn" : undefined} />
           {err("firstName", "e-fn")}
         </label>
         <label className="grid gap-1">
           <span className="font-medium">{t.lastName}</span>
-          <input name="lastName" required autoComplete="family-name" defaultValue={v.lastName} className={input} aria-invalid={has("lastName") || undefined} aria-describedby={has("lastName") ? "e-ln" : undefined} />
+          <input id="f-lastName" name="lastName" required autoComplete="family-name" defaultValue={v.lastName} className={input} aria-invalid={has("lastName") || undefined} aria-describedby={has("lastName") ? "e-ln" : undefined} />
           {err("lastName", "e-ln")}
         </label>
       </div>
@@ -66,12 +88,12 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="grid gap-1">
             <span>{t.email}</span>
-            <input name="email" type="email" autoComplete="email" inputMode="email" defaultValue={v.email} className={input} aria-invalid={has("email") || has("contact") || undefined} />
+            <input id="f-email" name="email" type="email" autoComplete="email" inputMode="email" defaultValue={v.email} className={input} aria-invalid={has("email") || has("contact") || undefined} aria-describedby={[has("email") && "e-em", has("contact") && "e-co"].filter(Boolean).join(" ") || undefined} />
             {err("email", "e-em")}
           </label>
           <label className="grid gap-1">
             <span>{t.phone}</span>
-            <input name="phone" type="tel" autoComplete="tel" inputMode="tel" defaultValue={v.phone} className={input} aria-invalid={has("phone") || has("contact") || undefined} />
+            <input id="f-phone" name="phone" type="tel" autoComplete="tel" inputMode="tel" defaultValue={v.phone} className={input} aria-invalid={has("phone") || has("contact") || undefined} aria-describedby={[has("phone") && "e-ph", has("contact") && "e-co"].filter(Boolean).join(" ") || undefined} />
             {err("phone", "e-ph")}
           </label>
         </div>
@@ -86,9 +108,10 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
             const name = `q_${q.id}`;
             const missing = state.missingQuestions.includes(q.id);
             return (
-              <div key={q.id} className={`grid gap-2 rounded-lg p-3 ${missing ? "bg-red-50" : "bg-white"}`}>
+              <div key={q.id} id={`f-q-${q.id}`} tabIndex={-1} className={`grid gap-2 rounded-lg p-3 ${missing ? "bg-red-50 ring-1 ring-red-300" : "bg-white"}`}>
+                {missing && <p id={`e-q-${q.id}`} className="text-sm font-medium text-red-700">Bitte beantworten.</p>}
                 {q.kind === "yes_no" ? (
-                  <fieldset>
+                  <fieldset aria-invalid={missing || undefined} aria-describedby={missing ? `e-q-${q.id}` : undefined}>
                     <legend className="mb-2">{q.question}{!q.required && <span className="ml-2 text-sm text-muted">({t.recommended})</span>}</legend>
                     <div className="flex gap-3">
                       {(["yes", "no"] as const).map((a) => (
@@ -102,7 +125,7 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
                 ) : q.kind === "choice" ? (
                   <label className="grid gap-2">
                     <span>{q.question}{!q.required && <span className="ml-2 text-sm text-muted">({t.recommended})</span>}</span>
-                    <select name={name} required={q.required} defaultValue={v[name] ?? ""} className={input}>
+                    <select name={name} required={q.required} defaultValue={v[name] ?? ""} className={input} aria-invalid={missing || undefined} aria-describedby={missing ? `e-q-${q.id}` : undefined}>
                       <option value="" disabled>{t.choose}</option>
                       {q.options?.map((o) => <option key={o} value={o}>{o}</option>)}
                     </select>
@@ -110,7 +133,7 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
                 ) : (
                   <label className="grid gap-2">
                     <span>{q.question}{!q.required && <span className="ml-2 text-sm text-muted">({t.recommended})</span>}</span>
-                    <input name={name} required={q.required} inputMode="decimal" defaultValue={v[name]} className={`${input} max-w-40`} />
+                    <input name={name} required={q.required} inputMode="decimal" defaultValue={v[name]} className={`${input} max-w-40`} aria-invalid={missing || undefined} aria-describedby={missing ? `e-q-${q.id}` : undefined} />
                   </label>
                 )}
               </div>
@@ -123,7 +146,7 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
         <span className="font-medium">{t.cv}</span>
         <span className="text-sm text-muted">{t.cvHint}</span>
         {/* no name: the file goes straight to storage, only its path is submitted */}
-        <input type="file" accept=".pdf,.docx,image/jpeg,image/png,image/webp,image/heic" className="text-base" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
+        <input id="f-cv" type="file" accept=".pdf,.docx,image/jpeg,image/png,image/webp,image/heic" className="text-base" onChange={(e) => onFile(e.currentTarget.files?.[0])} />
         <input type="hidden" name="cvPath" value={cvPath} />
         <p aria-live="polite" className="text-sm text-ink/80">
           {upload.state === "uploading" ? t.cvUploading : upload.state === "done" ? t.cvDone(upload.name) : ""}
@@ -135,7 +158,7 @@ export function ApplyForm({ slug, questions, utm, tone }: Props) {
 
       <div className="grid gap-3">
         <label className="flex items-start gap-3">
-          <input type="checkbox" name="processingConsent" required defaultChecked={v.processingConsent === "on"} className="mt-1 h-5 w-5 shrink-0" aria-invalid={has("consent") || undefined} />
+          <input id="f-consent" type="checkbox" name="processingConsent" required defaultChecked={v.processingConsent === "on"} className="mt-1 h-5 w-5 shrink-0" aria-invalid={has("consent") || undefined} />
           <span>{t.consent}</span>
         </label>
         {err("consent", "e-cn")}

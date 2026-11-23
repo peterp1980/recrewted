@@ -42,15 +42,17 @@ export function CareerSections({ doc, name, website, color, tone, jobs, preview 
   return (
     <div style={{ "--c": c, "--c-fg": onColor(c) } as React.CSSProperties} className="bg-white text-ink">
       <HeroBlock section={hero} doc={doc} name={name} jobs={jobs.length} nav={nav.map((s) => ({ id: s.id, label: navLabel(s) }))} />
-      <main>
+      <main id="inhalt" tabIndex={-1} className="outline-none">
         {rest.map((s) => (
           <SectionBlock key={s.id} section={s} tone={tone} jobs={jobs} preview={preview} first={s === rest[0]} jobsId={rest.find((x) => x.type === "jobs")?.id} />
         ))}
       </main>
       {!preview && jobs.length > 0 && rest.some((s) => s.type === "jobs") && (
-        <a href={`#${rest.find((s) => s.type === "jobs")!.id}`} className="fixed right-4 bottom-20 z-40 inline-flex items-center gap-2 rounded-full bg-[var(--c)] px-5 py-3 font-semibold text-[var(--c-fg)] shadow-xl md:hidden">
-          {t.jobsCount(jobs.length)}
-        </a>
+        <nav aria-label={t.openJobs} className="md:hidden">
+          <a href={`#${rest.find((s) => s.type === "jobs")!.id}`} className="fixed right-4 bottom-20 z-40 inline-flex items-center gap-2 rounded-full bg-[var(--c)] px-5 py-3 font-semibold text-[var(--c-fg)] shadow-xl">
+            {t.jobsCount(jobs.length)}
+          </a>
+        </nav>
       )}
       <footer className="border-t border-neutral-200">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-6 text-sm text-muted">

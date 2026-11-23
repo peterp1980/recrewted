@@ -22,7 +22,7 @@ export default function PackagesPage() {
               className={`relative flex flex-col gap-5 rounded-3xl p-7 ${featured ? "overflow-hidden bg-night text-white shadow-[0_30px_80px_-30px_rgb(29_192_209/0.5)] ring-1 ring-brand-500/40 md:-my-4 md:py-11" : "card-hover border border-neutral-200 bg-white shadow-sm"}`}
             >
               {featured && <div aria-hidden="true" className="hero-glow pointer-events-none absolute inset-0 opacity-60" />}
-              {featured && <span className="relative self-start rounded-full bg-accent-500 px-3 py-1 text-xs font-semibold text-white">Häufig gewählt</span>}
+              {featured && <span className="relative self-start rounded-full bg-accent-700 px-3 py-1 text-xs font-semibold text-white">Häufig gewählt</span>}
               <div className="relative">
                 <h2 className="font-display text-2xl font-bold">{p.name}</h2>
                 <p className={`mt-2 ${featured ? "text-white/80" : "text-ink/75"}`}>{p.text}</p>
